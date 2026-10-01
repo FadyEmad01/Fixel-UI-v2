@@ -1,0 +1,4 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "include": ["apple-folder/registry.json"]
+}

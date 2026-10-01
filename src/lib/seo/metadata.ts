@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 
-import {
-  brandConfig,
-  seoConfig,
-  urls,
-} from "@/config/site";
+import { brandConfig, seoConfig, urls } from "@/config/site";
 
 interface CreateMetadataOptions {
   title?: string;
@@ -25,13 +21,9 @@ export function createMetadata({
     ? `${title} — ${brandConfig.product.name}`
     : seoConfig.title;
 
-  const resolvedDescription =
-    description ?? seoConfig.description;
+  const resolvedDescription = description ?? seoConfig.description;
 
-  const canonical = new URL(
-    pathname,
-    urls.origin,
-  ).toString();
+  const canonical = new URL(pathname, urls.origin).toString();
 
   return {
     title: resolvedTitle,
