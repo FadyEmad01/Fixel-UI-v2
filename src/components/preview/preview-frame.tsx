@@ -5,10 +5,7 @@ interface PreviewFrameProps {
   className?: string;
 }
 
-export function PreviewFrame({
-  children,
-  className,
-}: PreviewFrameProps) {
+export function PreviewFrame({ children, className }: PreviewFrameProps) {
   return (
     <section
       className={[
