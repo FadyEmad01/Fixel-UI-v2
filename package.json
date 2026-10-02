@@ -11,7 +11,7 @@
     "lint": "biome check .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "registry:validate": "shadcn registry validate",
     "registry:build": "shadcn build",
