@@ -8,14 +8,11 @@ interface PreviewFrameProps {
 export function PreviewFrame({ children, className }: PreviewFrameProps) {
   return (
     <section
-      className={[
-        "relative overflow-hidden rounded-2xl border border-border bg-muted/30",
-        className,
-      ]
+      className={["relative overflow-hidden rounded-2xl bg-muted", className]
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="flex min-h-[420px] items-center justify-center p-10">
+      <div className="flex max-h-[520px] items-center justify-center p-10">
         {children}
       </div>
     </section>

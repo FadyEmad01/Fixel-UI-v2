@@ -15,7 +15,7 @@ export default async function AppleFolderPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="mx-auto w-full max-w-6xl px-6 py-16">
+      <div className="mx-auto w-full max-w-2xl px-6 py-16">
         <header className="mb-10">
           <p className="mb-3 text-sm text-muted-foreground">UI / Component</p>
 
