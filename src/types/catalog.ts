@@ -30,14 +30,9 @@ export const REGISTRY_TYPES = [
 
 export type RegistryType = (typeof REGISTRY_TYPES)[number];
 
-export const RESOURCE_STATUS = [
-  "draft",
-  "published",
-  "deprecated",
-] as const;
+export const RESOURCE_STATUS = ["draft", "published", "deprecated"] as const;
 
-export type ResourceStatus =
-  (typeof RESOURCE_STATUS)[number];
+export type ResourceStatus = (typeof RESOURCE_STATUS)[number];
 
 export interface CatalogItem {
   id: string;

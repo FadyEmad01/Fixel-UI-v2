@@ -7,9 +7,7 @@
       "name": "apple-folder",
       "title": "Apple Folder",
       "description": "An animated Apple-style folder component.",
-      "dependencies": [
-        "motion"
-      ],
+      "dependencies": ["motion"],
       "files": [
         {
           "path": "registry/ui/apple-folder/code/apple-folder.tsx",
@@ -18,11 +16,7 @@
       ],
       "meta": {
         "kind": "component",
-        "tags": [
-          "motion",
-          "svg",
-          "interactive"
-        ],
+        "tags": ["motion", "svg", "interactive"],
         "preview": {
           "renderer": "react",
           "source": "apple-folder"

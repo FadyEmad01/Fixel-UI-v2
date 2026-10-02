@@ -53,6 +53,7 @@ export default function Home() {
             }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
+            {/* biome-ignore lint/performance/noImgElement: Registry components stay framework-agnostic. */}
             <img
               src="https://7rx86aedq0.ufs.sh/f/CSYjwT5LIV1Yn8KYDlEq1LQry7bZewm2ucCfOltGFksIAn6J"
               alt="Preview Content"
