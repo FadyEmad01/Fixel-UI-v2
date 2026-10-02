@@ -1,12 +1,20 @@
 "use client";
 import { motion } from "motion/react";
 
-export default function Home() {
+interface AppleFolderProps {
+  className?: string;
+}
+
+export default function AppleFolder({ className }: AppleFolderProps) {
   const SVG_WIDTH = 940;
   const SVG_HEIGHT = 790;
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 p-10 flex flex-col justify-center items-center">
+    <div
+      className={`flex min-h-[420px] w-full h-full flex-col items-center justify-center bg-gray-100 p-10 ${
+        className ?? ""
+      }`}
+    >
       <motion.div
         className="flex flex-col gap-4 items-center cursor-pointer"
         initial="initial"

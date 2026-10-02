@@ -32,7 +32,7 @@ export default async function AppleFolderPage() {
           <section>
             <h2 className="mb-4 font-heading text-xl font-medium">Preview</h2>
 
-            <PreviewFrame>
+            <PreviewFrame fullscreenHref="/preview/apple-folder">
               <AppleFolder />
             </PreviewFrame>
           </section>
