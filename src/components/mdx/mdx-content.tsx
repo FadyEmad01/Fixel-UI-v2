@@ -8,7 +8,7 @@ function useMDXComponent(code: string) {
   }).default as React.ComponentType<{ components?: MDXComponents }>;
 }
 
-type MDXComponents = Record<string, React.ComponentType>;
+type MDXComponents = Record<string, unknown>;
 
 interface MDXContentProps {
   code: string;

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 const archivoHeading = Archivo({
   subsets: ["latin"],
   variable: "--font-heading",
+  display: "swap",
 });
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });

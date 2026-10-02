@@ -136,3 +136,74 @@
     /* @apply font-sans; */
   }
 }
+
+.typeset {
+  --typeset-font-body: var(--font-sans);
+  --typeset-font-heading: var(--font-heading);
+  --typeset-font-mono: var(--font-geist-mono);
+
+  --typeset-size: 1em;
+  --typeset-leading: 1.75;
+  --typeset-flow: 1.25em;
+}
+
+.shiki {
+  --shiki-light-bg: transparent;
+  --shiki-dark-bg: transparent;
+}
+
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+}
+
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark);
+}
+
+.shiki-styles .line-number {
+  @apply mr-6 ms-0.5 inline-block min-w-6 select-none text-left text-muted-foreground/50;
+}
+
+.shiki-styles .line.highlighted {
+  @apply border-l-2 border-blue-500 bg-blue-500/10 pl-[calc(1.25rem-2px)];
+}
+
+.shiki-styles .has-focused .line:not(.focused) {
+  @apply opacity-40 blur-[1.5px] transition-all duration-300;
+}
+
+.shiki-styles .has-focused:hover .line:not(.focused) {
+  @apply opacity-100 blur-none;
+}
+
+.shiki-styles .line.diff.add {
+  @apply border-l-2 border-green-500 bg-green-500/10 pl-[calc(1.25rem-2px)];
+}
+
+.shiki-styles .line.diff.add::before {
+  content: "+";
+  @apply mr-2 ml-1 text-green-500;
+}
+
+.shiki-styles .line.diff.remove {
+  @apply border-l-2 border-red-500 bg-red-500/10 pl-[calc(1.25rem-2px)];
+}
+
+.shiki-styles .line.diff.remove::before {
+  content: "-";
+  @apply mr-2 ml-1 text-red-500;
+}
+
+.shiki-styles .line.highlighted.error {
+  @apply border-l-2 border-red-500 bg-red-500/10;
+}
+
+.shiki-styles .line.highlighted.warning {
+  @apply border-l-2 border-yellow-500 bg-yellow-500/10;
+}
+
+.shiki-styles .highlighted-word {
+  @apply rounded-md bg-muted-foreground/5 border border-muted-foreground/20 px-1 py-0.5;
+}
