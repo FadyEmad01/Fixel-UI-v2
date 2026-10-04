@@ -1,14 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { PreviewViewport } from "./preview-types";
+import type { PreviewViewport as PreviewViewportType } from "./preview-types";
 
 interface PreviewViewportProps {
   children: ReactNode;
-  viewport: PreviewViewport;
+  viewport: PreviewViewportType;
 }
 
-const viewportStyles: Record<PreviewViewport, string> = {
+const viewportStyles: Record<PreviewViewportType, string> = {
   mobile: "max-w-[320px] w-full h-full",
   tablet: "max-w-[768px] w-full h-full",
   desktop: "w-full h-full",

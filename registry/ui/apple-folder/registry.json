@@ -17,8 +17,8 @@
         "kind": "component",
         "tags": ["motion", "svg", "interactive"],
         "preview": {
-          "renderer": "react",
-          "source": "apple-folder"
+          "renderer": "video",
+          "src": "./preview/apple-folder.mp4"
         },
         "sections": [
           {

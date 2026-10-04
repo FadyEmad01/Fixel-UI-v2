@@ -118,7 +118,6 @@
 
 "use client";
 
-import Link from "next/link";
 import {
   Fullscreen,
   Monitor,
@@ -126,6 +125,7 @@ import {
   Smartphone,
   Tablet,
 } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -138,7 +138,6 @@ interface PreviewToolbarProps {
   onViewportChange: (viewport: PreviewViewport) => void;
   fullscreenHref: string;
   onRefresh: () => void;
-  title?: string;
 }
 
 export function PreviewToolbar({
@@ -146,7 +145,6 @@ export function PreviewToolbar({
   onViewportChange,
   fullscreenHref,
   onRefresh,
-  title = "Preview",
 }: PreviewToolbarProps) {
   return (
     <div className="absolute z-50 right-3 top-3">

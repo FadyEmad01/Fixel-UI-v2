@@ -64,7 +64,7 @@
 //             Documentation
 //           </a>
 //         </div>
-//         {absoluteUrl("/collections/ui")}
+//         {absoluteUrl("/collections")}
 //       </main>
 //     </div>
 //   );

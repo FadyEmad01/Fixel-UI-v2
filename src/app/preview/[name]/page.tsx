@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-
+import Link from "next/link";
+import { PreviewRenderer } from "@/components/preview/preview-renderer";
 import { Button } from "@/components/ui/button";
 import { previewRegistry } from "@/registry/preview/registry";
-import { PreviewRenderer } from "@/components/preview/preview-renderer";
 
 interface PreviewPageProps {
   params: Promise<{

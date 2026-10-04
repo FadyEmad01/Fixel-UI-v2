@@ -86,14 +86,12 @@
 
 "use client";
 
-import { useState } from "react";
 import type { ReactNode } from "react";
+import { useState } from "react";
 
 import { PreviewToolbar } from "./preview-toolbar";
-
-import { PreviewViewport } from "./preview-viewport";
-
 import type { PreviewViewport as PreviewViewportType } from "./preview-types";
+import { PreviewViewport } from "./preview-viewport";
 
 interface PreviewFrameProps {
   children: ReactNode;

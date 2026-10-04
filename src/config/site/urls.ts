@@ -6,15 +6,6 @@ export const urls = {
   routes: {
     home: "/",
     collections: "/collections",
-
-    ui: "/collections/ui",
-    blocks: "/collections/blocks",
-    illustrations: "/collections/illustrations",
-    animations: "/collections/animations",
-    easings: "/collections/easings",
-    effects: "/collections/effects",
-    hooks: "/collections/hooks",
-    utilities: "/collections/utilities",
   },
 
   registry: {

@@ -20,6 +20,20 @@ type Doc = {
   status: CatalogItem["status"];
 };
 
+function normalizePreviewAssetPath(itemName: string, assetPath: string) {
+  if (
+    assetPath.startsWith("/") ||
+    assetPath.startsWith("http://") ||
+    assetPath.startsWith("https://") ||
+    assetPath.startsWith("data:") ||
+    assetPath.startsWith("blob:")
+  ) {
+    return assetPath;
+  }
+
+  return `/r/${itemName}/${assetPath.replace(/^\.\/+/, "")}`;
+}
+
 const registryMetaSchema = z.object({
   kind: z.enum([
     "component",
@@ -61,7 +75,22 @@ export function normalizeCatalogItem(
   doc: Doc | undefined,
 ): CatalogItem {
   const meta = registryMetaSchema.parse(registryItem.meta ?? {});
-  const preview = meta.preview;
+  const preview = {
+    ...meta.preview,
+    ...(meta.preview.src
+      ? {
+          src: normalizePreviewAssetPath(registryItem.name, meta.preview.src),
+        }
+      : {}),
+    ...(meta.preview.poster
+      ? {
+          poster: normalizePreviewAssetPath(
+            registryItem.name,
+            meta.preview.poster,
+          ),
+        }
+      : {}),
+  };
 
   return catalogItemSchema.parse({
     id: registryItem.name,

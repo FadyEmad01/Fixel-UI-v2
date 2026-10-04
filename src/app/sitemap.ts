@@ -1,8 +1,11 @@
 import type { MetadataRoute } from "next";
 
 import { urls } from "@/config/site";
+import { getCatalog } from "@/lib/catalog";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const catalog = await getCatalog();
+
   return [
     {
       url: urls.origin,
@@ -11,37 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${urls.origin}${urls.routes.collections}`,
     },
-
-    {
-      url: `${urls.origin}${urls.routes.ui}`,
-    },
-
-    {
-      url: `${urls.origin}${urls.routes.blocks}`,
-    },
-
-    {
-      url: `${urls.origin}${urls.routes.illustrations}`,
-    },
-
-    {
-      url: `${urls.origin}${urls.routes.animations}`,
-    },
-
-    {
-      url: `${urls.origin}${urls.routes.easings}`,
-    },
-
-    {
-      url: `${urls.origin}${urls.routes.effects}`,
-    },
-
-    {
-      url: `${urls.origin}${urls.routes.hooks}`,
-    },
-
-    {
-      url: `${urls.origin}${urls.routes.utilities}`,
-    },
+    ...catalog.map((item) => ({
+      url: `${urls.origin}/collections/${item.id}`,
+    })),
   ];
 }

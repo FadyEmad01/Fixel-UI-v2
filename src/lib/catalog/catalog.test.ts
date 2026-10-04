@@ -11,8 +11,8 @@ describe("catalog adapter", () => {
       registryType: "registry:component",
       tags: ["motion", "svg", "interactive"],
       preview: {
-        renderer: "react",
-        source: "apple-folder",
+        renderer: "video",
+        src: "/r/apple-folder/preview/apple-folder.mp4",
       },
       sections: [
         { type: "preview" },
