@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Archivo, Geist, Geist_Mono, Inter } from "next/font/google";
 import "@/styles/globals.css";
 import { cn } from "@/lib/utils";
+import Lenis from "@/components/providers/Lenis";
+import Navbar from "@/components/site/layout/Navbar";
 
 const archivoHeading = Archivo({
   subsets: ["latin"],
@@ -44,7 +46,12 @@ export default function RootLayout({
         archivoHeading.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <Lenis>
+          <Navbar />
+          {children}
+        </Lenis>
+      </body>
     </html>
   );
 }

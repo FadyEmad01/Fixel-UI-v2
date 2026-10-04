@@ -84,7 +84,7 @@ export default async function CollectionsPage({
         </h1>
       </header>
 
-      <hr className="my-8 border-border" />
+      <hr className="my-6 border-border" />
 
       {/* Collection filters */}
       <div className="mx-auto w-full overflow-hidden">
@@ -94,7 +94,7 @@ export default async function CollectionsPage({
             <Link
               href="/collections"
               className={[
-                "inline-flex shrink-0 items-center rounded-[8px] px-3.5 py-1",
+                "inline-flex shrink-0 items-center rounded-full px-3.5 py-1",
                 "text-base font-medium tracking-wider capitalize",
                 "transition-colors",
                 !selectedCollection
@@ -115,7 +115,7 @@ export default async function CollectionsPage({
                   key={key}
                   href={`/collections?type=${key}`}
                   className={[
-                    "inline-flex shrink-0 items-center rounded-[8px] px-3.5 py-1",
+                    "inline-flex shrink-0 items-center rounded-full px-3.5 py-1",
                     "text-base font-medium tracking-wider capitalize",
                     "transition-colors",
                     isActive
