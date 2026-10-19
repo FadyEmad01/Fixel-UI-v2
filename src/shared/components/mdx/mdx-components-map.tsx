@@ -1,0 +1,209 @@
+import type { MDXComponents } from "mdx/types";
+import type { ComponentProps } from "react";
+
+import { cn } from "@/lib/utils";
+
+import {
+  CodeBlock,
+  type CodeBlockProps,
+  Pre,
+} from "@/shared/components/code-block";
+import { Callout } from "./callout";
+import { Step, Steps } from "./steps";
+
+/* -------------------------------------------------------------------------- */
+/* Prose element overrides                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Styles for raw HTML elements emitted by MDX.
+ *
+ * These are intentionally explicit Tailwind classes rather than a typography
+ * plugin so the docs keep Fixel's own type rhythm and colour tokens.
+ */
+
+function Heading({
+  as: Tag,
+  className,
+  ...props
+}: ComponentProps<"h2"> & {
+  as: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+}) {
+  return (
+    <Tag
+      className={cn(
+        "scroll-m-20 font-semibold tracking-tight text-foreground",
+        Tag === "h1" && "mt-8 mb-4 text-3xl",
+        Tag === "h2" && "mt-10 mb-3 border-b pb-2 text-2xl",
+        Tag === "h3" && "mt-8 mb-2 text-xl",
+        Tag === "h4" && "mt-6 mb-2 text-lg",
+        Tag === "h5" && "mt-6 mb-2 text-base",
+        Tag === "h6" &&
+          "mt-4 mb-2 text-sm font-medium tracking-wider text-muted-foreground uppercase",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+const baseComponents: MDXComponents = {
+  h1: (props) => <Heading as="h1" {...props} />,
+  h2: (props) => <Heading as="h2" {...props} />,
+  h3: (props) => <Heading as="h3" {...props} />,
+  h4: (props) => <Heading as="h4" {...props} />,
+  h5: (props) => <Heading as="h5" {...props} />,
+  h6: (props) => <Heading as="h6" {...props} />,
+
+  p: ({ className, ...props }) => (
+    <p
+      className={cn("my-4 leading-7 text-muted-foreground", className)}
+      {...props}
+    />
+  ),
+
+  a: ({ className, ...props }) => (
+    <a
+      className={cn(
+        "font-medium text-foreground decoration-border underline underline-offset-4 transition-colors hover:decoration-foreground",
+        className,
+      )}
+      {...props}
+    />
+  ),
+
+  ul: ({ className, ...props }) => (
+    <ul
+      className={cn(
+        "my-4 ms-6 list-disc space-y-2 text-muted-foreground",
+        className,
+      )}
+      {...props}
+    />
+  ),
+
+  ol: ({ className, ...props }) => (
+    <ol
+      className={cn(
+        "my-4 ms-6 list-decimal space-y-2 text-muted-foreground",
+        className,
+      )}
+      {...props}
+    />
+  ),
+
+  li: ({ className, ...props }) => (
+    <li className={cn("leading-7 [&>p]:my-0", className)} {...props} />
+  ),
+
+  blockquote: ({ className, ...props }) => (
+    <blockquote
+      className={cn(
+        "my-6 border-s-2 border-border ps-4 text-muted-foreground italic",
+        className,
+      )}
+      {...props}
+    />
+  ),
+
+  hr: ({ className, ...props }) => (
+    <hr className={cn("my-8 border-border", className)} {...props} />
+  ),
+
+  strong: ({ className, ...props }) => (
+    <strong
+      className={cn("font-semibold text-foreground", className)}
+      {...props}
+    />
+  ),
+
+  // Tables come from `remark-gfm`.
+  table: ({ className, ...props }) => (
+    <div className="my-6 w-full overflow-x-auto rounded-lg border">
+      <table
+        className={cn("w-full border-collapse text-sm", className)}
+        {...props}
+      />
+    </div>
+  ),
+  thead: ({ className, ...props }) => (
+    <thead className={cn("bg-muted/50", className)} {...props} />
+  ),
+  th: ({ className, ...props }) => (
+    <th
+      className={cn(
+        "border-b px-4 py-2 text-start font-medium text-foreground",
+        className,
+      )}
+      {...props}
+    />
+  ),
+  td: ({ className, ...props }) => (
+    <td
+      className={cn(
+        "border-b border-border/60 px-4 py-2 align-top text-muted-foreground last:border-b-0",
+        className,
+      )}
+      {...props}
+    />
+  ),
+  tr: ({ className, ...props }) => (
+    <tr className={cn("even:bg-muted/20", className)} {...props} />
+  ),
+
+  // Inline code gets the pill treatment. A fenced block's <code> carries a
+  // `language-…` class and lives inside `CodeBlock`, where the pill would be
+  // wrong, so it keeps only the font.
+  code: ({ className, ...props }) =>
+    /(^|\s)language-/.test(className ?? "") ? (
+      <code {...props} className={cn("font-mono", className)} />
+    ) : (
+      <code
+        {...props}
+        className={cn(
+          "rounded border bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground",
+          className,
+        )}
+      />
+    ),
+
+  // Fenced code is wrapped by the shared `CodeBlock` shell (copy button,
+  // scroll viewport, optional title bar). Token highlighting lands once a
+  // Shiki rehype step is wired into the MDX pipeline.
+  pre: (props: ComponentProps<"pre"> & CodeBlockProps) => (
+    <CodeBlock {...props}>
+      <Pre>{props.children}</Pre>
+    </CodeBlock>
+  ),
+
+  // A native image accepts Markdown image syntax without needing width/height
+  // metadata. Always provide meaningful alt text in the MDX source.
+  img: ({ className, alt, ...props }) => (
+    // biome-ignore lint/performance/noImgElement: next/image needs width/height metadata that arbitrary Markdown image syntax cannot provide
+    <img
+      {...props}
+      alt={alt ?? ""}
+      className={cn(
+        "my-6 block h-auto max-w-full rounded-xl border",
+        className,
+      )}
+    />
+  ),
+
+  // Shared authoring blocks available in every MDX file.
+  Steps,
+  Step,
+  Callout,
+};
+
+/**
+ * The shared MDX component map.
+ *
+ * This file must not import feature-specific blocks (component previews,
+ * easing playgrounds). Those are supplied at the feature boundary via the
+ * `components` prop, which keeps the shared layer free of feature
+ * dependencies.
+ */
+export function getBaseMdxComponents(overrides?: MDXComponents): MDXComponents {
+  return { ...baseComponents, ...overrides };
+}

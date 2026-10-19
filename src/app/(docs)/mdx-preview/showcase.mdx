@@ -1,0 +1,108 @@
+# MDX component preview
+
+Edit the components in `src/shared/components/mdx/` and refresh this page. Every element is styled with inline Tailwind classes wired to your theme tokens.
+
+## Headings and inline styles
+
+### Heading level three
+
+#### Heading level four
+
+##### Heading level five
+
+###### Heading level six
+
+This paragraph shows **strong text**, *emphasis*, ~~strikethrough~~, an [internal link](/), an [external link](https://nextjs.org/docs/app/guides/mdx), and `inline code`.
+
+Another paragraph provides spacing between blocks. Keep text readable in both light and dark mode, on desktop and on mobile.
+
+## Lists
+
+- First bullet point
+- Second bullet point with **bold text**
+  - A nested bullet point
+- Third bullet point
+
+1. First ordered step
+2. Second ordered step
+3. Third ordered step
+
+- [x] Completed task
+- [ ] Task still open
+
+> A blockquote helps you check borders, spacing, and contrast. It may also contain **strong text**.
+
+---
+
+## Tables
+
+| Element | File to edit | What to check |
+| :-- | :-- | :-- |
+| Prose | `mdx-components-map.tsx` | Spacing and typography |
+| Callout | `callout.tsx` | Variants and accessibility |
+| Steps | `steps.tsx` | Numbers and nested content |
+
+## Code
+
+Inline `pnpm dev` should look different from a fenced code block. Fenced code renders inside the shared `CodeBlock` shell (copy button, scroll viewport) but is **not syntax highlighted** yet; a Shiki rehype step can be added to the MDX pipeline later.
+
+```tsx
+export function Greeting({ name }: { name: string }) {
+  return <strong>Hello, {name}!</strong>
+}
+```
+
+```bash
+pnpm dev
+pnpm build
+```
+
+## Image
+
+![Abstract lavender and blue shapes used to check MDX image layout](/mdx-preview/sample.svg)
+
+## Callouts
+
+<Callout type="info" title="Information">
+
+Use this for supporting information. It can contain an [inline link](/) and `inline code`.
+
+</Callout>
+
+<Callout type="tip" title="Helpful tip">
+
+Keep components small and put the theme mappings in one CSS file.
+
+</Callout>
+
+<Callout type="warning" title="Warning">
+
+Check this variant's contrast in **light and dark mode**.
+
+</Callout>
+
+<Callout type="danger" title="Important">
+
+This is a visual variant, not an alert that interrupts screen reader users when the page loads.
+
+</Callout>
+
+## Steps
+
+<Steps>
+  <Step title="Install MDX">
+
+Run the `pnpm` commands from your project root.
+
+  </Step>
+  <Step title="Edit your theme">
+
+Adjust the inline Tailwind classes in `mdx-components-map.tsx`. The layout should still work on a narrow screen.
+
+  </Step>
+  <Step title="Add your content">
+
+Write another `.mdx` file and render it in a page; the shared component map styles it automatically.
+
+  </Step>
+</Steps>

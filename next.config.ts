@@ -1,3 +1,4 @@
+import createMDX from "@next/mdx";
 import { withPostHogConfig } from "@posthog/nextjs-config";
 import type { NextConfig } from "next";
 
@@ -8,6 +9,7 @@ type NextConfigFunction = (
 
 const nextConfig: NextConfig = {
   /* config options here */
+  pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
   experimental: {
     agentFeedback: true,
   },
@@ -23,6 +25,22 @@ const nextConfig: NextConfig = {
     },
   },
 };
+
+// MDX pipeline for imported `.mdx` files (e.g. docs pages). remark-gfm adds
+// tables, task lists, and strikethrough; rehype plugins (syntax highlighting)
+// can be appended later. Applied first so every export path — including the
+// PostHog fail-open fallbacks below — keeps MDX support.
+// Note: Turbopack cannot cross JavaScript plugin functions into Rust, so
+// plugins are referenced by package-name string (see "Using Plugins with
+// Turbopack" in the Next.js MDX guide).
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: ["remark-gfm"],
+    rehypePlugins: [],
+  },
+});
+
+const withMDXConfig = withMDX(nextConfig);
 
 const personalApiKey = process.env.POSTHOG_API_KEY ?? "";
 const projectId = process.env.POSTHOG_PROJECT_ID;
@@ -60,7 +78,7 @@ const posthogConfig = {
 // returns a config function, hence the cast through unknown.
 const withPostHog = (() => {
   try {
-    return withPostHogConfig(nextConfig, posthogConfig) as unknown as
+    return withPostHogConfig(withMDXConfig, posthogConfig) as unknown as
       | NextConfig
       | NextConfigFunction;
   } catch (error) {
@@ -68,7 +86,7 @@ const withPostHog = (() => {
       "[next.config] PostHog setup failed; building without source map upload.",
       error,
     );
-    return nextConfig;
+    return withMDXConfig;
   }
 })();
 
@@ -85,6 +103,6 @@ export default async function config(
       "[next.config] PostHog config hook failed; building without source map upload.",
       error,
     );
-    return nextConfig;
+    return withMDXConfig;
   }
 }
