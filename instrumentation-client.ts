@@ -19,7 +19,7 @@ if (!posthogKey) {
 } else {
   posthog.init(posthogKey, {
     api_host: posthogHost,
-    defaults: "2026-01-30",
+    defaults: "2026-05-30",
     capture_exceptions: true,
     debug: process.env.NODE_ENV === "development",
     logs: {
