@@ -33,13 +33,13 @@ function Heading({
     <Tag
       className={cn(
         "scroll-m-20 font-semibold tracking-tight text-foreground",
-        Tag === "h1" && "mt-8 mb-4 text-3xl",
+        Tag === "h1" && "mt-8 mb-4 text-3xl chroma-text chroma-text-animate-once",
         Tag === "h2" && "mt-10 mb-3 border-b pb-2 text-2xl",
         Tag === "h3" && "mt-8 mb-2 text-xl",
         Tag === "h4" && "mt-6 mb-2 text-lg",
         Tag === "h5" && "mt-6 mb-2 text-base",
         Tag === "h6" &&
-          "mt-4 mb-2 text-sm font-medium tracking-wider text-muted-foreground uppercase",
+        "mt-4 mb-2 text-sm font-medium tracking-wider text-muted-foreground uppercase",
         className,
       )}
       {...props}
@@ -161,7 +161,7 @@ const baseComponents: MDXComponents = {
       <code
         {...props}
         className={cn(
-          "rounded border bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground",
+          "rounded bg-neutral-200/70 dark:bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground",
           className,
         )}
       />
@@ -184,7 +184,7 @@ const baseComponents: MDXComponents = {
       {...props}
       alt={alt ?? ""}
       className={cn(
-        "my-6 block h-auto max-w-full rounded-xl border",
+        "my-6 block h-auto max-w-full rounded-xl",
         className,
       )}
     />
