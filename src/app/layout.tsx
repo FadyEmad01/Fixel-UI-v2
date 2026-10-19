@@ -3,6 +3,7 @@ import { Archivo, Geist, Geist_Mono, Inter } from "next/font/google";
 import "../styles/globals.css";
 import { getSiteUrl, site } from "@/lib/site";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next"
 
 const archivoHeading = Archivo({
   subsets: ["latin"],
@@ -74,6 +75,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
     >
       <body className="min-h-full flex flex-col">{children}</body>
+      <Analytics />
     </html>
   );
 }

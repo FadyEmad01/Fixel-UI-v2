@@ -24,6 +24,18 @@
       "sourceType": "github",
       "skillPath": "skills/find-skills/SKILL.md",
       "computedHash": "b146008599c31057cef1c145774cea5d5afb30e8f43fa802e47a4b461419aaaf"
+    },
+    "posthog-debugger": {
+      "source": "posthog/skills",
+      "sourceType": "github",
+      "skillPath": "skills/team/customer-success/posthog-debugger/SKILL.md",
+      "computedHash": "cdc1953a781d227e1bf3bdca46938e601650c83173eb3d59be2c475cf995f54a"
+    },
+    "posthog-instrumentation": {
+      "source": "posthog/posthog-for-claude",
+      "sourceType": "github",
+      "skillPath": "skills/posthog-instrumentation/SKILL.md",
+      "computedHash": "2651cf543b937bec0e08d50486e13ed3176ccd285477738d3edb47c356eeeac9"
     }
   }
 }
