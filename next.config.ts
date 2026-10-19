@@ -24,27 +24,28 @@ const nextConfig: NextConfig = {
   },
 };
 
-const personalApiKey = process.env.POSTHOG_PERSONAL_API_KEY ?? "";
+const personalApiKey = process.env.POSTHOG_API_KEY ?? "";
+const projectId = process.env.POSTHOG_PROJECT_ID;
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+const uploadConfigured = Boolean(personalApiKey && projectId);
 
-// Source map upload is silently skipped when the key is missing, which leaves
-// production stack traces minified with no error to explain why. Make it loud.
-if (!personalApiKey && process.env.NODE_ENV === "production") {
+// Source map upload is silently skipped when credentials are missing, which
+// leaves production stack traces minified with no error to explain why.
+if (!uploadConfigured && process.env.NODE_ENV === "production") {
   console.warn(
-    "[next.config] POSTHOG_PERSONAL_API_KEY is not set, so PostHog source map upload is disabled. " +
-      "Production stack traces will stay minified. Set it in .env.local " +
-      "(needs the 'error tracking write' and 'organization read' scopes).",
+    "[next.config] POSTHOG_API_KEY and POSTHOG_PROJECT_ID are required for PostHog source map upload. " +
+      "Production stack traces will stay minified until they are configured at build time.",
   );
 }
 
 const posthogConfig = {
   personalApiKey, // Personal API key with "error tracking write" + "organization read" scopes
-  envId: "308401", // Your environment ID (project ID) — deprecated, prefer projectId
-  host: "https://eu.i.posthog.com", // Your PostHog instance URL (EU)
+  projectId,
+  host: posthogHost,
   sourcemaps: {
-    // Upload only when a personal API key is configured (see .env.example).
-    // With an empty key we skip instead of throwing, so `next dev` and
-    // contributor builds still work; the warning above covers production.
-    enabled: Boolean(personalApiKey),
+    // With incomplete credentials we skip instead of throwing, so `next dev`
+    // and contributor builds still work; the warning above covers production.
+    enabled: uploadConfigured,
     deleteAfterUpload: true,
     // project and version default to git repo name and current git commit
   },
