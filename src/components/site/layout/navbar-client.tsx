@@ -3,7 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 // import { useLenis } from "lenis/react";
 import { MenuIconSmall } from "@/components/icons/menuSmall";
@@ -31,7 +37,10 @@ type NavbarClientProps = { githubStars: ReactNode };
 
 type NavLink = { title: string; href: string };
 
-type NavigateHandler = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+type NavigateHandler = (
+  e: React.MouseEvent<HTMLAnchorElement>,
+  href: string,
+) => void;
 
 const NAV_LINKS: NavLink[] = [
   { title: "Home", href: "/" },
@@ -49,11 +58,36 @@ const CONTACT = {
 
 // Mock search data — dormant until SearchUnit gets a real search UI.
 const MOCK_SEARCH_DATA = [
-  { id: 1, title: "Button Component", category: "Components", href: "/docs/button" },
-  { id: 2, title: "Navbar Component", category: "Components", href: "/docs/navbar" },
-  { id: 3, title: "Getting Started", category: "Guide", href: "/docs/getting-started" },
-  { id: 4, title: "Framer Motion Basics", category: "Tutorials", href: "/tutorials/motion" },
-  { id: 5, title: "Dark Mode Setup", category: "Guide", href: "/docs/dark-mode" },
+  {
+    id: 1,
+    title: "Button Component",
+    category: "Components",
+    href: "/docs/button",
+  },
+  {
+    id: 2,
+    title: "Navbar Component",
+    category: "Components",
+    href: "/docs/navbar",
+  },
+  {
+    id: 3,
+    title: "Getting Started",
+    category: "Guide",
+    href: "/docs/getting-started",
+  },
+  {
+    id: 4,
+    title: "Framer Motion Basics",
+    category: "Tutorials",
+    href: "/tutorials/motion",
+  },
+  {
+    id: 5,
+    title: "Dark Mode Setup",
+    category: "Guide",
+    href: "/docs/dark-mode",
+  },
   { id: 6, title: "Showcase Gallery", category: "Pages", href: "/showcase" },
 ];
 
@@ -204,7 +238,12 @@ type MenuToggleButtonProps = {
   menuRef: RefObject<MenuIconHandle | null>;
 };
 
-function MenuToggleButton({ isOpen, disabled, onClick, menuRef }: MenuToggleButtonProps) {
+function MenuToggleButton({
+  isOpen,
+  disabled,
+  onClick,
+  menuRef,
+}: MenuToggleButtonProps) {
   return (
     <button
       type="button"
@@ -215,7 +254,9 @@ function MenuToggleButton({ isOpen, disabled, onClick, menuRef }: MenuToggleButt
       aria-expanded={isOpen}
     >
       <MenuIconSmall ref={menuRef} />
-      <span className="whitespace-nowrap font-archivo text-lg">{isOpen ? "Close" : "Menu"}</span>
+      <span className="whitespace-nowrap font-archivo text-lg">
+        {isOpen ? "Close" : "Menu"}
+      </span>
     </button>
   );
 }
@@ -267,7 +308,11 @@ type SearchToggleButtonProps = {
   onClick: () => void;
 };
 
-function SearchToggleButton({ isSearchOpen, disabled, onClick }: SearchToggleButtonProps) {
+function SearchToggleButton({
+  isSearchOpen,
+  disabled,
+  onClick,
+}: SearchToggleButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -314,10 +359,11 @@ function PanelCard({ scrollable = false, children }: PanelCardProps) {
   return (
     <div className="min-h-0 flex-1">
       <div
-        className={`flex h-full min-h-0 flex-col rounded-lg bg-neutral-200/70 px-4 pt-10 pb-4 text-black sm:px-6 sm:pt-14 dark:bg-muted/80 dark:text-white ${scrollable
-          ? "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          : ""
-          }`}
+        className={`flex h-full min-h-0 flex-col rounded-lg bg-neutral-200/70 px-4 pt-10 pb-4 text-black sm:px-6 sm:pt-14 dark:bg-muted/80 dark:text-white ${
+          scrollable
+            ? "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            : ""
+        }`}
       >
         {children}
       </div>
@@ -365,8 +411,9 @@ function SearchPlaceholder() {
     <div className="w-full h-full flex items-center justify-center">
       <span
         ref={textRef}
-        className={`chroma-text chroma-text-animate inline-block font-archivo text-6xl leading-[1.2] ${isInView ? "chroma-text-animate-once" : ""
-          }`}
+        className={`chroma-text chroma-text-animate inline-block font-archivo text-6xl leading-[1.2] ${
+          isInView ? "chroma-text-animate-once" : ""
+        }`}
       >
         coming soon
       </span>
@@ -458,7 +505,13 @@ type UnitShellProps = {
  * `disabled` (while animating) strips pointer events so nothing inside can
  * interrupt the animation mid-flight.
  */
-function PanelShell({ isOpen, disabled, onAnimStart, onAnimComplete, children }: UnitShellProps & { children: ReactNode }) {
+function PanelShell({
+  isOpen,
+  disabled,
+  onAnimStart,
+  onAnimComplete,
+  children,
+}: UnitShellProps & { children: ReactNode }) {
   return (
     <motion.div
       variants={panelVariants}
@@ -466,8 +519,9 @@ function PanelShell({ isOpen, disabled, onAnimStart, onAnimComplete, children }:
       initial="closed"
       onAnimationStart={onAnimStart}
       onAnimationComplete={onAnimComplete}
-      className={`absolute top-[48px] left-0 z-10 flex h-[calc(100svh-80px)] w-full flex-col gap-2 backdrop-blur-[20px] ${isOpen && !disabled ? "" : "pointer-events-none"
-        }`}
+      className={`absolute top-[48px] left-0 z-10 flex h-[calc(100svh-80px)] w-full flex-col gap-2 backdrop-blur-[20px] ${
+        isOpen && !disabled ? "" : "pointer-events-none"
+      }`}
       aria-hidden={!isOpen}
     >
       {children}
@@ -477,7 +531,13 @@ function PanelShell({ isOpen, disabled, onAnimStart, onAnimComplete, children }:
 
 type MenuUnitProps = UnitShellProps & { onNavigate: NavigateHandler };
 
-function MenuUnit({ isOpen, disabled, onAnimStart, onAnimComplete, onNavigate }: MenuUnitProps) {
+function MenuUnit({
+  isOpen,
+  disabled,
+  onAnimStart,
+  onAnimComplete,
+  onNavigate,
+}: MenuUnitProps) {
   return (
     <PanelShell
       isOpen={isOpen}
@@ -495,7 +555,12 @@ function MenuUnit({ isOpen, disabled, onAnimStart, onAnimComplete, onNavigate }:
 
 type SearchUnitProps = UnitShellProps;
 
-function SearchUnit({ isOpen, disabled, onAnimStart, onAnimComplete }: SearchUnitProps) {
+function SearchUnit({
+  isOpen,
+  disabled,
+  onAnimStart,
+  onAnimComplete,
+}: SearchUnitProps) {
   return (
     <PanelShell
       isOpen={isOpen}
@@ -522,7 +587,8 @@ export default function NavbarClient({ githubStars }: NavbarClientProps) {
   const pathname = usePathname();
   // const lenis = useLenis();
 
-  const { isAnimating, lock, handleAnimStart, handleAnimComplete } = useAnimationLock();
+  const { isAnimating, lock, handleAnimStart, handleAnimComplete } =
+    useAnimationLock();
   const { isScrolled, hasMounted } = useScrolledNavbar();
   usePanelLifecycle(activePanel, menuRef, () => setSearchQuery(""));
 
@@ -530,7 +596,7 @@ export default function NavbarClient({ githubStars }: NavbarClientProps) {
   const filteredResults = MOCK_SEARCH_DATA.filter(
     (item) =>
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      item.category.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const isMenuOpen = activePanel === "menu";

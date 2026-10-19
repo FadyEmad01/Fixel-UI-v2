@@ -33,7 +33,7 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
 
   const handleSelect = (key: ThemeKey) => {
     setActiveTheme(key); // Optimistic instant UI update
-    setTheme(key);       // Update next-themes context
+    setTheme(key); // Update next-themes context
   };
 
   // Find target button index for transform translation
@@ -46,7 +46,7 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
       <div
         className={cn(
           "relative flex h-8 w-[128px] items-center rounded-full bg-input/90 p-1 ring-1 ring-border",
-          className
+          className,
         )}
       />
     );
@@ -56,7 +56,7 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
     <div
       className={cn(
         "relative isolate flex h-8 rounded-full bg-input/90 p-1 ring-1 ring-border",
-        className
+        className,
       )}
     >
       {/* Single persistent sliding background pill */}
@@ -87,7 +87,7 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
             <Icon
               className={cn(
                 "m-auto h-4 w-4 transition-colors duration-200",
-                isActive ? "text-foreground" : "text-muted-foreground"
+                isActive ? "text-foreground" : "text-muted-foreground",
               )}
             />
           </button>

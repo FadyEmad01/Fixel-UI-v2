@@ -38,7 +38,10 @@ export default function NotFound() {
         <Button asChild>
           {/* <Link href="/ui">Browse components</Link> */}
         </Button>
-        <Button asChild className="bg-neutral-200/70 font-archivo text-black hover:bg-neutral-200/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-800/90">
+        <Button
+          asChild
+          className="bg-neutral-200/70 font-archivo text-black hover:bg-neutral-200/90 dark:bg-neutral-800/70 dark:text-white dark:hover:bg-neutral-800/90"
+        >
           <Link href="/">Go home</Link>
         </Button>
       </div>
