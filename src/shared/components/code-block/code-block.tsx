@@ -1,129 +1,45 @@
-"use client";
+import { highlight, languageLabel } from "@/shared/lib/shiki/highlight";
 
-import { cn } from "cn";
-import {
-  type ComponentProps,
-  type CSSProperties,
-  createContext,
-  type HTMLAttributes,
-  type ReactNode,
-  use,
-  useRef,
-} from "react";
+import { type CodeBlockProps, CodeBlockShell } from "./code-block-shell";
 
-import { CopyButton, getPreText } from "./copy-button";
-
-export const InCodeTabsContext = createContext(false);
-
-export type CodeBlockProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
-  title?: ReactNode;
-  icon?: ReactNode;
-  allowCopy?: boolean | "true" | "false";
-  viewportClassName?: string;
-  "data-line-numbers"?: boolean;
-  "data-line-numbers-start"?: number;
+export type ServerCodeBlockProps = Pick<
+  CodeBlockProps,
+  | "title"
+  | "icon"
+  | "allowCopy"
+  | "viewportClassName"
+  | "className"
+  | "data-line-numbers"
+  | "data-line-numbers-start"
+> & {
+  /** Source to render. A single trailing newline is trimmed. */
+  code: string;
+  /** Language tag, e.g. `tsx`, `bash`, `json`. Unknown tags fall back to plain text. */
+  lang?: string;
 };
 
-export function Pre({ className, ...props }: ComponentProps<"pre">) {
-  return (
-    <pre
-      {...props}
-      className={cn(
-        // `[&_code]` resets neutralize the inline-code pill from the shared
-        // `code` override — inside a Shiki block the wrapper carries no
-        // `language-` class, so it would otherwise get border/background.
-        "w-max min-w-full *:flex *:flex-col [&_code]:border-0 [&_code]:bg-transparent [&_code]:px-0 [&_code]:py-0 [&_code]:text-inherit focus-visible:outline-none",
-        className,
-      )}
-    />
-  );
-}
-
-export function CodeBlock({
+/**
+ * Server-rendered code block.
+ *
+ * Highlighting happens here (at build / request time on the server) so the
+ * browser never ships a syntax highlighter. The interactive shell is a small
+ * client island (`CodeBlockShell`) that only handles copy and scrolling.
+ */
+export async function CodeBlock({
+  code,
+  lang,
   title,
-  icon,
-  allowCopy = true,
-  viewportClassName,
-  className,
-  style,
-  children,
   ...props
-}: CodeBlockProps) {
-  const inTabs = use(InCodeTabsContext);
-  const areaRef = useRef<HTMLDivElement>(null);
-  const copy = allowCopy !== false && allowCopy !== "false";
-
-  // The scrollable code viewport deliberately keeps role="region" + tabIndex=0
-  // (WCAG scrollable-region technique) — see the override in biome.json.
-  const viewport = (
-    <div
-      ref={areaRef}
-      role="region"
-      tabIndex={0}
-      data-slot="codeblock-viewport"
-      className={cn(
-        "fd-scroll-container max-h-[600px] overscroll-x-none overflow-auto py-3.5 text-[13px] leading-relaxed focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset focus-visible:outline-none",
-        viewportClassName,
-      )}
-      style={
-        {
-          ...(!title && copy && !inTabs
-            ? { "--padding-right": "calc(var(--spacing) * 10)" }
-            : {}),
-          counterSet: props["data-line-numbers"]
-            ? `line ${Number(props["data-line-numbers-start"] ?? 1) - 1}`
-            : undefined,
-        } as CSSProperties
-      }
-    >
-      {children}
-    </div>
-  );
-
-  if (inTabs) {
-    return (
-      <div
-        {...props}
-        dir="ltr"
-        tabIndex={-1}
-        className={cn("shiki not-prose text-sm", className)}
-        style={style}
-      >
-        {viewport}
-      </div>
-    );
-  }
+}: ServerCodeBlockProps) {
+  const normalized = code.replace(/\n$/, "");
+  const html = await highlight(normalized, lang);
 
   return (
-    <figure
+    <CodeBlockShell
+      code={normalized}
+      html={html}
+      title={title ?? languageLabel(lang)}
       {...props}
-      dir="ltr"
-      tabIndex={-1}
-      data-slot="codeblock"
-      className={cn(
-        "shiki group not-prose relative my-6 overflow-hidden rounded-xl bg-accent text-sm",
-        className,
-      )}
-      style={style}
-    >
-      {title ? (
-        <div className="flex h-10 items-center gap-2 pr-2.5 pl-4 text-muted-foreground">
-          {icon && <div className="[&_svg]:size-3.5">{icon}</div>}
-          <figcaption className="flex-1 truncate">{title}</figcaption>
-          {copy && <CopyButton getText={() => getPreText(areaRef.current)} />}
-        </div>
-      ) : (
-        copy && (
-          <div className="absolute top-3 right-3 z-2">
-            <CopyButton getText={() => getPreText(areaRef.current)} />
-          </div>
-        )
-      )}
-      <div className={cn("p-1", title && "pt-0")}>
-        <div className="overflow-hidden rounded-lg bg-background">
-          {viewport}
-        </div>
-      </div>
-    </figure>
+    />
   );
 }

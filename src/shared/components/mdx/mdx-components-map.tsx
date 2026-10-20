@@ -3,12 +3,8 @@ import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
-import {
-  CodeBlock,
-  type CodeBlockProps,
-  Pre,
-} from "@/shared/components/code-block";
 import { Callout } from "./callout";
+import { MdxPre } from "./mdx-pre";
 import { Step, Steps } from "./steps";
 
 /* -------------------------------------------------------------------------- */
@@ -33,7 +29,8 @@ function Heading({
     <Tag
       className={cn(
         "scroll-m-20 font-semibold tracking-tight text-foreground font-heading",
-        Tag === "h1" && "mt-8 mb-4 text-3xl chroma-text chroma-text-animate-once",
+        Tag === "h1" &&
+        "mt-8 mb-4 text-3xl chroma-text chroma-text-animate-once",
         Tag === "h2" && "mt-10 mb-3 border-b pb-2 text-2xl",
         Tag === "h3" && "mt-8 mb-2 text-xl",
         Tag === "h4" && "mt-6 mb-2 text-lg",
@@ -117,38 +114,74 @@ const baseComponents: MDXComponents = {
     />
   ),
 
-  // Tables come from `remark-gfm`.
   table: ({ className, ...props }) => (
-    <div className="my-6 w-full overflow-x-auto rounded-lg border">
+    <div
+      role="region"
+      aria-label="Scrollable table"
+      tabIndex={0}
+      className={cn(
+        "my-7 w-full overflow-x-auto rounded-xl border border-border/70",
+        "focus-visible:outline-none focus-visible:ring-2",
+        "focus-visible:ring-ring/50 focus-visible:ring-inset",
+      )}
+    >
       <table
-        className={cn("w-full border-collapse text-sm", className)}
         {...props}
+        className={cn(
+          "w-full min-w-[32rem] border-collapse text-start text-sm",
+          className,
+        )}
       />
     </div>
   ),
+
   thead: ({ className, ...props }) => (
-    <thead className={cn("bg-muted/50", className)} {...props} />
+    <thead
+      {...props}
+      className={cn("bg-muted/60", className)}
+    />
   ),
+
+  tbody: ({ className, ...props }) => (
+    <tbody
+      {...props}
+      className={cn("[&_tr:last-child>td]:border-b-0", className)}
+    />
+  ),
+
   th: ({ className, ...props }) => (
     <th
+      {...props}
       className={cn(
-        "border-b px-4 py-2 text-start font-medium text-foreground",
+        "border-b border-border/70 px-4 py-3 text-start",
+        "font-semibold text-foreground",
+        "whitespace-nowrap",
         className,
       )}
-      {...props}
     />
   ),
+
   td: ({ className, ...props }) => (
     <td
+      {...props}
       className={cn(
-        "border-b border-border/60 px-4 py-2 align-top text-muted-foreground last:border-b-0",
+        "border-b border-border/60 px-4 py-3 align-top",
+        "text-muted-foreground",
         className,
       )}
-      {...props}
     />
   ),
+
   tr: ({ className, ...props }) => (
-    <tr className={cn("even:bg-muted/20", className)} {...props} />
+    <tr
+      {...props}
+      className={cn(
+        "transition-colors even:bg-muted/20",
+        "hover:bg-muted/30 [&:last-child>td]:border-b-0",
+        "motion-reduce:transition-none",
+        className,
+      )}
+    />
   ),
 
   // Inline code gets the pill treatment. A fenced block's <code> carries a
@@ -167,24 +200,20 @@ const baseComponents: MDXComponents = {
       />
     ),
 
-  // Fenced code is wrapped by the shared `CodeBlock` shell (copy button,
-  // scroll viewport, optional title bar). Token highlighting lands once a
-  // Shiki rehype step is wired into the MDX pipeline.
-  pre: (props: ComponentProps<"pre"> & CodeBlockProps) => (
-    <CodeBlock {...props}>
-      <Pre>{props.children}</Pre>
-    </CodeBlock>
-  ),
+  // Fenced code is intercepted by `MdxPre`, which extracts the raw source
+  // and hands it to the server-rendered Shiki `CodeBlock`.
+  pre: (props: ComponentProps<"pre">) => <MdxPre {...props} />,
 
-  // A native image accepts Markdown image syntax without needing width/height
-  // metadata. Always provide meaningful alt text in the MDX source.
-  img: ({ className, alt, ...props }) => (
-    // biome-ignore lint/performance/noImgElement: next/image needs width/height metadata that arbitrary Markdown image syntax cannot provide
+  // Native images keep Markdown's standard syntax and arbitrary dimensions.
+  img: ({ className, alt, loading, decoding, ...props }) => (
+    // biome-ignore lint/performance/noImgElement: Markdown images do not necessarily include dimensions required by next/image.
     <img
       {...props}
       alt={alt ?? ""}
+      loading={loading ?? "lazy"}
+      decoding={decoding ?? "async"}
       className={cn(
-        "my-6 block h-auto max-w-full rounded-xl",
+        "my-7 block h-auto max-w-full rounded-xl border border-border/40",
         className,
       )}
     />

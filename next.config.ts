@@ -36,17 +36,7 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
   options: {
     remarkPlugins: ["remark-gfm"],
-    rehypePlugins: [
-      [
-        "@shikijs/rehype",
-        {
-          themes: { light: "github-light", dark: "github-dark" },
-          // Emit --shiki-light/--shiki-dark CSS variables instead of picking one
-          // theme; globals.css switches them under the `.dark` ancestor.
-          defaultColor: false,
-        },
-      ],
-    ],
+    rehypePlugins: [],
   },
 });
 

@@ -1,7 +1,6 @@
 export {
-  CodeBlock,
   type CodeBlockProps,
+  CodeBlockShell,
   InCodeTabsContext,
-  Pre,
-} from "./code-block";
+} from "./code-block-shell";
 export { CopyButton, getPreText } from "./copy-button";
