@@ -27,8 +27,8 @@ const nextConfig: NextConfig = {
 };
 
 // MDX pipeline for imported `.mdx` files (e.g. docs pages). remark-gfm adds
-// tables, task lists, and strikethrough; rehype plugins (syntax highlighting)
-// can be appended later. Applied first so every export path — including the
+// tables, task lists, and strikethrough; @shikijs/rehype highlights fenced
+// code at compile time. Applied first so every export path — including the
 // PostHog fail-open fallbacks below — keeps MDX support.
 // Note: Turbopack cannot cross JavaScript plugin functions into Rust, so
 // plugins are referenced by package-name string (see "Using Plugins with
@@ -36,7 +36,17 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
   options: {
     remarkPlugins: ["remark-gfm"],
-    rehypePlugins: [],
+    rehypePlugins: [
+      [
+        "@shikijs/rehype",
+        {
+          themes: { light: "github-light", dark: "github-dark" },
+          // Emit --shiki-light/--shiki-dark CSS variables instead of picking one
+          // theme; globals.css switches them under the `.dark` ancestor.
+          defaultColor: false,
+        },
+      ],
+    ],
   },
 });
 

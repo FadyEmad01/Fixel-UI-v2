@@ -32,7 +32,7 @@ function Heading({
   return (
     <Tag
       className={cn(
-        "scroll-m-20 font-semibold tracking-tight text-foreground",
+        "scroll-m-20 font-semibold tracking-tight text-foreground font-heading",
         Tag === "h1" && "mt-8 mb-4 text-3xl chroma-text chroma-text-animate-once",
         Tag === "h2" && "mt-10 mb-3 border-b pb-2 text-2xl",
         Tag === "h3" && "mt-8 mb-2 text-xl",

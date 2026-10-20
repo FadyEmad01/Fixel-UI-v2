@@ -29,7 +29,10 @@ export function Pre({ className, ...props }: ComponentProps<"pre">) {
     <pre
       {...props}
       className={cn(
-        "w-max min-w-full *:flex *:flex-col focus-visible:outline-none",
+        // `[&_code]` resets neutralize the inline-code pill from the shared
+        // `code` override — inside a Shiki block the wrapper carries no
+        // `language-` class, so it would otherwise get border/background.
+        "w-max min-w-full *:flex *:flex-col [&_code]:border-0 [&_code]:bg-transparent [&_code]:px-0 [&_code]:py-0 [&_code]:text-inherit focus-visible:outline-none",
         className,
       )}
     />

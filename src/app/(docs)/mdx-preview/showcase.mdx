@@ -44,7 +44,7 @@ Another paragraph provides spacing between blocks. Keep text readable in both li
 
 ## Code
 
-Inline `pnpm dev` should look different from a fenced code block. Fenced code renders inside the shared `CodeBlock` shell (copy button, scroll viewport) but is **not syntax highlighted** yet; a Shiki rehype step can be added to the MDX pipeline later.
+Inline `pnpm dev` should look different from a fenced code block. Fenced code is syntax highlighted with Shiki (`github-light` / `github-dark` themes) and rendered inside the shared `CodeBlock` shell with a copy button and scroll viewport.
 
 ```tsx
 export function Greeting({ name }: { name: string }) {

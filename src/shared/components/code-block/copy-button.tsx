@@ -7,14 +7,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 /**
  * Recover the copyable source from a rendered code viewport.
  *
- * Highlighted code emits one element per line (`[data-line]`); reading the
- * lines keeps gutters, line numbers, and copy affordances out of the copied
- * text. Falls back to the raw text content for unhighlighted blocks.
+ * Highlighted code emits one element per line (`[data-line]` or `.line`,
+ * depending on the transformer); reading the lines keeps gutters, line
+ * numbers, and copy affordances out of the copied text. Falls back to the
+ * raw text content for unhighlighted blocks.
  */
 export function getPreText(area: HTMLElement | null): string {
   if (!area) return "";
 
-  const lines = Array.from(area.querySelectorAll("[data-line]"));
+  const lines = Array.from(area.querySelectorAll("[data-line], .line"));
   if (lines.length > 0) {
     return lines
       .map((line) => line.textContent ?? "")
