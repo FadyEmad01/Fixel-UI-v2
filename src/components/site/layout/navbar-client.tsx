@@ -317,7 +317,7 @@ function SearchToggleButton({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="hidden lg:flex h-[40px] w-[40px] items-center justify-center rounded-lg bg-neutral-200/70 text-black backdrop-blur-[20px] transition-opacity hover:opacity-70 disabled:cursor-wait disabled:hover:opacity-100 dark:bg-muted/80 dark:text-white"
+      className="hidden lg:flex h-[40px] w-[40px] items-center justify-center rounded-lg bg-my-primary/70 text-black backdrop-blur-[20px] transition-opacity hover:opacity-70 disabled:cursor-wait disabled:hover:opacity-100 dark:bg-muted/80 dark:text-white"
       aria-label="Toggle Search"
     >
       {isSearchOpen ? (
@@ -359,7 +359,7 @@ function PanelCard({ scrollable = false, children }: PanelCardProps) {
   return (
     <div className="min-h-0 flex-1">
       <div
-        className={`flex h-full min-h-0 flex-col rounded-lg bg-neutral-200/70 px-4 pt-10 pb-4 text-black sm:px-6 sm:pt-14 dark:bg-muted/80 dark:text-white ${
+        className={`flex h-full min-h-0 flex-col rounded-lg bg-my-primary/70 px-4 pt-10 pb-4 text-black sm:px-6 sm:pt-14 dark:bg-muted/80 dark:text-white ${
           scrollable
             ? "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             : ""
@@ -430,7 +430,7 @@ function SearchPlaceholder() {
  */
 function PanelFooter() {
   return (
-    <div className="shrink-0 rounded-lg bg-neutral-200/70 text-black dark:bg-muted/80 dark:text-white">
+    <div className="shrink-0 rounded-lg bg-my-primary/70 text-black dark:bg-muted/80 dark:text-white">
       <div className="flex h-full flex-wrap items-center justify-between gap-4 px-4 py-5 sm:px-6">
         <div className="flex flex-wrap items-end gap-6 sm:gap-12">
           <div className="flex flex-col gap-1">
@@ -648,7 +648,7 @@ export default function NavbarClient({ githubStars }: NavbarClientProps) {
         initial="closed"
         onAnimationStart={handleAnimStart}
         onAnimationComplete={handleAnimComplete}
-        className="relative z-20 flex h-[40px] max-w-[calc(100vw-40px)] items-center rounded-lg bg-neutral-200/70 py-1.5 pl-3 pr-3 text-sm font-medium text-black backdrop-blur-[20px] will-change-[width] dark:bg-muted/80 dark:text-white [--navbar-closed-width:300px] sm:[--navbar-closed-width:360px]"
+        className="relative z-20 flex h-[40px] max-w-[calc(100vw-40px)] items-center rounded-lg bg-my-primary/70 py-1.5 pl-3 pr-3 text-sm font-medium text-black backdrop-blur-[20px] will-change-[width] dark:bg-muted/80 dark:text-white [--navbar-closed-width:300px] sm:[--navbar-closed-width:360px]"
       >
         <MenuToggleButton
           isOpen={isAnyPanelOpen}

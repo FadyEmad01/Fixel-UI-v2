@@ -106,3 +106,45 @@ Write another `.mdx` file and render it in a page; the shared component map styl
 
   </Step>
 </Steps>
+
+## Type table
+
+<TypeTable
+  id="demo-props"
+  type={{
+    open: {
+      type: "boolean",
+      default: "false",
+      required: true,
+      description: "Whether the tooltip is visible.",
+      typeDescription: "Controlled open state",
+    },
+    onOpenChange: {
+      type: "(open: boolean) => void",
+      description: "Called whenever the open state changes.",
+      parameters: [{ name: "open", description: "The next open state." }],
+      returns: "void",
+    },
+    side: {
+      type: '"top" | "right" | "bottom" | "left"',
+      default: '"bottom"',
+      typeDescription: "Preferred placement relative to the trigger.",
+      typeDescriptionLink: "/",
+    },
+    sideOffset: {
+      type: "number",
+      default: "8",
+      description: "Distance in pixels between the tooltip and its trigger.",
+    },
+    collisionPadding: {
+      type: "number | Partial<Record<'top' | 'right' | 'bottom' | 'left', number>>",
+      default: "16",
+      description: "Keeps the tooltip inside the viewport on small screens.",
+    },
+    legacyBehavior: {
+      type: "boolean",
+      deprecated: true,
+      description: "Render a single nested anchor element.",
+    },
+  }}
+/>

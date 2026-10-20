@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function MdxPreviewPage() {
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-5 py-12 sm:px-8 sm:py-20">
-      <article className="mx-auto w-full max-w-[75ch]">
+    <main className="mx-auto w-full min-h-screen max-w-5xl px-5 py-12 sm:px-8 sm:py-20">
+      <article className="mx-auto w-full max-w-2xl">
         <Showcase />
       </article>
     </main>

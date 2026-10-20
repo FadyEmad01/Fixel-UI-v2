@@ -1,11 +1,14 @@
 import type { MDXComponents } from "mdx/types";
+import Link from "next/link";
 import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
 import { Callout } from "./callout";
+import { isExternalHref } from "./link-utils";
 import { MdxPre } from "./mdx-pre";
 import { Step, Steps } from "./steps";
+import { TypeTable } from "./type-table";
 
 /* -------------------------------------------------------------------------- */
 /* Prose element overrides                                                    */
@@ -30,13 +33,13 @@ function Heading({
       className={cn(
         "scroll-m-20 font-semibold tracking-tight text-foreground font-heading",
         Tag === "h1" &&
-        "mt-8 mb-4 text-3xl chroma-text chroma-text-animate-once",
+          "mt-8 mb-4 text-3xl chroma-text chroma-text-animate-once",
         Tag === "h2" && "mt-10 mb-3 border-b pb-2 text-2xl",
         Tag === "h3" && "mt-8 mb-2 text-xl",
         Tag === "h4" && "mt-6 mb-2 text-lg",
         Tag === "h5" && "mt-6 mb-2 text-base",
         Tag === "h6" &&
-        "mt-4 mb-2 text-sm font-medium tracking-wider text-muted-foreground uppercase",
+          "mt-4 mb-2 text-sm font-medium tracking-wider text-muted-foreground uppercase",
         className,
       )}
       {...props}
@@ -59,15 +62,20 @@ const baseComponents: MDXComponents = {
     />
   ),
 
-  a: ({ className, ...props }) => (
-    <a
-      className={cn(
-        "font-medium text-foreground decoration-border underline underline-offset-4 transition-colors hover:decoration-foreground",
-        className,
-      )}
-      {...props}
-    />
-  ),
+  // Internal links go through `next/link` (client-side navigation);
+  // absolute/protocol-relative URLs keep the plain anchor.
+  a: ({ className, href, ...props }) => {
+    const classes = cn(
+      "font-medium text-my-secondary underline transition-colors hover:text-my-secondary/70",
+      className,
+    );
+
+    if (href && !isExternalHref(href)) {
+      return <Link href={href} className={classes} {...props} />;
+    }
+
+    return <a {...props} href={href} className={classes} />;
+  },
 
   ul: ({ className, ...props }) => (
     <ul
@@ -114,21 +122,26 @@ const baseComponents: MDXComponents = {
     />
   ),
 
+  // Tables — remark-gfm
   table: ({ className, ...props }) => (
     <div
       role="region"
       aria-label="Scrollable table"
       tabIndex={0}
       className={cn(
-        "my-7 w-full overflow-x-auto rounded-xl border border-border/70",
-        "focus-visible:outline-none focus-visible:ring-2",
-        "focus-visible:ring-ring/50 focus-visible:ring-inset",
+        "my-7 block w-full min-w-0 max-w-full",
+        "overflow-x-auto overflow-y-hidden overscroll-x-contain",
+        "rounded-xl border border-my-primary/70",
+        "[-webkit-overflow-scrolling:touch]",
+        "focus-visible:outline-none",
+        "focus-visible:ring-2 focus-visible:ring-ring/50",
+        "focus-visible:ring-inset",
       )}
     >
       <table
         {...props}
         className={cn(
-          "w-full min-w-[32rem] border-collapse text-start text-sm",
+          "w-max min-w-full border-collapse text-start text-sm bg-my-primary/70",
           className,
         )}
       />
@@ -136,10 +149,7 @@ const baseComponents: MDXComponents = {
   ),
 
   thead: ({ className, ...props }) => (
-    <thead
-      {...props}
-      className={cn("bg-muted/60", className)}
-    />
+    <thead {...props} className={cn("bg-my-primary/70", className)} />
   ),
 
   tbody: ({ className, ...props }) => (
@@ -153,9 +163,9 @@ const baseComponents: MDXComponents = {
     <th
       {...props}
       className={cn(
-        "border-b border-border/70 px-4 py-3 text-start",
-        "font-semibold text-foreground",
         "whitespace-nowrap",
+        "border-b border-border/70 px-4 py-3",
+        "text-start font-semibold text-foreground",
         className,
       )}
     />
@@ -165,8 +175,9 @@ const baseComponents: MDXComponents = {
     <td
       {...props}
       className={cn(
-        "border-b border-border/60 px-4 py-3 align-top",
-        "text-muted-foreground",
+        "border-b border-border/60 px-4 py-3",
+        "align-top text-muted-foreground",
+        "[overflow-wrap:anywhere]",
         className,
       )}
     />
@@ -176,8 +187,9 @@ const baseComponents: MDXComponents = {
     <tr
       {...props}
       className={cn(
-        "transition-colors even:bg-muted/20",
-        "hover:bg-muted/30 [&:last-child>td]:border-b-0",
+        "transition-colors",
+        "even:bg-muted/20 hover:bg-muted/30",
+        "[&:last-child>td]:border-b-0",
         "motion-reduce:transition-none",
         className,
       )}
@@ -194,7 +206,7 @@ const baseComponents: MDXComponents = {
       <code
         {...props}
         className={cn(
-          "rounded bg-neutral-200/70 dark:bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground",
+          "rounded bg-my-primary dark:bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground",
           className,
         )}
       />
@@ -213,7 +225,7 @@ const baseComponents: MDXComponents = {
       loading={loading ?? "lazy"}
       decoding={decoding ?? "async"}
       className={cn(
-        "my-7 block h-auto max-w-full rounded-xl border border-border/40",
+        "my-7 block h-auto max-w-full rounded-xl border border-border/40 ring-4 ring-my-primary/70",
         className,
       )}
     />
@@ -223,6 +235,7 @@ const baseComponents: MDXComponents = {
   Steps,
   Step,
   Callout,
+  TypeTable,
 };
 
 /**

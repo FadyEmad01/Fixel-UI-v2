@@ -66,7 +66,7 @@ export function CodeBlockShell({
       tabIndex={0}
       data-slot="codeblock-viewport"
       className={cn(
-        "fd-scroll-container max-h-[600px] overscroll-x-none overflow-auto py-3.5 text-[13px] leading-relaxed focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset focus-visible:outline-none",
+        "max-h-[600px] overscroll-x-none overflow-auto text-[13px] leading-relaxed focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset focus-visible:outline-none",
         viewportClassName,
       )}
       style={
@@ -122,7 +122,7 @@ export function CodeBlockShell({
       style={style}
     >
       {title ? (
-        <div className="flex h-10 items-center gap-2 pr-2.5 pl-4 text-muted-foreground">
+        <div className="flex h-8 items-center gap-2 pr-2.5 pl-4 text-muted-foreground bg-my-primary/70">
           {icon && <div className="[&_svg]:size-3.5">{icon}</div>}
           <figcaption className="flex-1 truncate">{title}</figcaption>
           {copy && <CopyButton getText={() => getPreText(areaRef.current)} />}
@@ -134,7 +134,7 @@ export function CodeBlockShell({
           </div>
         )
       )}
-      <div className={cn("p-1", title && "pt-0")}>
+      <div className={cn("p-1 bg-my-primary/70", title && "pt-0")}>
         <div className="overflow-hidden rounded-lg bg-background">
           {viewport}
         </div>

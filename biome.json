@@ -47,6 +47,17 @@
           }
         }
       }
+    },
+    {
+      "includes": ["src/shared/components/mdx/**"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noNoninteractiveTabindex": "off",
+            "useSemanticElements": "off"
+          }
+        }
+      }
     }
   ]
 }
