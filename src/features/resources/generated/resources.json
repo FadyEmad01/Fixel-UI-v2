@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-10-22T18:26:30.339Z",
+  "resources": [
+    {
+      "url": "https://ui.shadcn.com/",
+      "normalizedUrl": "https://ui.shadcn.com/",
+      "name": "shadcn/ui",
+      "title": "shadcn/ui - The Foundation for your Design System",
+      "description": "Composable, accessible components with thoughtful defaults. Build your own component library with code you can customize, extend, and make your own.",
+      "image": "https://ui.shadcn.com/og?title=The%20Foundation%20for%20your%20Design%20System&description=Composable%2C%20accessible%20components%20with%20thoughtful%20defaults.%20Build%20your%20own%20component%20library%20with%20code%20you%20can%20customize%2C%20extend%2C%20and%20make%20your%20own.",
+      "icon": "https://ui.shadcn.com/apple-touch-icon.png",
+      "siteName": "shadcn/ui",
+      "themeColor": "#ffffff",
+      "finalUrl": "https://ui.shadcn.com/",
+      "status": "ok",
+      "fetchedAt": "2026-10-22T18:09:29.793Z",
+      "lastError": null
+    }
+  ]
+}

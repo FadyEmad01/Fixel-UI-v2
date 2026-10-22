@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "resources:sync": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/features/resources/scripts/sync-resources.mts",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/features/resources/scripts/lib/"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
@@ -42,6 +44,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "node-html-parser": "^9.0.5",
     "shadcn": "^4.22.1",
     "tailwindcss": "^4",
     "typescript": "^5"

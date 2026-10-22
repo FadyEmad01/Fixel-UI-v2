@@ -1,20 +1,20 @@
 "use client";
 
+import { Search, SearchX } from "lucide-react";
+import { AnimatePresence, motion, useInView } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  type ReactNode,
+  type RefObject,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
-  type RefObject,
 } from "react";
-import { AnimatePresence, motion, useInView } from "motion/react";
+import type { MenuIconHandle } from "@/components/icons/menu";
 // import { useLenis } from "lenis/react";
 import { MenuIconSmall } from "@/components/icons/menuSmall";
-import { MenuIconHandle } from "@/components/icons/menu";
-import { Search, SearchX } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme/theme-toggle";
 
 /* ==========================================================================
@@ -44,6 +44,7 @@ type NavigateHandler = (
 
 const NAV_LINKS: NavLink[] = [
   { title: "Home", href: "/" },
+  { title: "Resources", href: "/resources" },
   // { title: "UI", href: "/ui" },
   // { title: "Showcase", href: "/showcase" },
   // { title: "About", href: "/about" },
