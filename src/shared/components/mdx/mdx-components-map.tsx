@@ -112,7 +112,7 @@ const baseComponents: MDXComponents = {
   ),
 
   hr: ({ className, ...props }) => (
-    <hr className={cn("my-8 border-border", className)} {...props} />
+    <hr className={cn("my-8 border-1 border-primary/10", className)} {...props} />
   ),
 
   strong: ({ className, ...props }) => (
@@ -206,7 +206,7 @@ const baseComponents: MDXComponents = {
       <code
         {...props}
         className={cn(
-          "rounded bg-my-primary dark:bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground",
+          "rounded bg-my-primary/70 dark:bg-muted px-1.5 py-0.5 font-mono text-[0.85em] text-foreground",
           className,
         )}
       />

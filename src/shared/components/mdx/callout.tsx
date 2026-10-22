@@ -234,19 +234,19 @@ const calloutStyles: Record<CalloutType, CalloutStyle> = {
   },
 
   tip: {
-    accent: "bg-emerald-500/50",
+    accent: "bg-emerald-600/50",
     icon: Lightbulb,
     iconColor: "text-emerald-600 dark:text-emerald-400",
   },
 
   warning: {
-    accent: "bg-amber-500/50",
+    accent: "bg-amber-600/50",
     icon: AlertTriangle,
     iconColor: "text-amber-600 dark:text-amber-400",
   },
 
   danger: {
-    accent: "bg-red-500/50",
+    accent: "bg-red-600/50",
     icon: OctagonAlert,
     iconColor: "text-red-600 dark:text-red-400",
   },
