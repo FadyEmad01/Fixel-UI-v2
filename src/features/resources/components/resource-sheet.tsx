@@ -396,7 +396,7 @@ export function ResourceSheet({
                 </div>
               </section>
 
-              <div className="shrink-0 px-1.5">
+              <div className="shrink-0 px-1">
                 <Button
                   asChild
                   className="h-11 w-full rounded-full bg-my-secondary text-sm font-medium text-my-primary hover:bg-my-secondary/85"
@@ -431,7 +431,7 @@ export function ResourceSheet({
               disabled={availableUrls.length < 2}
               aria-label="Previous resource"
               title="Previous resource (←)"
-              className="size-10 shrink-0 rounded-full bg-my-primary text-[#211f1c] shadow-sm hover:bg-white/85 hover:text-[#211f1c] disabled:opacity-40"
+              className="size-10 shrink-0 rounded-full bg-my-primary text-[#211f1c] shadow-sm hover:bg-white/85 hover:text-[#211f1c] disabled:opacity-40 px-8"
             >
               <ArrowLeft aria-hidden="true" />
             </Button>
@@ -473,7 +473,7 @@ export function ResourceSheet({
               disabled={availableUrls.length < 2}
               aria-label="Next resource"
               title="Next resource (→)"
-              className="size-10 shrink-0 rounded-full bg-[#211f1c] text-white shadow-sm hover:bg-[#211f1c]/85 hover:text-white disabled:opacity-40"
+              className="size-10 shrink-0 rounded-full bg-[#211f1c] text-white shadow-sm hover:bg-[#211f1c]/85 hover:text-white disabled:opacity-40 px-8"
             >
               <ArrowRight aria-hidden="true" />
             </Button>
