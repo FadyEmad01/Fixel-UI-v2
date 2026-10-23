@@ -56,7 +56,9 @@
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "node-html-parser": "^9.0.5",
+    "plaiceholder": "^3.0.0",
     "shadcn": "^4.22.1",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

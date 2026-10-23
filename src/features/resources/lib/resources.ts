@@ -36,6 +36,7 @@ function merge(entry: ResourceSeed): Resource {
     title: cached?.title ?? null,
     description: cached?.description ?? null,
     image: cached?.image ?? null,
+    blurDataUrl: cached?.blurDataUrl ?? null,
     icon: cached?.icon ?? null,
     siteName: cached?.siteName ?? null,
     themeColor: cached?.themeColor ?? null,

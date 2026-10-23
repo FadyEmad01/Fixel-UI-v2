@@ -157,6 +157,7 @@ import * as React from "react";
 
 import type { Resource } from "../lib/types";
 import { Highlight } from "./highlight";
+import { ResourceImage } from "./resource-image";
 
 /**
  * One resource card.
@@ -182,7 +183,11 @@ export function ResourceCard({
   return (
     <article className="group relative min-w-0 rounded-xl">
       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-        <CardMedia resource={resource} />
+        <ResourceImage
+          image={resource.image}
+          blurDataUrl={resource.blurDataUrl}
+          name={resource.name}
+        />
       </div>
 
       <div className="mt-3 flex-col items-start justify-between gap-3 px-0.5">
@@ -239,28 +244,6 @@ export function ResourceCard({
   );
 }
 
-function CardMedia({ resource }: { resource: Resource }) {
-  const [failed, setFailed] = React.useState(false);
-
-  if (!resource.image || failed)
-    return <ResourceFallback name={resource.name} />;
-
-  return (
-    // The image is an arbitrary remote URL from the snapshot; `next/image`
-    // would need a fixed remotePatterns allowlist per host.
-    // biome-ignore lint/performance/noImgElement: metadata images come from arbitrary curated hosts.
-    <img
-      src={resource.image}
-      alt=""
-      loading="lazy"
-      decoding="async"
-      referrerPolicy="no-referrer"
-      onError={() => setFailed(true)}
-      className="size-full object-cover"
-    />
-  );
-}
-
 /**
  * A site's own favicon, shown at text size.
  *
@@ -287,16 +270,3 @@ export function SiteIcon({ icon }: { icon: string | null }) {
   );
 }
 
-/** Quiet letter tile for sites with no OG image (or one that fails to load). */
-export function ResourceFallback({ name }: { name: string }) {
-  return (
-    <div className="flex size-full items-center justify-center bg-gradient-to-br from-muted to-muted/40">
-      <span
-        aria-hidden="true"
-        className="font-heading text-3xl font-semibold text-muted-foreground/50"
-      >
-        {name.trim().charAt(0).toUpperCase() || "?"}
-      </span>
-    </div>
-  );
-}

@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/sheet";
 import type { Resource } from "../lib/types";
 import { normalizeResourceUrl, resourceHost } from "../lib/url";
-import { ResourceFallback, SiteIcon } from "./resource-card";
+import { SiteIcon } from "./resource-card";
+import { ResourceImage } from "./resource-image";
 
 /** How many pagination dots are shown at once; the window follows the active one. */
 const DOT_WINDOW = 7;
@@ -274,7 +275,7 @@ export function ResourceSheet({
             size="icon"
             aria-label="Close resource"
             title="Close (Esc)"
-            className="absolute top-5.5 right-6 z-20 size-9 rounded-full bg-my-primary text-foreground opacity-100  transition hover:bg-my-primary/70 backdrop-blur-2xl hover:text-[#211f1c] focus-visible:ring-0 border-none"
+            className="absolute top-5.5 right-6 z-20 size-9 rounded-full bg-my-primary text-foreground opacity-100 transition hover:bg-my-primary/70 backdrop-blur-2xl hover:text-[#211f1c] focus-visible:ring-1 focus-visible:ring-my-bg border-none"
           >
             <X aria-hidden="true" />
           </Button>
@@ -341,10 +342,13 @@ export function ResourceSheet({
           {resource && (
             <div className="flex min-h-0 flex-1 flex-col gap-4">
               <div className="relative aspect-video max-h-[38dvh] w-full shrink-0 overflow-hidden rounded-[20px] bg-my-bg">
-                <PreviewImage
+                <ResourceImage
                   key={resource.image ?? "fallback"}
                   image={resource.image}
+                  blurDataUrl={resource.blurDataUrl}
                   name={resource.name}
+                  alt={`${resource.name} preview`}
+                  loading="eager"
                 />
               </div>
 
@@ -356,7 +360,7 @@ export function ResourceSheet({
               >
                 <div className="flex flex-col gap-4 px-1.5 pb-2">
                   <SheetHeader className="space-y-1.5 p-0 text-left">
-                    <SheetTitle className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.02em] text-[#211f1c]">
+                    <SheetTitle className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.02em] text-[#211f1c] chroma-text chroma-text-animate-once">
                       @{resource.name}
                     </SheetTitle>
 
@@ -376,7 +380,7 @@ export function ResourceSheet({
                       {resource.categories.map((category) => (
                         <span
                           key={category}
-                          className="rounded-md bg-black/[0.055] px-2 py-1 font-archivo text-[10px] font-medium tracking-[0.08em] text-[#55514a] uppercase"
+                          className="rounded-md bg-black/[0.055] px-2 py-1 font-archivo text-[10px] font-medium tracking-[0.08em] text-[#55514a] capitalize"
                         >
                           {category}
                         </span>
@@ -427,7 +431,7 @@ export function ResourceSheet({
               disabled={availableUrls.length < 2}
               aria-label="Previous resource"
               title="Previous resource (←)"
-              className="size-10 shrink-0 rounded-full bg-white text-[#211f1c] shadow-sm hover:bg-white/85 hover:text-[#211f1c] disabled:opacity-40"
+              className="size-10 shrink-0 rounded-full bg-my-primary text-[#211f1c] shadow-sm hover:bg-white/85 hover:text-[#211f1c] disabled:opacity-40"
             >
               <ArrowLeft aria-hidden="true" />
             </Button>
@@ -477,28 +481,5 @@ export function ResourceSheet({
         </div>
       </SheetContent>
     </Sheet>
-  );
-}
-
-/**
- * The preview comes from an arbitrary curated host, so a failed URL falls back
- * to the same letter tile the grid uses. The parent keys this component by
- * image URL so a broken image does not stick to the next resource.
- */
-function PreviewImage({ image, name }: { image: string | null; name: string }) {
-  const [failed, setFailed] = React.useState(false);
-
-  if (!image || failed) return <ResourceFallback name={name} />;
-
-  return (
-    // biome-ignore lint/performance/noImgElement: preview images come from arbitrary curated hosts.
-    <img
-      src={image}
-      alt={`${name} preview`}
-      decoding="async"
-      referrerPolicy="no-referrer"
-      onError={() => setFailed(true)}
-      className="size-full object-cover"
-    />
   );
 }

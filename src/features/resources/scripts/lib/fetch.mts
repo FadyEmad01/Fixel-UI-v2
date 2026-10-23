@@ -12,6 +12,7 @@ import { isIP } from "node:net";
  */
 
 const MAX_BYTES = 2_000_000;
+const IMAGE_MAX_BYTES = 8_000_000;
 const MAX_REDIRECTS = 4;
 const TIMEOUT_MS = 10_000;
 
@@ -122,6 +123,12 @@ export interface FetchedPage {
   finalUrl: string;
 }
 
+export interface FetchedImage {
+  data: Buffer;
+  /** Kept for diagnostics: sharp cannot rasterise every format (e.g. SVG). */
+  contentType: string;
+}
+
 /** Fetch a page as HTML, following a bounded number of vetted redirects. */
 export async function fetchPage(value: string): Promise<FetchedPage> {
   let current = await assertPublicUrl(value);
@@ -163,16 +170,59 @@ export async function fetchPage(value: string): Promise<FetchedPage> {
 
 const REDIRECT_CODES = new Set([301, 302, 303, 307, 308]);
 
+/**
+ * Fetch a curated page's preview image.
+ *
+ * Same address and redirect vetting as `fetchPage`, with an image-sized byte
+ * cap. Plaiceholder takes a `Buffer`, so the caller needs the raw bytes rather
+ * than a decoded string.
+ */
+export async function fetchImage(value: string): Promise<FetchedImage> {
+  let current = await assertPublicUrl(value);
+
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+    const response = await fetch(current, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      headers: {
+        "user-agent": USER_AGENT,
+        accept: "image/avif,image/webp,image/png,image/*;q=0.8",
+        "accept-language": "en",
+      },
+    });
+
+    if (REDIRECT_CODES.has(response.status)) {
+      const location = response.headers.get("location");
+      if (!location)
+        throw new Error(`HTTP ${response.status} without a Location header`);
+      current = await assertPublicUrl(new URL(location, current).toString());
+      continue;
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} ${response.statusText}`.trim());
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.startsWith("image/")) {
+      throw new Error(`Not an image (${contentType || "no content type"})`);
+    }
+
+    return { data: await readBytes(response, IMAGE_MAX_BYTES), contentType };
+  }
+
+  throw new Error(`Too many redirects (more than ${MAX_REDIRECTS})`);
+}
+
 /** Read a response body, aborting once it exceeds `maxBytes`. */
-async function readCapped(
+async function readBytes(
   response: Response,
   maxBytes: number,
-  contentType: string,
-): Promise<string> {
-  if (!response.body) return "";
+): Promise<Buffer> {
+  if (!response.body) return Buffer.alloc(0);
 
   const reader = response.body.getReader();
-  const chunks: Uint8Array[] = [];
+  const chunks: Buffer[] = [];
   let total = 0;
 
   while (true) {
@@ -185,17 +235,18 @@ async function readCapped(
       await reader.cancel();
       throw new Error(`Response larger than ${Math.round(maxBytes / 1000)} kB`);
     }
-    chunks.push(value);
+    chunks.push(Buffer.from(value));
   }
 
-  const bytes = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
+  return Buffer.concat(chunks);
+}
 
-  return decode(bytes, contentType);
+async function readCapped(
+  response: Response,
+  maxBytes: number,
+  contentType: string,
+): Promise<string> {
+  return decode(await readBytes(response, maxBytes), contentType);
 }
 
 function decode(bytes: Uint8Array, contentType: string): string {

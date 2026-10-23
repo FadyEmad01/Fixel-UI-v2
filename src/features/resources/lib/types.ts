@@ -30,6 +30,8 @@ export interface ResourceSnapshotEntry {
   description: string | null;
   /** Social preview image, absolutized against `finalUrl`. */
   image: string | null;
+  /** Plaiceholder LQIP for `image`, as a `data:` URL. Null when unavailable. */
+  blurDataUrl: string | null;
   /** Touch icon or favicon, absolutized against `finalUrl`. */
   icon: string | null;
   siteName: string | null;
@@ -57,6 +59,8 @@ export interface Resource {
   title: string | null;
   description: string | null;
   image: string | null;
+  /** LQIP for `image`, shown while the real image loads. */
+  blurDataUrl: string | null;
   icon: string | null;
   siteName: string | null;
   themeColor: string | null;
