@@ -194,7 +194,7 @@ export function ResourceCard({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            {firstCategory ? (
+            {/* {firstCategory ? (
               <span className="rounded-sm bg-my-primary/70 px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-muted-foreground dark:bg-muted">
                 {firstCategory}
               </span>
@@ -204,7 +204,7 @@ export function ResourceCard({
               <span className="rounded-sm bg-my-primary/70 px-1.5 py-0.5 font-archivo text-[10px] font-medium text-muted-foreground dark:bg-muted">
                 +{restCategories.length}
               </span>
-            ) : null}
+            ) : null} */}
 
             <a
               href={resource.externalUrl}

@@ -1,6 +1,36 @@
 {
-  "generatedAt": "2026-10-22T18:26:30.339Z",
+  "generatedAt": "2026-10-23T11:17:31.842Z",
   "resources": [
+    {
+      "url": "https://excalidraw.com/",
+      "normalizedUrl": "https://excalidraw.com/",
+      "name": "Excalidraw",
+      "title": "Excalidraw — Collaborative whiteboarding made easy",
+      "description": "Excalidraw is a virtual collaborative whiteboard tool that lets you easily sketch diagrams that have a hand-drawn feel to them.",
+      "image": "https://excalidraw.com/og-image-3.png",
+      "icon": "https://excalidraw.com/apple-touch-icon.png",
+      "siteName": "Excalidraw",
+      "themeColor": "#121212",
+      "finalUrl": "https://excalidraw.com/",
+      "status": "ok",
+      "fetchedAt": "2026-10-23T11:17:31.201Z",
+      "lastError": null
+    },
+    {
+      "url": "https://www.gauge-ui.dev/",
+      "normalizedUrl": "https://gauge-ui.dev/",
+      "name": "Gauge UI",
+      "title": "Gauge UI — composable gauge components for React",
+      "description": "Composable SVG gauge primitives for React — build speedometers, dials, meters and clocks from arcs, ticks, zones and needles. Distributed as a shadcn registry, so the source lands in your project and you own it.",
+      "image": "https://gauge-ui.dev/opengraph-image.png?opengraph-image.3k4sjlxxa-glu.png",
+      "icon": "https://www.gauge-ui.dev/favicon.ico?favicon.2cocvvl1m_rls.ico",
+      "siteName": "Gauge UI",
+      "themeColor": "oklch(0.205 0 0)",
+      "finalUrl": "https://www.gauge-ui.dev/",
+      "status": "ok",
+      "fetchedAt": "2026-10-23T11:17:31.842Z",
+      "lastError": null
+    },
     {
       "url": "https://ui.shadcn.com/",
       "normalizedUrl": "https://ui.shadcn.com/",

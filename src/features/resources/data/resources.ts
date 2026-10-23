@@ -13,7 +13,9 @@ import type { ResourceSeed } from "../lib/types";
  * all of them are filterable via `?tag=`.
  */
 export const resources: ResourceSeed[] = [
-  { url: "https://ui.shadcn.com/", categories: ["UI", "Components" , "Design", "Development", "Resources", "Open Source", "Documentation" , "Tutorials" , "Community" , "Examples" , ] },
+  { url: "https://ui.shadcn.com/", categories: ["Design System", "registry"] },
+  { url: "https://excalidraw.com/", categories: ["tools",] },
+  { url: "https://www.gauge-ui.dev/", categories: ["SVG gauge",] },
   // { url: "a", categories: ["UI",] },
 ];
 

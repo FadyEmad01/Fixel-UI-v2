@@ -1,52 +1,135 @@
 "use client";
 
-import { ArrowUpRight, RotateCcw } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  RotateCcw,
+  X,
+} from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
 import type { Resource } from "../lib/types";
-import { resourceHost } from "../lib/url";
+import { normalizeResourceUrl, resourceHost } from "../lib/url";
 import { ResourceFallback, SiteIcon } from "./resource-card";
 
+/** How many pagination dots are shown at once; the window follows the active one. */
+const DOT_WINDOW = 7;
+
 type SheetState =
-  | { status: "loading" }
-  | { status: "ready"; resource: Resource }
-  | { status: "error"; message: string };
+  | { status: "loading"; url: string }
+  | { status: "ready"; url: string; resource: Resource }
+  | { status: "error"; url: string; message: string };
+
+type ResourceSheetProps = {
+  /** The URL that opens the sheet, or `null` when it is closed. */
+  url: string | null;
+
+  /** Ordered list of URLs available for navigation. */
+  resourceUrls: string[];
+
+  /** Ask the parent to close the sheet. */
+  onClose: () => void;
+
+  /** Called when the carousel selects a different resource. */
+  onNavigate?: (url: string) => void;
+};
+
+/** URLs are compared in normalized form so `?url=` variants still match. */
+function resourceKey(value: string) {
+  return normalizeResourceUrl(value) ?? value;
+}
+
+function sameResource(a: string | null, b: string | null) {
+  if (!a || !b) return a === b;
+  return resourceKey(a) === resourceKey(b);
+}
+
+function indexOfResource(urls: string[], value: string | null) {
+  if (!value) return -1;
+  const key = resourceKey(value);
+  return urls.findIndex((candidate) => resourceKey(candidate) === key);
+}
 
 /**
- * The resource detail sheet.
+ * The resource carousel sheet.
  *
  * Details come from `/api/resources`, which only answers for URLs in the
  * curated list — so opening `?url=` with anything else lands in the error
  * state instead of scraping an arbitrary site on a visitor's behalf.
+ *
+ * The sheet keeps its own "which resource am I looking at" state so arrows and
+ * dots respond instantly; the parent can mirror it into `?url=` through
+ * `onNavigate` without the fetch waiting for a round trip.
  */
 export function ResourceSheet({
   url,
+  resourceUrls,
   onClose,
-}: {
-  url: string | null;
-  onClose: () => void;
-}) {
-  const [state, setState] = React.useState<SheetState>({ status: "loading" });
+  onNavigate,
+}: ResourceSheetProps) {
+  const [selectedUrl, setSelectedUrl] = React.useState<string | null>(url);
+  const [lastUrlProp, setLastUrlProp] = React.useState(url);
+  const [state, setState] = React.useState<SheetState>({
+    status: "loading",
+    url: url ?? "",
+  });
   const [attempt, setAttempt] = React.useState(0);
-  const resource = state.status === "ready" ? state.resource : null;
 
+  // Adopt `url` when the sheet opens. Changes while it is already open come
+  // from this component's own `onNavigate`, so local state is the fresher
+  // value and the prop is only an echo.
+  if (url !== lastUrlProp) {
+    setLastUrlProp(url);
+    if (url && !lastUrlProp) setSelectedUrl(url);
+  }
+
+  // Unique, ordered URLs. When the open resource is filtered out of the grid
+  // (shared link + a different `?tag=`), keep it reachable at the front.
+  const availableUrls = React.useMemo(() => {
+    const seen = new Set<string>();
+    const urls: string[] = [];
+
+    for (const candidate of resourceUrls) {
+      const key = resourceKey(candidate);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      urls.push(candidate);
+    }
+
+    if (url) {
+      const key = resourceKey(url);
+      if (!seen.has(key)) {
+        urls.unshift(url);
+        seen.add(key);
+      }
+    }
+
+    return urls;
+  }, [resourceUrls, url]);
+
+  const activeIndex = indexOfResource(availableUrls, selectedUrl);
+  const activePosition = activeIndex < 0 ? 0 : activeIndex;
+
+  // Fetch the selected resource. Aborting on change keeps a slow response from
+  // overwriting the resource the visitor just moved to.
   // biome-ignore lint/correctness/useExhaustiveDependencies: `attempt` is a retry counter; it only needs to re-run the request.
   React.useEffect(() => {
-    if (!url) return;
+    if (!selectedUrl) return;
 
     const controller = new AbortController();
-    setState({ status: "loading" });
+    setState({ status: "loading", url: selectedUrl });
 
-    fetch(`/api/resources?url=${encodeURIComponent(url)}`, {
+    fetch(`/api/resources?url=${encodeURIComponent(selectedUrl)}`, {
       signal: controller.signal,
     })
       .then(async (response) => {
@@ -58,20 +141,108 @@ export function ResourceSheet({
         if (!response.ok || !body?.resource) {
           throw new Error(body?.error ?? `Request failed (${response.status})`);
         }
+
         return body.resource;
       })
-      .then((loaded) => setState({ status: "ready", resource: loaded }))
+      .then((loaded) => {
+        if (controller.signal.aborted) return;
+        setState({ status: "ready", url: selectedUrl, resource: loaded });
+      })
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
         setState({
           status: "error",
+          url: selectedUrl,
           message:
             error instanceof Error ? error.message : "Something went wrong.",
         });
       });
 
     return () => controller.abort();
-  }, [url, attempt]);
+  }, [selectedUrl, attempt]);
+
+  const selectResource = React.useCallback(
+    (nextUrl: string) => {
+      if (sameResource(nextUrl, selectedUrl)) return;
+      setSelectedUrl(nextUrl);
+      setAttempt(0);
+      onNavigate?.(nextUrl);
+    },
+    [selectedUrl, onNavigate],
+  );
+
+  // Move one place in either direction, wrapping around at the ends.
+  const navigate = React.useCallback(
+    (direction: -1 | 1) => {
+      const count = availableUrls.length;
+      if (count < 2) return;
+
+      const index = Math.max(0, indexOfResource(availableUrls, selectedUrl));
+      selectResource(availableUrls[(index + direction + count) % count]);
+    },
+    [availableUrls, selectedUrl, selectResource],
+  );
+
+  // Arrow-key navigation, scoped to the open sheet. Typing and already-handled
+  // keys keep their normal behaviour.
+  React.useEffect(() => {
+    if (!url || availableUrls.length < 2) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        event.defaultPrevented ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+      const target = event.target;
+      if (target instanceof HTMLElement) {
+        if (target.isContentEditable) return;
+        if (
+          target.closest(
+            'input, textarea, select, [contenteditable]:not([contenteditable="false"])',
+          )
+        ) {
+          return;
+        }
+      }
+
+      event.preventDefault();
+      navigate(event.key === "ArrowLeft" ? -1 : 1);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [url, availableUrls.length, navigate]);
+
+  // Only the slice of dots around the active resource is rendered, so a long
+  // catalog never clips the marker the visitor needs to see.
+  const dotStart = Math.max(
+    0,
+    Math.min(
+      activePosition - Math.floor(DOT_WINDOW / 2),
+      availableUrls.length - DOT_WINDOW,
+    ),
+  );
+  const dotUrls = availableUrls.slice(dotStart, dotStart + DOT_WINDOW);
+
+  // `state` remembers which URL it belongs to, so switching resources shows
+  // the skeleton immediately instead of the previous resource's details.
+  const current = state.url === (selectedUrl ?? "") ? state : null;
+  const resource = current?.status === "ready" ? current.resource : null;
+  const errorMessage = current?.status === "error" ? current.message : null;
+  const loading = !resource && !errorMessage;
+
+  const positionLabel =
+    availableUrls.length > 0
+      ? `Resource ${activePosition + 1} of ${availableUrls.length}`
+      : "Resource";
 
   return (
     <Sheet
@@ -80,115 +251,254 @@ export function ResourceSheet({
         if (!open) onClose();
       }}
     >
-      <SheetContent side="right" className="gap-0 p-0">
-        {state.status === "loading" ? (
-          <div className="flex flex-col gap-4 p-4 pt-5" aria-busy="true">
-            <SheetTitle className="sr-only">Loading resource</SheetTitle>
-            <SheetDescription className="sr-only">
-              Fetching the saved details for this resource.
-            </SheetDescription>
-            <div className="h-5 w-40 animate-pulse rounded bg-muted" />
-            <div className="aspect-video w-full animate-pulse rounded-md bg-muted" />
-            <div className="h-3 w-full animate-pulse rounded bg-muted" />
-            <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
-          </div>
-        ) : null}
+      <SheetContent
+        side="right"
+        showCloseButton={false}
+        className={[
+          // The same `data-[side=right]` modifier as the base sheet classes, so
+          // tailwind-merge actually replaces the full-height drawer defaults.
+          "data-[side=right]:inset-y-3 data-[side=right]:right-3",
+          "data-[side=right]:h-auto",
+          "data-[side=right]:w-[calc(100%_-_1.5rem)]",
+          "data-[side=right]:max-w-[400px] data-[side=right]:sm:max-w-[400px]",
+          "data-[side=right]:border-0",
+          "flex flex-col gap-0 overflow-hidden rounded-[26px]",
+          "bg-my-primary/90 p-3",
+          "backdrop-blur-[20px] backdrop-saturate-150",
+        ].join(" ")}
+      >
+        <SheetClose asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Close resource"
+            title="Close (Esc)"
+            className="absolute top-5.5 right-6 z-20 size-9 rounded-full bg-my-primary text-foreground opacity-100  transition hover:bg-my-primary/70 backdrop-blur-2xl hover:text-[#211f1c] focus-visible:ring-0 border-none"
+          >
+            <X aria-hidden="true" />
+          </Button>
+        </SheetClose>
 
-        {state.status === "error" ? (
-          <>
-            <SheetHeader className="pt-5">
-              <SheetTitle>Couldn&apos;t load this resource</SheetTitle>
-              <SheetDescription>{state.message}</SheetDescription>
-            </SheetHeader>
+        <div className="flex min-h-0 flex-1 flex-col">
+          {loading && (
+            <div
+              aria-busy="true"
+              className="no-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain"
+            >
+              <SheetTitle className="sr-only">Loading resource</SheetTitle>
 
-            <SheetFooter>
-              <Button
-                variant="outline"
-                onClick={() => setAttempt((value) => value + 1)}
-              >
-                <RotateCcw aria-hidden="true" />
-                Try again
-              </Button>
-              <Button variant="ghost" onClick={onClose}>
-                Close
-              </Button>
-            </SheetFooter>
-          </>
-        ) : null}
-
-        {resource ? (
-          <>
-            <SheetHeader className="pt-5">
-              <div className="flex items-center gap-2">
-                <SiteIcon icon={resource.icon} />
-                <SheetTitle className="text-lg">{resource.name}</SheetTitle>
-              </div>
-              <SheetDescription className="font-archivo text-xs tracking-wide">
-                {resourceHost(resource.normalizedUrl)}
+              <SheetDescription className="sr-only">
+                Fetching the saved details for this resource.
               </SheetDescription>
-            </SheetHeader>
 
-            <div className="aspect-video w-full overflow-hidden border-y bg-muted">
-              {resource.image ? (
-                // biome-ignore lint/performance/noImgElement: metadata images come from arbitrary curated hosts.
-                <img
-                  src={resource.image}
-                  alt=""
-                  decoding="async"
-                  referrerPolicy="no-referrer"
-                  className="size-full object-cover"
-                />
-              ) : (
-                <ResourceFallback name={resource.name} />
-              )}
+              <div className="aspect-video w-full animate-pulse rounded-[20px] bg-my-bg/20" />
+
+              <div className="flex flex-col gap-2.5 px-1.5 pb-2">
+                <div className="h-7 w-3/4 animate-pulse rounded-md bg-my-bg/20" />
+                <div className="h-3 w-1/3 animate-pulse rounded bg-my-bg/20" />
+                <div className="mt-3 h-3 w-full animate-pulse rounded bg-my-bg/20" />
+                <div className="h-3 w-11/12 animate-pulse rounded bg-my-bg/20" />
+                <div className="h-3 w-2/3 animate-pulse rounded bg-my-bg/20" />
+                <div className="mt-3 h-11 w-full animate-pulse rounded-full bg-my-bg/20" />
+              </div>
             </div>
+          )}
 
-            <div className="flex flex-col gap-4 overflow-y-auto p-4">
-              {resource.description ? (
-                <p className="text-sm leading-6 text-muted-foreground">
-                  {resource.description}
-                </p>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  This site doesn&apos;t publish a description.
-                </p>
-              )}
+          {errorMessage && (
+            <div className="no-scrollbar flex min-h-0 flex-1 flex-col justify-center gap-5 overflow-y-auto overscroll-contain px-2 py-10">
+              <SheetHeader className="space-y-2 p-0 text-left">
+                <SheetTitle className="font-heading text-2xl leading-tight font-semibold tracking-tight">
+                  Couldn&apos;t load this resource
+                </SheetTitle>
 
-              {resource.categories.length > 0 ? (
-                <div className="flex flex-wrap items-center gap-1">
-                  {resource.categories.map((category) => (
-                    <span
-                      key={category}
-                      className="rounded-sm bg-neutral-200/70 px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-muted-foreground dark:bg-muted"
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
+                <SheetDescription className="text-[13px] leading-6 text-[#5f5a52]">
+                  {errorMessage}
+                </SheetDescription>
+              </SheetHeader>
 
-              {resource.status === "failed" ? (
-                <p className="text-xs text-muted-foreground">
-                  Showing the last details we could read from this site.
-                </p>
-              ) : null}
-            </div>
-
-            <SheetFooter className="border-t">
-              <Button asChild className="w-full">
-                <a
-                  href={resource.externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => setAttempt((value) => value + 1)}
                 >
-                  Visit site
-                  <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
-                </a>
-              </Button>
-            </SheetFooter>
-          </>
-        ) : null}
+                  <RotateCcw aria-hidden="true" />
+                  Try again
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  className="rounded-full"
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {resource && (
+            <div className="flex min-h-0 flex-1 flex-col gap-4">
+              <div className="relative aspect-video max-h-[38dvh] w-full shrink-0 overflow-hidden rounded-[20px] bg-my-bg">
+                <PreviewImage
+                  key={resource.image ?? "fallback"}
+                  image={resource.image}
+                  name={resource.name}
+                />
+              </div>
+
+              <section
+                aria-label="Resource details"
+                // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard users must be able to scroll the details pane.
+                tabIndex={0}
+                className="scroll-fade scroll-fade-52 scrollbar-none overflow-y-auto no-scrollbar min-h-0 flex-1 overscroll-contain focus-visible:ring-2 focus-visible:ring-[#211f1c]/20 focus-visible:ring-inset focus-visible:outline-none"
+              >
+                <div className="flex flex-col gap-4 px-1.5 pb-2">
+                  <SheetHeader className="space-y-1.5 p-0 text-left">
+                    <SheetTitle className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.02em] text-[#211f1c]">
+                      @{resource.name}
+                    </SheetTitle>
+
+                    <SheetDescription className="flex items-center gap-1.5 font-archivo text-xs tracking-wide text-[#5f5a52]">
+                      <SiteIcon icon={resource.icon} />
+                      {resourceHost(resource.normalizedUrl)}
+                    </SheetDescription>
+                  </SheetHeader>
+
+                  <p className="text-[13px] leading-[1.7] text-[#45423d]">
+                    {resource.description ??
+                      "This site doesn't publish a description."}
+                  </p>
+
+                  {resource.categories.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {resource.categories.map((category) => (
+                        <span
+                          key={category}
+                          className="rounded-md bg-black/[0.055] px-2 py-1 font-archivo text-[10px] font-medium tracking-[0.08em] text-[#55514a] uppercase"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {resource.status === "failed" && (
+                    <p className="text-[11px] leading-5 text-[#5f5a52]">
+                      Showing the last details we could read from this site.
+                    </p>
+                  )}
+                </div>
+              </section>
+
+              <div className="shrink-0 px-1.5">
+                <Button
+                  asChild
+                  className="h-11 w-full rounded-full bg-my-secondary text-sm font-medium text-my-primary hover:bg-my-secondary/85"
+                >
+                  <a
+                    href={resource.externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Visit site
+                    <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {positionLabel}
+            {resource ? `: ${resource.name}` : ""}
+          </p>
+
+          <nav
+            aria-label="Resource navigation"
+            className="flex shrink-0 items-center justify-between gap-2 px-0.5 pt-3 pb-0.5"
+          >
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              disabled={availableUrls.length < 2}
+              aria-label="Previous resource"
+              title="Previous resource (←)"
+              className="size-10 shrink-0 rounded-full bg-white text-[#211f1c] shadow-sm hover:bg-white/85 hover:text-[#211f1c] disabled:opacity-40"
+            >
+              <ArrowLeft aria-hidden="true" />
+            </Button>
+
+            {availableUrls.length > 0 && (
+              <div className="flex min-w-0 items-center justify-center">
+                {dotUrls.map((dotUrl, offset) => {
+                  const index = dotStart + offset;
+                  const active = index === activePosition;
+
+                  return (
+                    <button
+                      key={dotUrl}
+                      type="button"
+                      onClick={() => selectResource(dotUrl)}
+                      aria-label={`Show resource ${index + 1}: ${resourceHost(dotUrl)}`}
+                      aria-current={active ? "true" : undefined}
+                      className="group flex size-5 shrink-0 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-[#211f1c]/30 focus-visible:outline-none"
+                    >
+                      <span
+                        className={[
+                          "size-1.5 rounded-full transition-all duration-200",
+                          active
+                            ? "scale-125 bg-[#211f1c]"
+                            : "bg-[#211f1c]/20 group-hover:bg-[#211f1c]/45",
+                        ].join(" ")}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(1)}
+              disabled={availableUrls.length < 2}
+              aria-label="Next resource"
+              title="Next resource (→)"
+              className="size-10 shrink-0 rounded-full bg-[#211f1c] text-white shadow-sm hover:bg-[#211f1c]/85 hover:text-white disabled:opacity-40"
+            >
+              <ArrowRight aria-hidden="true" />
+            </Button>
+          </nav>
+        </div>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/**
+ * The preview comes from an arbitrary curated host, so a failed URL falls back
+ * to the same letter tile the grid uses. The parent keys this component by
+ * image URL so a broken image does not stick to the next resource.
+ */
+function PreviewImage({ image, name }: { image: string | null; name: string }) {
+  const [failed, setFailed] = React.useState(false);
+
+  if (!image || failed) return <ResourceFallback name={name} />;
+
+  return (
+    // biome-ignore lint/performance/noImgElement: preview images come from arbitrary curated hosts.
+    <img
+      src={image}
+      alt={`${name} preview`}
+      decoding="async"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className="size-full object-cover"
+    />
   );
 }

@@ -50,6 +50,17 @@ export function ResourcesBrowser({
     router.replace(resourcesHref(activeCategory), { scroll: false });
   }, [router, activeCategory]);
 
+  // Mirror the carousel's selection into `?url=` without adding history entries,
+  // so a shared link always points at the resource on screen.
+  const handleNavigate = React.useCallback(
+    (nextUrl: string) => {
+      router.replace(resourcesHref(activeCategory, nextUrl), {
+        scroll: false,
+      });
+    },
+    [router, activeCategory],
+  );
+
   return (
     <>
       <div className="flex gap-3 flex-row md:items-start md:justify-between">
@@ -97,7 +108,12 @@ export function ResourcesBrowser({
         </p>
       ) : null}
 
-      <ResourceSheet url={selectedUrl ?? null} onClose={handleClose} />
+      <ResourceSheet
+        url={selectedUrl ?? null}
+        resourceUrls={visible.map((resource) => resource.url)}
+        onClose={handleClose}
+        onNavigate={handleNavigate}
+      />
     </>
   );
 }
