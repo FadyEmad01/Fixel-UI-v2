@@ -151,11 +151,12 @@
 
 "use client";
 
-import { MoveUpRight } from "lucide-react";
+import { Globe, MoveUpRight } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 
 import type { Resource } from "../lib/types";
+import { resourceHost } from "../lib/url";
 import { Highlight } from "./highlight";
 import { ResourceImage } from "./resource-image";
 
@@ -193,7 +194,7 @@ export function ResourceCard({
       <div className="mt-3 flex-col items-start justify-between gap-3 px-0.5">
         <div className="min-w-0 flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
-            <SiteIcon icon={resource.icon} />
+            <SiteIcon icon={resource.icon} normalizedUrl={resource.normalizedUrl} />
             <p className="line-clamp-1 text-base font-medium text-foreground font-archivo">
               @<Highlight text={resource.name} query={query} />
             </p>
@@ -247,25 +248,57 @@ export function ResourceCard({
 /**
  * A site's own favicon, shown at text size.
  *
- * Many sites ship an SVG or a `.ico` that fails to decode; both cases just
- * disappear rather than leaving a broken-image glyph.
+ * Falls back to Google's favicon service when the snapshot icon is missing or
+ * fails to load. Falls back to a globe icon if nothing works.
  */
-export function SiteIcon({ icon }: { icon: string | null }) {
-  const [failed, setFailed] = React.useState(false);
+export function SiteIcon({
+  icon,
+  normalizedUrl,
+}: {
+  icon: string | null;
+  normalizedUrl?: string | null;
+}) {
+  const host = normalizedUrl ? resourceHost(normalizedUrl) : null;
+  const [mode, setMode] = React.useState<"icon" | "google" | "globe">(() => {
+    if (icon) return "icon";
+    if (host) return "google";
+    return "globe";
+  });
 
-  if (!icon || failed) return null;
+  if (mode === "globe") {
+    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+  }
+
+  const src =
+    mode === "icon" && icon
+      ? icon
+      : mode === "google" && host
+        ? `https://www.google.com/s2/favicons?domain=${host}&sz=32`
+        : "";
+
+  if (!src) {
+    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+  }
 
   return (
     // biome-ignore lint/performance/noImgElement: favicons come from arbitrary curated hosts.
     <img
-      src={icon}
+      src={src}
       alt=""
       aria-hidden="true"
       loading="lazy"
       decoding="async"
       referrerPolicy="no-referrer"
-      onError={() => setFailed(true)}
       className="size-3.5 shrink-0 rounded-[3px] object-contain"
+      onError={() => {
+        if (mode === "icon") {
+          setMode(host ? "google" : "globe");
+          return;
+        }
+        if (mode === "google") {
+          setMode("globe");
+        }
+      }}
     />
   );
 }

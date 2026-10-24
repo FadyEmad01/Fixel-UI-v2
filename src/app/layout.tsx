@@ -76,6 +76,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         inter.variable,
         archivoHeading.variable,
       )}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider

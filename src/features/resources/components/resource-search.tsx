@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { Globe, Search, X } from "lucide-react";
 import * as React from "react";
 
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,52 @@ import { cn } from "@/lib/utils";
 import type { Resource } from "../lib/types";
 import { resourceHost } from "../lib/url";
 import { Highlight } from "./highlight";
+
+function SuggestionFavicon({ resource }: { resource: Resource }) {
+  const host = resourceHost(resource.normalizedUrl);
+  const [mode, setMode] = React.useState<"icon" | "google" | "globe">(() => {
+    if (resource.icon) return "icon";
+    if (host) return "google";
+    return "globe";
+  });
+
+  if (mode === "globe") {
+    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+  }
+
+  const src =
+    mode === "icon" && resource.icon
+      ? resource.icon
+      : host
+        ? `https://www.google.com/s2/favicons?domain=${host}&sz=32`
+        : "";
+
+  if (!src) {
+    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+  }
+
+  return (
+    // biome-ignore lint/performance/noImgElement: favicons come from arbitrary curated hosts.
+    <img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      decoding="async"
+      referrerPolicy="no-referrer"
+      className="size-3.5 shrink-0 rounded-[3px] object-contain"
+      onError={() => {
+        if (mode === "icon") {
+          setMode(host ? "google" : "globe");
+          return;
+        }
+        if (mode === "google") {
+          setMode("globe");
+        }
+      }}
+    />
+  );
+}
 
 /**
  * The free-text filter, with suggestions that jump straight to a site.
@@ -108,9 +154,10 @@ export function ResourceSearch({
                     setOpen(false);
                     onSelect(resource);
                   }}
-                  className="flex w-full items-baseline justify-between gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+                  className="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
                 >
-                  <span className="truncate font-medium">
+                  <SuggestionFavicon resource={resource} />
+                  <span className="min-w-0 flex-1 truncate font-medium">
                     <Highlight text={resource.name} query={value} />
                   </span>
                   <span className="shrink-0 font-archivo text-[10px] text-muted-foreground">
