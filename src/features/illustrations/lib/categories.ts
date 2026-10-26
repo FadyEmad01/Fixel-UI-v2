@@ -78,6 +78,8 @@ export const ILLUSTRATION_CATEGORIES: Record<string, string> = {
   skeleton: "Display & Feedback",
   spinner: "Display & Feedback",
   table: "Display & Feedback",
+
+  isometric: "Isometric",
 };
 
 /** Distinct categories, in first-seen order. */

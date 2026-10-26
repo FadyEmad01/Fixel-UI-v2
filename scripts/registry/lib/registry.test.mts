@@ -66,7 +66,7 @@ test("discovery carries the install shape shadcn needs", async () => {
   // Metadata files sit beside the items, so they must never become items.
   const names = items.map((item) => item.name);
   assert.equal(new Set(names).size, names.length, "names must be unique");
-  assert.equal(names.filter((name) => name !== "kit").length, 56);
+  assert.equal(names.filter((name) => name !== "kit").length, 57);
   assert.deepEqual(
     names.filter((name) => name !== "kit"),
     [...names.filter((name) => name !== "kit")].sort(),

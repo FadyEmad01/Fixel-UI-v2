@@ -780,6 +780,26 @@
       ]
     },
     {
+      "name": "isometric",
+      "type": "registry:component",
+      "title": "Isometric Box",
+      "description": "An animated isometric box with a Fixel logo example.",
+      "dependencies": [
+        "motion"
+      ],
+      "contentHash": "sha256:a5b30fa6d6f10d32d6ba2ccc4e47efaad6457cdf0a3f62b63bd139d715b4ba8f",
+      "uploadedAt": "2026-10-26T14:52:58.375Z",
+      "updatedAt": "2026-10-26T14:55:56.060Z",
+      "files": [
+        {
+          "path": "registry/fixel/illustrations/isometric.tsx",
+          "type": "registry:component",
+          "target": "components/illustrations/isometric.tsx",
+          "content": "\"use client\";\n\nimport type { ReactNode } from \"react\";\nimport { useId } from \"react\";\nimport { motion } from \"motion/react\";\nimport { cn } from \"@/lib/utils\";\n\nconst ease = [0.76, 0, 0.24, 1] as const;\n\nconst bottomWallPath =\n  \"M134.447 55C134.447 56.5621 133.35 57.9763 131.577 59L76.1514 91C72.325 93.2091 66.1213 93.2091 62.2949 91L6.86914 59C5.09658 57.9764 4 56.5618 4 55V40C4 41.4644 4.96359 42.7991 6.54492 43.8037L6.87012 44L62.2949 76C66.1213 78.2091 72.325 78.2091 76.1514 76L131.577 44C133.35 42.9763 134.447 41.5621 134.447 40V55Z\";\n\nexport interface IsometricBoxProps {\n  children?: ReactNode;\n  className?: string;\n  boxClassName?: string;\n  topFaceClassName?: string;\n}\n\nexport function IsometricBox({\n  children,\n  className = \"\",\n  boxClassName = \"text-neutral-400 dark:text-neutral-600\",\n  topFaceClassName = \"fill-neutral-100 dark:fill-neutral-800\",\n}: IsometricBoxProps) {\n  const gradientId = `isometric-bottom-wall-${useId().replace(/:/g, \"\")}`;\n\n  return (\n    <motion.div\n      className={cn(\"group relative h-[93px] w-[139px]\", className)}\n      initial=\"initial\"\n      whileHover=\"hover\"\n      transition={{ duration: 0.35, ease }}\n      variants={{\n        initial: { y: 0 },\n        hover: { y: -10 },\n      }}\n    >\n      <div\n        className=\"pointer-events-none absolute inset-0 z-20 flex items-center justify-center\"\n        style={{\n          transform: \"rotateX(60deg) rotateZ(45deg) translateZ(5px)\",\n          transformStyle: \"preserve-3d\",\n        }}\n      >\n        <div className=\"flex items-center justify-center\">{children}</div>\n      </div>\n\n      <svg\n        width=\"139\"\n        height=\"93\"\n        viewBox=\"0 0 139 93\"\n        fill=\"none\"\n        xmlns=\"http://www.w3.org/2000/svg\"\n        className=\"absolute inset-0 z-10 overflow-visible\"\n        aria-hidden=\"true\"\n      >\n        <path\n          d=\"M63.3294 5.24609C66.6775 3.3131 72.1057 3.3131 75.4538 5.24609L130.459 37.0032C133.089 38.522 133.089 40.9844 130.459 42.5032L76.3198 73.7603C72.4935 75.9694 66.2897 75.9694 62.4634 73.7603L7.89154 42.2532C5.50007 40.8725 5.50007 38.6339 7.89154 37.2532L63.3294 5.24609Z\"\n          strokeWidth=\"1\"\n          className={cn(boxClassName, topFaceClassName)}\n          stroke=\"currentColor\"\n        />\n        <path\n          d={bottomWallPath}\n          stroke=\"currentColor\"\n          strokeWidth=\"1\"\n          fill=\"transparent\"\n          className={boxClassName}\n        />\n        <motion.path\n          d={bottomWallPath}\n          fill={`url(#${gradientId})`}\n          stroke=\"none\"\n          variants={{\n            initial: { opacity: 0 },\n            hover: { opacity: 1 },\n          }}\n          transition={{ duration: 0.3, ease }}\n        />\n        <defs>\n          <linearGradient\n            id={gradientId}\n            x1=\"69.2236\"\n            y1=\"40\"\n            x2=\"69.2236\"\n            y2=\"92.6569\"\n            gradientUnits=\"userSpaceOnUse\"\n          >\n            <stop\n              stopColor=\"currentColor\"\n              className=\"text-primary\"\n              stopOpacity=\"0.5\"\n            />\n            <stop\n              offset=\"0.53\"\n              stopColor=\"currentColor\"\n              className=\"text-primary\"\n            />\n            <stop\n              offset=\"1\"\n              stopColor=\"currentColor\"\n              className=\"text-primary\"\n              stopOpacity=\"0.5\"\n            />\n          </linearGradient>\n        </defs>\n      </svg>\n    </motion.div>\n  );\n}\n\nexport function IsometricIllustration({ className }: { className?: string }) {\n  return (\n    <div\n      className={cn(\"flex flex-1 items-center justify-center p-6\", className)}\n    >\n      <IsometricBox />\n    </div>\n  );\n}\n\nexport default IsometricIllustration;\n"
+        }
+      ]
+    },
+    {
       "name": "kbd",
       "type": "registry:component",
       "title": "Kbd",
