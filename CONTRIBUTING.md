@@ -53,7 +53,7 @@ The sync reads metadata from the curated URLs and updates `src/features/resource
 
 ## Open Graph images
 
-Social images are rendered directly by Next.js from `opengraph-image.tsx` and `twitter-image.tsx` files. The illustration routes use the registry’s generated title and description metadata plus the category map. Keep the layout and those source values data-driven.
+The site and illustration pages use the static image at `public/og-image.png` for Open Graph and Twitter previews. Replace that file when updating the social image.
 
 ## Before opening a pull request
 
