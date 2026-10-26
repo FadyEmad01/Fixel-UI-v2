@@ -1,8 +1,11 @@
+import { getSiteUrl } from "@/lib/site";
 import {
   ILLUSTRATION_CATEGORIES,
   illustrationCategories,
 } from "../lib/categories";
-import { allIllustrations } from "../lib/items";
+import { illustrationsHref, illustrationViewerHref } from "../lib/href";
+import { addCommands, installUrl } from "../lib/install";
+import { allIllustrations, getIllustration } from "../lib/items";
 import { IllustrationBrowser } from "./illustration-browser";
 
 /**
@@ -14,8 +17,10 @@ import { IllustrationBrowser } from "./illustration-browser";
  */
 export function IllustrationPage({
   activeCategory,
+  selectedSlug,
 }: {
   activeCategory?: string;
+  selectedSlug?: string;
 }) {
   const categories = illustrationCategories();
   const tag =
@@ -23,11 +28,29 @@ export function IllustrationPage({
       ? activeCategory
       : undefined;
 
+  const site = getSiteUrl();
   const illustrations = tag
     ? allIllustrations().filter(
         (illustration) => ILLUSTRATION_CATEGORIES[illustration.slug] === tag,
       )
     : allIllustrations();
+  const toSheetItem = (
+    illustration: ReturnType<typeof allIllustrations>[number],
+  ) => {
+    const itemUrl = installUrl(site, illustration.slug);
+    return {
+      slug: illustration.slug,
+      title: illustration.title,
+      description: illustration.description,
+      category: ILLUSTRATION_CATEGORIES[illustration.slug] ?? "Uncategorized",
+      href: illustrationsHref(tag, illustration.slug),
+      viewerHref: illustrationViewerHref(illustration.slug, tag),
+      installCommand: addCommands(itemUrl).pnpm,
+    };
+  };
+  const sheetItems = illustrations.map(toSheetItem);
+  const selected = selectedSlug ? getIllustration(selectedSlug) : undefined;
+  const selectedItem = selected ? toSheetItem(selected) : null;
 
   return (
     <div className="flex flex-col">
@@ -44,9 +67,11 @@ export function IllustrationPage({
       <hr className="my-6 border-primary/15" />
 
       <IllustrationBrowser
-        illustrations={illustrations}
+        illustrations={sheetItems}
         categories={categories}
         activeCategory={tag}
+        selectedSlug={selectedItem?.slug}
+        selectedItem={selectedItem}
       />
     </div>
   );

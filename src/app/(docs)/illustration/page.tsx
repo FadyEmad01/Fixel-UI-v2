@@ -13,6 +13,8 @@ interface IllustrationsRouteProps {
   searchParams: Promise<{
     /** Active family, e.g. `Input`. */
     tag?: string;
+    /** The illustration whose catalog sheet is open. */
+    slug?: string;
   }>;
 }
 
@@ -22,8 +24,8 @@ interface IllustrationsRouteProps {
  * request.
  */
 async function Catalog({ searchParams }: IllustrationsRouteProps) {
-  const { tag } = await searchParams;
-  return <IllustrationPage activeCategory={tag} />;
+  const { tag, slug } = await searchParams;
+  return <IllustrationPage activeCategory={tag} selectedSlug={slug} />;
 }
 
 export default function Page({ searchParams }: IllustrationsRouteProps) {

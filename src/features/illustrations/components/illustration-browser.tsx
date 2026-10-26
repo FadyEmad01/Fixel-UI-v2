@@ -1,12 +1,23 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  useCallback,
+  useDeferredValue,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-import type { Illustration } from "../lib/items";
+import { illustrationsHref } from "../lib/href";
 import { filterIllustrations } from "../lib/search";
 import { IllustrationCard } from "./illustration-card";
 import { IllustrationFilter } from "./illustration-filter";
 import { IllustrationSearch } from "./illustration-search";
+import {
+  IllustrationSheet,
+  type IllustrationSheetItem,
+} from "./illustration-sheet";
 
 /**
  * The interactive half of the catalog: search and the grid.
@@ -18,17 +29,42 @@ export function IllustrationBrowser({
   illustrations,
   categories,
   activeCategory,
+  selectedSlug,
+  selectedItem,
 }: {
-  illustrations: Illustration[];
+  illustrations: IllustrationSheetItem[];
   categories: string[];
   activeCategory?: string;
+  selectedSlug?: string;
+  selectedItem: IllustrationSheetItem | null;
 }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
+  const openedInSession = useRef(false);
 
   const visible = useMemo(
     () => filterIllustrations(illustrations, deferredQuery),
     [illustrations, deferredQuery],
+  );
+
+  const handleClose = useCallback(() => {
+    if (openedInSession.current) {
+      openedInSession.current = false;
+      router.back();
+      return;
+    }
+
+    router.replace(illustrationsHref(activeCategory), { scroll: false });
+  }, [router, activeCategory]);
+
+  const handleNavigate = useCallback(
+    (nextSlug: string) => {
+      router.replace(illustrationsHref(activeCategory, nextSlug), {
+        scroll: false,
+      });
+    },
+    [router, activeCategory],
   );
 
   return (
@@ -55,6 +91,10 @@ export function IllustrationBrowser({
             title={illustration.title}
             description={illustration.description}
             href={illustration.href}
+            category={illustration.category}
+            onOpen={() => {
+              openedInSession.current = true;
+            }}
           />
         ))}
       </div>
@@ -68,6 +108,14 @@ export function IllustrationBrowser({
               : "No illustrations yet."}
         </p>
       ) : null}
+
+      <IllustrationSheet
+        slug={selectedSlug ?? null}
+        selectedItem={selectedItem}
+        items={visible}
+        onClose={handleClose}
+        onNavigate={handleNavigate}
+      />
     </>
   );
 }

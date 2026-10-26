@@ -1,5 +1,3 @@
-import type { Illustration } from "./items";
-
 /**
  * Text matching for the illustration grid.
  *
@@ -7,7 +5,13 @@ import type { Illustration } from "./items";
  * the registry manifest import into its bundle.
  */
 
-function haystack(illustration: Illustration): string {
+export type SearchableIllustration = {
+  slug: string;
+  title: string;
+  description: string;
+};
+
+function haystack(illustration: SearchableIllustration): string {
   return [illustration.title, illustration.slug, illustration.description]
     .join("\n")
     .toLowerCase();
@@ -15,7 +19,7 @@ function haystack(illustration: Illustration): string {
 
 /** True when every whitespace-separated term appears somewhere in the card. */
 export function matchesQuery(
-  illustration: Illustration,
+  illustration: SearchableIllustration,
   query: string,
 ): boolean {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -26,10 +30,10 @@ export function matchesQuery(
 }
 
 /** Filter by free text, preserving the catalog order. */
-export function filterIllustrations(
-  illustrations: Illustration[],
+export function filterIllustrations<T extends SearchableIllustration>(
+  illustrations: T[],
   query: string,
-): Illustration[] {
+): T[] {
   if (query.trim() === "") return illustrations;
   return illustrations.filter((illustration) =>
     matchesQuery(illustration, query),

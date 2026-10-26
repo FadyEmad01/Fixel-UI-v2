@@ -11,11 +11,15 @@ export function IllustrationCard({
   title,
   description,
   href,
+  category,
+  onOpen,
 }: {
   slug: string;
   title: string;
   description: string;
   href: string;
+  category: string;
+  onOpen: () => void;
 }) {
   const Preview = illustrations[slug as IllustrationSlug];
 
@@ -34,6 +38,9 @@ export function IllustrationCard({
             {title.trim().charAt(0).toUpperCase() || "?"}
           </span>
         )}
+        <span className="absolute right-2 top-2 rounded-md bg-background/85 px-2 py-1 font-archivo text-[10px] text-muted-foreground backdrop-blur">
+          {category}
+        </span>
       </div>
 
       <div className="mt-3 min-w-0 px-0.5">
@@ -47,9 +54,11 @@ export function IllustrationCard({
 
       <Link
         href={href}
+        scroll={false}
+        onClick={onOpen}
         className="absolute inset-0 z-0 rounded-xl focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
       >
-        <span className="sr-only">View {title}</span>
+        <span className="sr-only">View details for {title}</span>
       </Link>
     </article>
   );
