@@ -43,6 +43,8 @@ function merge(entry: ResourceSeed): Resource {
     externalUrl: cached?.finalUrl ?? entry.url,
     status: cached?.status ?? "pending",
     fetchedAt: cached?.fetchedAt ?? null,
+    uploadedAt: cached?.uploadedAt ?? cached?.fetchedAt ?? null,
+    updatedAt: cached?.updatedAt ?? cached?.fetchedAt ?? null,
     lastError: cached?.lastError ?? null,
   };
 }

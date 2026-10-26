@@ -27,7 +27,7 @@ export function CategoryFilter({
     <nav
       aria-label="Category filters"
       className={cn(
-        "mx-auto mb-10 w-full overflow-hidden font-archivo md:mx-0",
+        "mx-auto w-full overflow-hidden font-archivo md:mx-0",
         className,
       )}
     >

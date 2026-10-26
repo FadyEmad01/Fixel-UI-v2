@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T11:44:56.349Z",
+  "generatedAt": "2026-10-26T10:20:43.719Z",
   "resources": [
     {
       "url": "https://blog.olivierlarose.com/",
@@ -15,7 +15,9 @@
       "finalUrl": "https://blog.olivierlarose.com/",
       "status": "ok",
       "fetchedAt": "2026-10-23T11:44:56.348Z",
-      "lastError": null
+      "lastError": null,
+      "uploadedAt": "2026-10-23T11:44:56.348Z",
+      "updatedAt": "2026-10-23T11:44:56.348Z"
     },
     {
       "url": "https://excalidraw.com/",
@@ -31,7 +33,9 @@
       "status": "ok",
       "fetchedAt": "2026-10-23T11:17:31.201Z",
       "lastError": null,
-      "blurDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA2klEQVQImU2PPU/CYBzE/wtxIKzE3YRN3YmjO6vujux8BPwAbn4GF8PiICEBpJFAkIBlaLBQ36IRyovt0z7Sn2lDjLfcDXeXO5FTYfI5IcYm2iT8H4EKMGwHKVfKOB9vmOaU0cjCsmxs+5m7uoHR6rBwl3zNVogXzuj3x+SPzthJ7ZHdPWT/4BiRLOlMjvZ9L2mWofMIRCzcb57GrzQbD1xf3eBM3/H9kPncpTUwkaW/wvN81mvvb1OgVKK1Dql2b7m8KCBKq8QUp7X+2V6IiG+9WDXOi0LpRPgFlybKpoEdPbYAAAAASUVORK5CYII="
+      "blurDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAGCAYAAAD68A/GAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA2klEQVQImU2PPU/CYBzE/wtxIKzE3YRN3YmjO6vujux8BPwAbn4GF8PiICEBpJFAkIBlaLBQ36IRyovt0z7Sn2lDjLfcDXeXO5FTYfI5IcYm2iT8H4EKMGwHKVfKOB9vmOaU0cjCsmxs+5m7uoHR6rBwl3zNVogXzuj3x+SPzthJ7ZHdPWT/4BiRLOlMjvZ9L2mWofMIRCzcb57GrzQbD1xf3eBM3/H9kPncpTUwkaW/wvN81mvvb1OgVKK1Dql2b7m8KCBKq8QUp7X+2V6IiG+9WDXOi0LpRPgFlybKpoEdPbYAAAAASUVORK5CYII=",
+      "uploadedAt": "2026-10-23T11:17:31.201Z",
+      "updatedAt": "2026-10-23T11:17:31.201Z"
     },
     {
       "url": "https://www.gauge-ui.dev/",
@@ -47,7 +51,9 @@
       "status": "ok",
       "fetchedAt": "2026-10-23T11:17:31.842Z",
       "lastError": null,
-      "blurDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAFCAIAAADzBuo/AAAACXBIWXMAAAsSAAALEgHS3X78AAAAcElEQVQImTWNMQoEIAwEJRACCyGIrdhYCinEyv83/sDah8jBeTftwEzQLwCICICZEZGIABCRYGYAVLX33lpz95yziMQYa60BADPnnPfea61zzr23lMLMP/3ivfc55xjD3V8ypRTkDzO/H4AYo6qa2QcXrhRxSwSifQAAAABJRU5ErkJggg=="
+      "blurDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAFCAIAAADzBuo/AAAACXBIWXMAAAsSAAALEgHS3X78AAAAcElEQVQImTWNMQoEIAwEJRACCyGIrdhYCinEyv83/sDah8jBeTftwEzQLwCICICZEZGIABCRYGYAVLX33lpz95yziMQYa60BADPnnPfea61zzr23lMLMP/3ivfc55xjD3V8ypRTkDzO/H4AYo6qa2QcXrhRxSwSifQAAAABJRU5ErkJggg==",
+      "uploadedAt": "2026-10-23T11:17:31.842Z",
+      "updatedAt": "2026-10-23T11:17:31.842Z"
     },
     {
       "url": "https://ui.shadcn.com/",
@@ -63,7 +69,9 @@
       "status": "ok",
       "fetchedAt": "2026-10-22T18:09:29.793Z",
       "lastError": null,
-      "blurDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAFCAYAAAB8ZH1oAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAi0lEQVQImU2OMQrDMAxFBYa6ePBgPBkvntM6S9tzpEtLl2YJPVFzHJ/E5/DqHyQIZHh8STwkkdYaIQTEGJFSkvTeg4iglBLYIWstSimotaL3jtYa1vUv4g7LxPZzmvBbFszzV/LzfiHnDGPMUTxhzFc87jeMOQtcX4ZBRJbOfJo38mDn2LPErznnsAEGO0tBKV0CMQAAAABJRU5ErkJggg=="
+      "blurDataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAFCAYAAAB8ZH1oAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAi0lEQVQImU2OMQrDMAxFBYa6ePBgPBkvntM6S9tzpEtLl2YJPVFzHJ/E5/DqHyQIZHh8STwkkdYaIQTEGJFSkvTeg4iglBLYIWstSimotaL3jtYa1vUv4g7LxPZzmvBbFszzV/LzfiHnDGPMUTxhzFc87jeMOQtcX4ZBRJbOfJo38mDn2LPErznnsAEGO0tBKV0CMQAAAABJRU5ErkJggg==",
+      "uploadedAt": "2026-10-22T18:09:29.793Z",
+      "updatedAt": "2026-10-22T18:09:29.793Z"
     }
   ]
 }

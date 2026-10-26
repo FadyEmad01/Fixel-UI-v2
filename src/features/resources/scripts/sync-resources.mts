@@ -6,6 +6,7 @@ import { resources } from "../data/resources.ts";
 import type { ResourceSnapshot, ResourceSnapshotEntry } from "../lib/types.ts";
 import { normalizeResourceUrl, resourceHost } from "../lib/url.ts";
 import { blurDataUrl } from "./lib/blur.mts";
+import { resolveResourceDates } from "./lib/dates.mts";
 import { extractMetadata } from "./lib/extract.mts";
 import { fetchImage, fetchPage } from "./lib/fetch.mts";
 
@@ -134,10 +135,16 @@ async function main(): Promise<void> {
     const existing = previousByUrl.get(normalizedUrl);
 
     if (!force && isFresh(existing)) {
+      const dates = resolveResourceDates(
+        existing,
+        existing,
+        existing.fetchedAt ?? new Date().toISOString(),
+      );
       next.push({
         ...existing,
         url: seed.url,
         blurDataUrl: await backfillBlur(existing),
+        ...dates,
       });
       cached += 1;
       console.log(`  · ${normalizedUrl} — cached`);
@@ -158,21 +165,27 @@ async function main(): Promise<void> {
 
       const image = keep(meta.image, existing?.image);
       const blur = await resolveBlur(image, existing, force);
-
-      next.push({
-        url: seed.url,
-        normalizedUrl,
+      const metadata = {
         name,
         title: keep(meta.title, existing?.title),
         description: keep(meta.description, existing?.description),
         image,
-        blurDataUrl: blur,
         icon: keep(meta.icon, existing?.icon),
         siteName: keep(meta.siteName, existing?.siteName),
         themeColor: keep(meta.themeColor, existing?.themeColor),
         finalUrl,
+      };
+      const fetchedAt = new Date().toISOString();
+      const dates = resolveResourceDates(metadata, existing, fetchedAt);
+
+      next.push({
+        url: seed.url,
+        normalizedUrl,
+        ...metadata,
+        blurDataUrl: blur,
         status: name && (meta.description || meta.image) ? "ok" : "partial",
-        fetchedAt: new Date().toISOString(),
+        fetchedAt,
+        ...dates,
         lastError: null,
       });
 
@@ -180,12 +193,20 @@ async function main(): Promise<void> {
       console.log(`  ✓ ${normalizedUrl} — ${name}`);
     } catch (error) {
       const message = errorMessage(error);
+      const failedAt = new Date().toISOString();
       failed += 1;
       console.warn(`  ! ${normalizedUrl} — ${message}`);
 
       next.push(
         existing
-          ? { ...existing, url: seed.url, status: "failed", lastError: message }
+          ? {
+              ...existing,
+              url: seed.url,
+              status: "failed",
+              uploadedAt: existing.uploadedAt ?? existing.fetchedAt ?? failedAt,
+              updatedAt: existing.updatedAt ?? existing.fetchedAt ?? failedAt,
+              lastError: message,
+            }
           : {
               url: seed.url,
               normalizedUrl,
@@ -200,6 +221,8 @@ async function main(): Promise<void> {
               finalUrl: seed.url,
               status: "failed",
               fetchedAt: null,
+              uploadedAt: failedAt,
+              updatedAt: failedAt,
               lastError: message,
             },
       );

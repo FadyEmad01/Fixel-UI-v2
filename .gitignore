@@ -20,6 +20,10 @@
 # production
 /build
 
+# registry outputs
+/public/r
+/src/features/illustrations/generated
+
 # misc
 .DS_Store
 *.pem

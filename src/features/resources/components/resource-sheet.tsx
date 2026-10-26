@@ -18,6 +18,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { formatLongDate } from "@/shared/lib/format-date";
 import type { Resource } from "../lib/types";
 import { normalizeResourceUrl, resourceHost } from "../lib/url";
 import { SiteIcon } from "./resource-card";
@@ -386,6 +387,25 @@ export function ResourceSheet({
                         </span>
                       ))}
                     </div>
+                  )}
+
+                  {(resource.uploadedAt || resource.updatedAt) && (
+                    <dl className="grid grid-cols-2 gap-3 border-t border-black/10 pt-3 font-archivo text-[11px] text-[#5f5a52]">
+                      <div>
+                        <dt className="uppercase tracking-[0.08em]">
+                          Uploaded
+                        </dt>
+                        <dd className="mt-1 text-[#211f1c]">
+                          {formatLongDate(resource.uploadedAt)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="uppercase tracking-[0.08em]">Updated</dt>
+                        <dd className="mt-1 text-[#211f1c]">
+                          {formatLongDate(resource.updatedAt)}
+                        </dd>
+                      </div>
+                    </dl>
                   )}
 
                   {resource.status === "failed" && (

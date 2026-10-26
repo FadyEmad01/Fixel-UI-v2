@@ -1,12 +1,10 @@
 "use client";
 
 import posthog from "posthog-js";
+import { isPostHogEnabled } from "./posthog";
 
 function isPostHogConfigured() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN &&
-      process.env.NEXT_PUBLIC_POSTHOG_HOST,
-  );
+  return isPostHogEnabled();
 }
 
 export const posthogLogCapture = {

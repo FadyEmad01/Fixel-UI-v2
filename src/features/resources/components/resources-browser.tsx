@@ -63,11 +63,11 @@ export function ResourcesBrowser({
 
   return (
     <>
-      <div className="flex gap-3 flex-row md:items-start md:justify-between">
+      <div className="flex gap-3 flex-row md:items-start md:justify-between mb-10">
         <CategoryFilter
           categories={categories}
           activeCategory={activeCategory}
-          className="mb-10"
+          className=""
         />
 
         <ResourceSearch

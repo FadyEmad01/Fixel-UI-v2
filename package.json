@@ -3,13 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/registry/generate.mts && next dev",
+    "build": "pnpm registry:generate && pnpm registry:build && next build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
     "resources:sync": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/features/resources/scripts/sync-resources.mts",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/features/resources/scripts/lib/"
+    "registry:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/registry/generate.mts",
+    "registry:build": "shadcn build",
+    "registry:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/registry/check.mts",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/features/resources/scripts/lib/ scripts/registry/lib/ src/features/illustrations/lib/"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
