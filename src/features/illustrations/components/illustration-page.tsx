@@ -43,6 +43,8 @@ export function IllustrationPage({
       title: illustration.title,
       description: illustration.description,
       category: ILLUSTRATION_CATEGORIES[illustration.slug] ?? "Uncategorized",
+      uploadedAt: illustration.uploadedAt,
+      updatedAt: illustration.updatedAt,
       href: illustrationsHref(tag, illustration.slug),
       viewerHref: illustrationViewerHref(illustration.slug, tag),
       installCommand: addCommands(itemUrl).pnpm,

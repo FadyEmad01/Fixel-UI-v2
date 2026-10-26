@@ -13,6 +13,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { formatLongDate } from "@/shared/lib/format-date";
 import { type IllustrationSlug, illustrations } from "../generated";
 import { InstallCommand } from "./install-command";
 
@@ -23,6 +24,8 @@ export type IllustrationSheetItem = {
   title: string;
   description: string;
   category: string;
+  uploadedAt: string | null;
+  updatedAt: string | null;
   href: string;
   viewerHref: string;
   installCommand: string;
@@ -220,6 +223,25 @@ export function IllustrationSheet({
                       {illustration.category}
                     </span>
                   </div>
+
+                  {(illustration.uploadedAt || illustration.updatedAt) && (
+                    <dl className="grid grid-cols-2 gap-3 border-t border-black/10 pt-3 font-archivo text-[11px] text-[#5f5a52]">
+                      <div>
+                        <dt className="uppercase tracking-[0.08em]">
+                          Uploaded
+                        </dt>
+                        <dd className="mt-1 text-[#211f1c]">
+                          {formatLongDate(illustration.uploadedAt)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="uppercase tracking-[0.08em]">Updated</dt>
+                        <dd className="mt-1 text-[#211f1c]">
+                          {formatLongDate(illustration.updatedAt)}
+                        </dd>
+                      </div>
+                    </dl>
+                  )}
 
                   <div className="flex flex-col gap-2">
                     <p className="font-archivo text-[10px] font-medium uppercase tracking-[0.08em] text-[#5f5a52]">

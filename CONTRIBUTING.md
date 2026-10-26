@@ -17,18 +17,34 @@ The development command generates the local registry files before starting the s
 
 ## Add or update an illustration
 
-1. Add the component source under `registry/fixel/illustrations/`, using a short kebab-case filename such as `date-picker.tsx`.
-2. Export a named component ending in `Illustration`, for example `DatePickerIllustration`. Keep it as a self-contained wireframe preview and use the shared primitives from `./kit` where they fit.
-3. Add its slug and display category to `src/features/illustrations/lib/categories.ts`. Each visible illustration needs one category.
-4. Regenerate the registry manifest:
+1. Add `registry/fixel/illustrations/<slug>.tsx` with a short kebab-case slug.
+2. Use this starter and replace `Example` with the illustration name:
+
+   ```tsx
+   import { cn } from "@/lib/utils";
+   import { Card, CardPanel, Text } from "./kit";
+
+   export function ExampleIllustration({ className }: { className?: string }) {
+     return (
+       <Card className={cn("max-w-50", className)}>
+         <CardPanel className="flex items-center gap-2 p-3">
+           <Text className="w-6" />
+           <Text className="w-20" variant="secondary" />
+         </CardPanel>
+       </Card>
+     );
+   }
+
+   export default ExampleIllustration;
+   ```
+
+   Keep both exports: the named export powers the catalog, and the default export supports v0's generated `Component` import.
+3. Add the slug and display category to `src/features/illustrations/lib/categories.ts`. Every visible illustration needs one category. Add `<slug>.meta.ts` beside the component only when it needs a custom title, description, dependencies, hidden/shared behavior, or registry dependencies.
+4. Use helpers from `./kit` when they fit. Add a primitive to `kit.tsx` only when it is useful to at least two illustrations; keep one-off visuals in the illustration file. An illustration that imports `./kit` automatically ships the shared file, so normal additions do not require changes to the registry generator.
+5. Regenerate and build the registry:
 
    ```bash
    pnpm registry:generate
-   ```
-
-5. Check the manifest and build output:
-
-   ```bash
    pnpm registry:check
    pnpm registry:build
    ```
