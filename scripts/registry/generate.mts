@@ -101,11 +101,7 @@ function addedAt(root: string, path: string): string | undefined {
     );
 
     // Newest first, so the last line is the commit that created the file.
-    return log
-      .trim()
-      .split("\n")
-      .filter(Boolean)
-      .at(-1);
+    return log.trim().split("\n").filter(Boolean).at(-1);
   } catch {
     // No git (a tarball checkout, a sandbox): fall back to "now".
     return undefined;

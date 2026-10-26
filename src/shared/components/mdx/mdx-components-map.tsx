@@ -112,7 +112,10 @@ const baseComponents: MDXComponents = {
   ),
 
   hr: ({ className, ...props }) => (
-    <hr className={cn("my-8 border-1 border-primary/15", className)} {...props} />
+    <hr
+      className={cn("my-8 border-1 border-primary/15", className)}
+      {...props}
+    />
   ),
 
   strong: ({ className, ...props }) => (

@@ -14,9 +14,12 @@ import type { ResourceSeed } from "../lib/types";
  */
 export const resources: ResourceSeed[] = [
   { url: "https://ui.shadcn.com/", categories: ["Design System", "registry"] },
-  { url: "https://excalidraw.com/", categories: ["tools",] },
-  { url: "https://www.gauge-ui.dev/", categories: ["SVG gauge",] },
-  { url: "https://blog.olivierlarose.com/", categories: ["dev blog", "web animations tutorial"] },
+  { url: "https://excalidraw.com/", categories: ["tools"] },
+  { url: "https://www.gauge-ui.dev/", categories: ["SVG gauge"] },
+  {
+    url: "https://blog.olivierlarose.com/",
+    categories: ["dev blog", "web animations tutorial"],
+  },
   // { url: "a", categories: ["UI",] },
 ];
 

@@ -1,8 +1,4 @@
-import {
-  type ComponentProps,
-  isValidElement,
-  type ReactNode,
-} from "react";
+import { type ComponentProps, isValidElement, type ReactNode } from "react";
 
 import { CodeBlock } from "@/shared/components/code-block/server";
 

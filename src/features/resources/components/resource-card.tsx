@@ -194,7 +194,10 @@ export function ResourceCard({
       <div className="mt-3 flex-col items-start justify-between gap-3 px-0.5">
         <div className="min-w-0 flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5">
-            <SiteIcon icon={resource.icon} normalizedUrl={resource.normalizedUrl} />
+            <SiteIcon
+              icon={resource.icon}
+              normalizedUrl={resource.normalizedUrl}
+            />
             <p className="line-clamp-1 text-base font-medium text-foreground font-archivo">
               @<Highlight text={resource.name} query={query} />
             </p>
@@ -222,9 +225,7 @@ export function ResourceCard({
               <MoveUpRight className="size-3.5" aria-hidden="true" />
             </a>
           </div>
-
         </div>
-
 
         {resource.description ? (
           <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-muted-foreground">
@@ -266,7 +267,12 @@ export function SiteIcon({
   });
 
   if (mode === "globe") {
-    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+    return (
+      <Globe
+        className="size-3.5 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+    );
   }
 
   const src =
@@ -277,7 +283,12 @@ export function SiteIcon({
         : "";
 
   if (!src) {
-    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+    return (
+      <Globe
+        className="size-3.5 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+    );
   }
 
   return (
@@ -302,4 +313,3 @@ export function SiteIcon({
     />
   );
 }
-

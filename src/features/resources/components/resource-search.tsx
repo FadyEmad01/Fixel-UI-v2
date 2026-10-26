@@ -18,7 +18,12 @@ function SuggestionFavicon({ resource }: { resource: Resource }) {
   });
 
   if (mode === "globe") {
-    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+    return (
+      <Globe
+        className="size-3.5 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+    );
   }
 
   const src =
@@ -29,7 +34,12 @@ function SuggestionFavicon({ resource }: { resource: Resource }) {
         : "";
 
   if (!src) {
-    return <Globe className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />;
+    return (
+      <Globe
+        className="size-3.5 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+    );
   }
 
   return (
@@ -92,7 +102,10 @@ export function ResourceSearch({
   }, [open]);
 
   return (
-    <div ref={containerRef} className={cn("relative w-full h-8 font-archivo", className)}>
+    <div
+      ref={containerRef}
+      className={cn("relative w-full h-8 font-archivo", className)}
+    >
       <label htmlFor="resource-search" className="sr-only">
         Search resources
       </label>

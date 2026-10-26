@@ -284,19 +284,13 @@ export function Callout({
       {/* Colored accent bar */}
       <div
         aria-hidden="true"
-        className={cn(
-          "w-0.75 shrink-0 self-stretch rounded-sm",
-          styles.accent,
-        )}
+        className={cn("w-0.75 shrink-0 self-stretch rounded-sm", styles.accent)}
       />
 
       {/* Filled icon */}
       <Icon
         aria-hidden="true"
-        className={cn(
-          "size-4 shrink-0 -me-0.5 mt-0.5",
-          styles.iconColor,
-        )}
+        className={cn("size-4 shrink-0 -me-0.5 mt-0.5", styles.iconColor)}
       />
 
       {/* Content */}

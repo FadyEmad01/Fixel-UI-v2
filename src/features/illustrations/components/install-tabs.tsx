@@ -33,8 +33,12 @@ export function InstallTabs({
     <Tabs defaultValue="automatic" className="mt-4 gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <TabsList>
-          <TabsTrigger className="shadow-none!" value="automatic">Automatic</TabsTrigger>
-          <TabsTrigger className="shadow-none!" value="manual">Manual</TabsTrigger>
+          <TabsTrigger className="shadow-none!" value="automatic">
+            Automatic
+          </TabsTrigger>
+          <TabsTrigger className="shadow-none!" value="manual">
+            Manual
+          </TabsTrigger>
         </TabsList>
 
         <fieldset className="m-0 inline-flex w-fit min-w-0 items-center rounded-lg border-0 bg-muted p-[3px]">

@@ -338,7 +338,11 @@ export function resolveDates(
 
     if (!before) {
       const created = seed[item.name] ?? now;
-      dates[item.name] = { contentHash: hash, uploadedAt: created, updatedAt: created };
+      dates[item.name] = {
+        contentHash: hash,
+        uploadedAt: created,
+        updatedAt: created,
+      };
     } else if (before.contentHash === hash) {
       dates[item.name] = { ...before, contentHash: hash };
     } else {

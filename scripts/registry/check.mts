@@ -40,8 +40,10 @@ if (actual !== expected) {
 
 // A manifest can round-trip through `renderManifest` and still carry an old
 // hash if only the date fields were hand-edited, so re-hash the payloads too.
-const stale = buildManifest(items).items
-  .filter((item) => dates[item.name]?.contentHash !== contentHash(item.files))
+const stale = buildManifest(items)
+  .items.filter(
+    (item) => dates[item.name]?.contentHash !== contentHash(item.files),
+  )
   .map((item) => item.name);
 
 if (stale.length > 0) {
