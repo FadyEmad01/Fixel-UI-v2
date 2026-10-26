@@ -33,8 +33,8 @@ export function InstallTabs({
     <Tabs defaultValue="automatic" className="mt-4 gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <TabsList>
-          <TabsTrigger value="automatic">Automatic</TabsTrigger>
-          <TabsTrigger value="manual">Manual</TabsTrigger>
+          <TabsTrigger className="shadow-none!" value="automatic">Automatic</TabsTrigger>
+          <TabsTrigger className="shadow-none!" value="manual">Manual</TabsTrigger>
         </TabsList>
 
         <fieldset className="m-0 inline-flex w-fit min-w-0 items-center rounded-lg border-0 bg-muted p-[3px]">
@@ -48,7 +48,7 @@ export function InstallTabs({
               className={cn(
                 "h-6 rounded-md px-2 font-archivo text-xs transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
                 packageManager === manager
-                  ? "bg-background text-foreground shadow-sm"
+                  ? "bg-background text-foreground shadow-none"
                   : "text-muted-foreground hover:text-foreground",
               )}
             >

@@ -20,6 +20,9 @@ type ManifestItem = {
   description: string;
   hidden?: boolean;
   dependencies?: string[];
+  /** ISO dates stamped by `registry:generate` from the payload hash. */
+  uploadedAt?: string;
+  updatedAt?: string;
   files: ManifestFile[];
 };
 
@@ -36,8 +39,13 @@ export type Illustration = {
   title: string;
   description: string;
   href: string;
+  /** Registry collection, derived from the source path: `fixel / illustrations`. */
+  family: string;
   /** npm packages the item imports, e.g. `lucide-react`. */
   dependencies: string[];
+  /** When the item first landed. `null` until the manifest is regenerated. */
+  uploadedAt: string | null;
+  updatedAt: string | null;
   files: IllustrationFile[];
 };
 
@@ -54,13 +62,31 @@ function consumerPath(target: string): string {
   return target.replace(/^@/, "");
 }
 
+/**
+ * `registry/fixel/illustrations/button.tsx` → `fixel / illustrations`.
+ *
+ * Read from the item's own file (the last entry — shared files are prepended),
+ * so a second kind folder names itself without a second constant to keep in
+ * sync with `scripts/registry/lib/registry.mts`.
+ */
+function familyOf(item: ManifestItem): string {
+  const path = item.files.at(-1)?.path;
+  if (!path) return "fixel";
+
+  const collection = path.split("/").slice(1, -1);
+  return collection.length > 0 ? collection.join(" / ") : "fixel";
+}
+
 function toIllustration(item: ManifestItem): Illustration {
   return {
     slug: item.name,
     title: item.title,
     description: item.description,
     href: `/illustration/${item.name}`,
+    family: familyOf(item),
     dependencies: item.dependencies ?? [],
+    uploadedAt: item.uploadedAt ?? null,
+    updatedAt: item.updatedAt ?? null,
     files: item.files.map((file) => ({
       path: consumerPath(file.target),
       content: file.content,

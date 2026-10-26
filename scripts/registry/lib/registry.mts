@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -192,13 +193,65 @@ export async function discoverItems(
   });
 }
 
-function toFile(item: RegistryItem) {
+export type ManifestFile = {
+  path: string;
+  type: Kind["type"];
+  target: string;
+  content: string;
+};
+
+export type ManifestItem = {
+  name: string;
+  type: Kind["type"];
+  title: string;
+  description: string;
+  hidden?: boolean;
+  dependencies?: string[];
+  registryDependencies?: string[];
+  contentHash?: string;
+  uploadedAt?: string;
+  updatedAt?: string;
+  files: ManifestFile[];
+};
+
+/**
+ * When an item first appeared, and when its payload last changed.
+ *
+ * There is no database, so the dates live in the committed manifest and are
+ * driven by `contentHash` — a hash of the exact files an install writes. That
+ * makes `pnpm registry:generate` the only writer, and makes re-running it a
+ * no-op until something actually changes.
+ */
+export type ItemDates = {
+  contentHash: string;
+  uploadedAt: string;
+  updatedAt: string;
+};
+
+export type DateLedger = Record<string, ItemDates>;
+
+function toFile(item: RegistryItem): ManifestFile {
   return {
     path: item.path,
     type: item.type,
     target: item.target,
     content: item.content,
   };
+}
+
+/**
+ * Hash the payload, not the filesystem: two items with the same name and the
+ * same installed bytes keep their dates even if the repo moved around them.
+ */
+export function contentHash(files: ManifestFile[]): string {
+  const hash = createHash("sha256");
+
+  for (const file of files) {
+    hash.update(file.target).update("\0");
+    hash.update(file.content).update("\0");
+  }
+
+  return `sha256:${hash.digest("hex")}`;
 }
 
 /**
@@ -209,15 +262,18 @@ function toFile(item: RegistryItem) {
  * looked up in the default shadcn registry, so `["kit"]` fails wherever the item
  * is hosted. Shipping the file makes the automatic install identical to the
  * manual one.
+ *
+ * `dates` is passed in rather than computed here so `check` can rebuild the
+ * manifest from the committed dates and compare text-for-text without a clock.
  */
-export function buildManifest(items: RegistryItem[]) {
+export function buildManifest(items: RegistryItem[], dates: DateLedger = {}) {
   const shared = items.filter((item) => item.shared);
 
   return {
     $schema: "https://ui.shadcn.com/schema/registry.json",
     name: REGISTRY_NAME,
     homepage: SITE_URL,
-    items: items.map((item) => {
+    items: items.map((item): ManifestItem => {
       const sharedFiles = shared.filter(
         (candidate) =>
           candidate.name !== item.name &&
@@ -235,6 +291,8 @@ export function buildManifest(items: RegistryItem[]) {
         ]),
       ].sort();
 
+      const entry = dates[item.name];
+
       return {
         name: item.name,
         type: item.type,
@@ -245,15 +303,89 @@ export function buildManifest(items: RegistryItem[]) {
         ...(item.registryDependencies.length > 0
           ? { registryDependencies: item.registryDependencies }
           : {}),
+        ...(entry
+          ? {
+              contentHash: entry.contentHash,
+              uploadedAt: entry.uploadedAt,
+              updatedAt: entry.updatedAt,
+            }
+          : {}),
         files: [...sharedFiles.map(toFile), toFile(item)],
       };
     }),
   };
 }
 
+/**
+ * Carry the committed dates forward, and only move them when the payload moves.
+ *
+ * - unseen item → `uploadedAt` from the seed (git), else now
+ * - same hash   → untouched, so regenerating never churns the manifest
+ * - new hash    → `uploadedAt` kept, `updatedAt` bumped
+ */
+export function resolveDates(
+  items: RegistryItem[],
+  previous: DateLedger = {},
+  options: { now?: Date; seed?: Record<string, string> } = {},
+): DateLedger {
+  const now = (options.now ?? new Date()).toISOString();
+  const seed = options.seed ?? {};
+  const dates: DateLedger = {};
+
+  for (const item of buildManifest(items).items) {
+    const hash = contentHash(item.files);
+    const before = previous[item.name];
+
+    if (!before) {
+      const created = seed[item.name] ?? now;
+      dates[item.name] = { contentHash: hash, uploadedAt: created, updatedAt: created };
+    } else if (before.contentHash === hash) {
+      dates[item.name] = { ...before, contentHash: hash };
+    } else {
+      dates[item.name] = {
+        contentHash: hash,
+        uploadedAt: before.uploadedAt,
+        updatedAt: now,
+      };
+    }
+  }
+
+  return dates;
+}
+
+/** Read the dates back out of a manifest, ignoring entries that lack them. */
+export function dateLedger(manifest: unknown): DateLedger {
+  const items = (manifest as { items?: unknown })?.items;
+  const ledger: DateLedger = {};
+
+  if (!Array.isArray(items)) return ledger;
+
+  for (const item of items as Array<Partial<ManifestItem>>) {
+    if (
+      typeof item.name !== "string" ||
+      typeof item.contentHash !== "string" ||
+      typeof item.uploadedAt !== "string" ||
+      typeof item.updatedAt !== "string"
+    ) {
+      continue;
+    }
+
+    ledger[item.name] = {
+      contentHash: item.contentHash,
+      uploadedAt: item.uploadedAt,
+      updatedAt: item.updatedAt,
+    };
+  }
+
+  return ledger;
+}
+
 /** The exact `registry.json` text, so generate and check can never disagree. */
-export function renderManifest(items: RegistryItem[]): string {
-  return `${JSON.stringify(buildManifest(items), null, 2)}\n`;
+export function renderManifest(
+  items: RegistryItem[],
+  dates: DateLedger = {},
+): string {
+  return `${JSON.stringify(buildManifest(items, dates), null, 2)}\n`;
 }
 
 /**

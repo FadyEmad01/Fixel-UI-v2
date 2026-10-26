@@ -6,9 +6,14 @@ import { fileURLToPath } from "node:url";
 import {
   buildManifest,
   componentName,
+  contentHash,
+  dateLedger,
   discoverItems,
   renderBarrel,
+  renderManifest,
+  resolveDates,
   toTitle,
+  type RegistryItem,
 } from "./registry.mts";
 
 const cwd = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
