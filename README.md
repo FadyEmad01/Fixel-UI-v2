@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://fixel-ui-v2.vercel.app/opengraph-image" alt="Fixel UI — wireframe React illustrations, ready to build" width="100%" />
+  <img src="https://fixel-ui-v2.vercel.app/og-image.png" alt="Fixel UI" width="100%" />
 
   <h1>Fixel UI</h1>
   <p><strong>Wireframe UI, ready to build.</strong><br />Installable React illustrations and a curated shelf of interface resources.</p>
