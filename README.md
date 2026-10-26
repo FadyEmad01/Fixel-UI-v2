@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="https://fixel-ui-v2.vercel.app/opengraph-image" alt="Fixel UI — wireframe React illustrations, ready to build" width="100%" />
 
-## Getting Started
+  <h1>Fixel UI</h1>
+  <p><strong>Wireframe UI, ready to build.</strong><br />Installable React illustrations and a curated shelf of interface resources.</p>
 
-First, run the development server:
+  <p>
+    <a href="https://fixel-ui-v2.vercel.app/illustration">Browse illustrations</a> ·
+    <a href="https://fixel-ui-v2.vercel.app/resources">Explore resources</a> ·
+    <a href="CONTRIBUTING.md">Contribute</a>
+  </p>
+
+  <p>
+    <img src="https://img.shields.io/badge/Next.js-16-111111?logo=nextdotjs&logoColor=white" alt="Next.js 16" />
+    <img src="https://img.shields.io/badge/React-19-087ea4?logo=react&logoColor=white" alt="React 19" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-4-06b6d4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4" />
+    <img src="https://img.shields.io/badge/shadcn%2Fui-registry-004BFF" alt="shadcn/ui registry" />
+  </p>
+</div>
+
+## What’s inside
+
+- **Illustrations** — coded wireframes of familiar interface patterns, published as installable shadcn registry items.
+- **Resources** — a searchable, categorized collection of useful design and development links.
+- **A focused preview** — open an illustration on its own page, then move through the catalog with previous and next controls.
+
+## Add an illustration
+
+Install an item into your React project with the shadcn CLI. This example adds the Button illustration and its declared dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm dlx shadcn@latest add https://fixel-ui-v2.vercel.app/r/button.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Replace `button` with another illustration slug from the [catalog](https://fixel-ui-v2.vercel.app/illustration).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```tsx
+import { ButtonIllustration } from "@/components/illustrations/button";
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+export function Preview() {
+  return <ButtonIllustration />;
+}
+```
 
-## Learn More
+## Run locally
 
-To learn more about Next.js, take a look at the following resources:
+This project uses pnpm. The `dev` command refreshes the local registry files before starting Next.js.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+git clone https://github.com/FadyEmad01/Fixel-UI-v2.git
+cd Fixel-UI-v2
+pnpm install
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+## Useful commands
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Generate registry data and start the development server. |
+| `pnpm build` | Generate and build the shadcn registry, then build the site. |
+| `pnpm start` | Serve a production build locally. |
+| `pnpm lint` | Check formatting and lint rules with Biome. |
+| `pnpm test` | Run the repository’s Node test suite. |
+| `pnpm registry:generate` | Refresh the committed registry manifest and local generated files. |
+| `pnpm registry:check` | Confirm `registry.json` matches the source items. |
+| `pnpm resources:sync` | Refresh names, descriptions, and preview metadata for curated resources. |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+
+Issues and pull requests are welcome. Read the [contribution guide](CONTRIBUTING.md) for the local setup, illustration and resource workflows, and checks to run before opening a PR.
+
+## Project stack
+
+Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · shadcn registry · Biome

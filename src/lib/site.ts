@@ -1,12 +1,8 @@
 export const site = {
   name: "Fixel UI",
-  title: "Fixel UI — Animated React interfaces in progress",
+  title: "Fixel UI — Wireframe React illustrations",
   description:
-    "Fixel UI is a new home for animated React interfaces and thoughtful motion. Follow the project as it grows.",
-  ogImage: "/og-image.png",
-  ogImageWidth: 1120,
-  ogImageHeight: 588,
-  ogImageAlt: "Fixel UI",
+    "A growing shadcn registry of installable React illustrations, plus a curated shelf of useful interface resources.",
 } as const;
 
 export function isIndexable(): boolean {

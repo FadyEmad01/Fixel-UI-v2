@@ -45,11 +45,15 @@ const withMDXConfig = withMDX(nextConfig);
 const personalApiKey = process.env.POSTHOG_API_KEY ?? "";
 const projectId = process.env.POSTHOG_PROJECT_ID;
 const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
-const uploadConfigured = Boolean(personalApiKey && projectId);
+const isProductionBuild =
+  process.env.NODE_ENV === "production" &&
+  process.env.VERCEL_ENV === "production";
+const uploadCredentialsConfigured = Boolean(personalApiKey && projectId);
+const uploadConfigured = isProductionBuild && uploadCredentialsConfigured;
 
 // Source map upload is silently skipped when credentials are missing, which
 // leaves production stack traces minified with no error to explain why.
-if (!uploadConfigured && process.env.NODE_ENV === "production") {
+if (isProductionBuild && !uploadCredentialsConfigured) {
   console.warn(
     "[next.config] POSTHOG_API_KEY and POSTHOG_PROJECT_ID are required for PostHog source map upload. " +
       "Production stack traces will stay minified until they are configured at build time.",
@@ -77,6 +81,8 @@ const posthogConfig = {
 // Note the published types claim this returns NextConfig, but at runtime it
 // returns a config function, hence the cast through unknown.
 const withPostHog = (() => {
+  if (!uploadConfigured) return withMDXConfig;
+
   try {
     return withPostHogConfig(withMDXConfig, posthogConfig) as unknown as
       | NextConfig

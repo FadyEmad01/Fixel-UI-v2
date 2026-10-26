@@ -60,6 +60,25 @@ for (const item of items) {
   await writeFile(file, item.content, "utf8");
 }
 
+// Keep image metadata lightweight so social-image routes do not bundle the
+// complete registry source code just to render a title and description.
+await writeFile(
+  join(cwd, MIRROR_ROOT, "metadata.json"),
+  `${JSON.stringify(
+    {
+      items: items.map(({ name, title, description, hidden }) => ({
+        slug: name,
+        title,
+        description,
+        hidden,
+      })),
+    },
+    null,
+    2,
+  )}\n`,
+  "utf8",
+);
+
 for (const kind of KINDS) {
   await writeFile(
     join(cwd, MIRROR_ROOT, "index.ts"),

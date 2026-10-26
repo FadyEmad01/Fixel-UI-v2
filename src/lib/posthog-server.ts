@@ -1,19 +1,16 @@
 import { PostHog } from "posthog-node";
+import { isPostHogEnabled } from "./posthog";
 
-// Singleton posthog-node client for server-side captures. Initialized lazily
-// so `next dev` and contributor builds without PostHog env keep working.
+// Singleton posthog-node client for production server-side captures.
 let posthogInstance: PostHog | null = null;
 
 export function getPostHogServer(): PostHog | null {
+  if (!isPostHogEnabled()) return null;
+
   const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
   const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
   if (!token || !host) {
-    if (process.env.NODE_ENV === "development") {
-      console.error(
-        "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN and NEXT_PUBLIC_POSTHOG_HOST are required by PostHog server-side capture; server exceptions are silently missed until they are configured.",
-      );
-    }
     return null;
   }
 
