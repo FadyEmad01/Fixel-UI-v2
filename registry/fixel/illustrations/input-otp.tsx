@@ -28,3 +28,5 @@ export function InputOtpIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default InputOtpIllustration;

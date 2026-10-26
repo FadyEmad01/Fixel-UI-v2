@@ -11,3 +11,5 @@ export function TextareaIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default TextareaIllustration;

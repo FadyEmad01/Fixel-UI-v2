@@ -13,3 +13,5 @@ export function GroupIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default GroupIllustration;

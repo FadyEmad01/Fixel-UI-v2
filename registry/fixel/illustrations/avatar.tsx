@@ -13,3 +13,5 @@ export function AvatarIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default AvatarIllustration;

@@ -17,3 +17,5 @@ export function SkeletonIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default SkeletonIllustration;

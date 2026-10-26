@@ -22,3 +22,5 @@ export function TabsIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default TabsIllustration;

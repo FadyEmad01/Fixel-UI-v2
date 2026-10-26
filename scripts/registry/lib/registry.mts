@@ -41,7 +41,7 @@ export type Kind = {
   kind: string;
   /** shadcn type for the item and its files. */
   type: "registry:component";
-  /** Install directory, expressed as a target alias prefix. */
+  /** Project-relative install directory prefix. */
   targetPrefix: string;
   /** Optional: sections want a different card for each kind. */
   section: string;
@@ -54,7 +54,7 @@ export const KINDS: Kind[] = [
     dir: "illustrations",
     kind: "illustration",
     type: "registry:component",
-    targetPrefix: "@components/illustrations",
+    targetPrefix: "components/illustrations",
     section: "illustration",
   },
 ];
@@ -98,7 +98,7 @@ export type RegistryItem = {
   shared: boolean;
   /** Repo-relative path, as `shadcn build` expects it. */
   path: string;
-  /** Consumer path, honouring their `components` alias and `src/` layout. */
+  /** Fixed install path in the consumer project. */
   target: string;
   content: string;
   dependencies: string[];
@@ -159,7 +159,7 @@ export async function discoverItems(
 
       const name = entry.name.slice(0, -ITEM_EXTENSION.length);
       const file = join(kindDir, entry.name);
-      const content = await readFile(file, "utf8");
+      const content = (await readFile(file, "utf8")).replace(/\r\n/g, "\n");
 
       const meta = await readMeta(join(kindDir, `${name}${META_EXTENSION}`));
       const title = meta.title ?? toTitle(name);

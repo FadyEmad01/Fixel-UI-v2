@@ -11,3 +11,5 @@ export function AlertIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default AlertIllustration;

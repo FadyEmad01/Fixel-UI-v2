@@ -84,3 +84,5 @@ export function OnHoverIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default OnHoverIllustration;

@@ -17,3 +17,5 @@ export function EmptyIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default EmptyIllustration;

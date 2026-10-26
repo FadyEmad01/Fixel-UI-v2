@@ -24,3 +24,5 @@ export function ToolbarIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default ToolbarIllustration;

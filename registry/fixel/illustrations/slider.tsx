@@ -13,3 +13,5 @@ export function SliderIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default SliderIllustration;

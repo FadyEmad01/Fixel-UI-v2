@@ -15,3 +15,5 @@ export function PreviewCardIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default PreviewCardIllustration;

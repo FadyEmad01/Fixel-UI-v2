@@ -9,3 +9,5 @@ export function InputIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default InputIllustration;

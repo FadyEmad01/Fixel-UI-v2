@@ -17,3 +17,5 @@ export function AlertDialogIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default AlertDialogIllustration;

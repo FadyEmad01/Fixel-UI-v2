@@ -9,3 +9,5 @@ export function FieldsetIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default FieldsetIllustration;

@@ -16,3 +16,5 @@ export function ToggleGroupIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default ToggleGroupIllustration;

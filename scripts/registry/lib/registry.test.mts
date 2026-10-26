@@ -29,7 +29,7 @@ function fakeItem(name: string, content: string): RegistryItem {
     hidden: false,
     shared: false,
     path: `registry/fixel/illustrations/${name}.tsx`,
-    target: `@components/illustrations/${name}.tsx`,
+    target: `components/illustrations/${name}.tsx`,
     content,
     dependencies: [],
     registryDependencies: [],
@@ -57,7 +57,7 @@ test("discovery carries the install shape shadcn needs", async () => {
     assert.match(item.path, /^registry\/fixel\/illustrations\/[^/]+\.tsx$/);
     assert.equal(
       item.target,
-      `@components/illustrations/${item.name}.tsx`,
+      `components/illustrations/${item.name}.tsx`,
       `${item.name} needs an explicit target`,
     );
     assert.ok(item.content.length > 0);
@@ -138,7 +138,7 @@ test("new items get stable uploaded and updated dates", () => {
       {
         path: "registry/fixel/illustrations/button.tsx",
         type: "registry:component",
-        target: "@components/illustrations/button.tsx",
+        target: "components/illustrations/button.tsx",
         content: "export const Button = 1;",
       },
     ]),

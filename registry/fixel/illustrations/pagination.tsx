@@ -23,3 +23,5 @@ export function PaginationIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default PaginationIllustration;

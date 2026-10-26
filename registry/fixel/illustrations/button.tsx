@@ -16,3 +16,5 @@ export function ButtonIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default ButtonIllustration;

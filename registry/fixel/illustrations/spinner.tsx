@@ -10,3 +10,5 @@ export function SpinnerIllustration({ className }: { className?: string }) {
     />
   );
 }
+
+export default SpinnerIllustration;

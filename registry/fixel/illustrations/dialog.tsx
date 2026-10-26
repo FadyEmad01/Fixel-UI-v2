@@ -20,3 +20,5 @@ export function DialogIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default DialogIllustration;

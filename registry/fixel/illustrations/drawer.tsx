@@ -20,3 +20,5 @@ export function DrawerIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default DrawerIllustration;

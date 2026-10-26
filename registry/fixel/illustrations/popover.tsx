@@ -26,3 +26,5 @@ export function PopoverIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default PopoverIllustration;

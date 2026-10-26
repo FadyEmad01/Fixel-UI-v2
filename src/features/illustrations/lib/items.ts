@@ -57,11 +57,6 @@ export function componentName(slug: string): string {
     .join("")}Illustration`;
 }
 
-/** `@components/illustrations/kit.tsx` → `components/illustrations/kit.tsx`. */
-function consumerPath(target: string): string {
-  return target.replace(/^@/, "");
-}
-
 /**
  * `registry/fixel/illustrations/button.tsx` → `fixel / illustrations`.
  *
@@ -88,7 +83,7 @@ function toIllustration(item: ManifestItem): Illustration {
     uploadedAt: item.uploadedAt ?? null,
     updatedAt: item.updatedAt ?? null,
     files: item.files.map((file) => ({
-      path: consumerPath(file.target),
+      path: file.target,
       content: file.content,
     })),
   };

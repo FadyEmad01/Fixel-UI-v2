@@ -11,3 +11,5 @@ export function BadgeIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default BadgeIllustration;

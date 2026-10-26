@@ -15,3 +15,5 @@ export function CheckboxGroupIllustration({
     </div>
   );
 }
+
+export default CheckboxGroupIllustration;

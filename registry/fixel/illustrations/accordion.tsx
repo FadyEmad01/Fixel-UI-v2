@@ -31,3 +31,5 @@ export function AccordionIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default AccordionIllustration;

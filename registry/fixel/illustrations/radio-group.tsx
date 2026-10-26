@@ -9,3 +9,5 @@ export function RadioGroupIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default RadioGroupIllustration;

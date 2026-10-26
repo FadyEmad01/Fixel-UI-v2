@@ -103,3 +103,5 @@ export function AnimationIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default AnimationIllustration;

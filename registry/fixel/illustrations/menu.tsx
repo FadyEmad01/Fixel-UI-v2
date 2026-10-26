@@ -31,3 +31,5 @@ export function MenuIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default MenuIllustration;

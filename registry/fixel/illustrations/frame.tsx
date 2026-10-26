@@ -23,3 +23,5 @@ export function FrameIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default FrameIllustration;

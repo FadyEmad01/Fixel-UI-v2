@@ -35,3 +35,5 @@ export function FooterIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default FooterIllustration;

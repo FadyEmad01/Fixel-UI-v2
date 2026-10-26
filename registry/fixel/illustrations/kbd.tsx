@@ -17,3 +17,5 @@ export function KbdIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default KbdIllustration;

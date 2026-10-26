@@ -9,3 +9,5 @@ export function CheckboxIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default CheckboxIllustration;

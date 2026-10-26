@@ -8,3 +8,5 @@ export function FieldIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default FieldIllustration;

@@ -14,3 +14,5 @@ export function BreadcrumbIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default BreadcrumbIllustration;

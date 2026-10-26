@@ -19,3 +19,5 @@ export function TooltipIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default TooltipIllustration;

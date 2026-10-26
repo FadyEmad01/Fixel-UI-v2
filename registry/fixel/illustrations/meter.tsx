@@ -14,3 +14,5 @@ export function MeterIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default MeterIllustration;

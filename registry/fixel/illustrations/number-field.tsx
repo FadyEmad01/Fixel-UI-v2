@@ -14,3 +14,5 @@ export function NumberFieldIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default NumberFieldIllustration;

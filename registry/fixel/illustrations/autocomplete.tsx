@@ -25,3 +25,5 @@ export function AutocompleteIllustration({
     </div>
   );
 }
+
+export default AutocompleteIllustration;

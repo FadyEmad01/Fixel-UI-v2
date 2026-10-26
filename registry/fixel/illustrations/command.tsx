@@ -19,3 +19,5 @@ export function CommandIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default CommandIllustration;

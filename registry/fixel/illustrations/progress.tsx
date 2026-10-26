@@ -9,3 +9,5 @@ export function ProgressIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default ProgressIllustration;

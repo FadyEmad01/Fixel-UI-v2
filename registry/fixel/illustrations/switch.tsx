@@ -12,3 +12,5 @@ export function SwitchIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default SwitchIllustration;

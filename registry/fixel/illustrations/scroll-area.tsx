@@ -18,3 +18,5 @@ export function ScrollAreaIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default ScrollAreaIllustration;

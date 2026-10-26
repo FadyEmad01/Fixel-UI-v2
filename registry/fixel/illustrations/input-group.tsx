@@ -16,3 +16,5 @@ export function InputGroupIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default InputGroupIllustration;

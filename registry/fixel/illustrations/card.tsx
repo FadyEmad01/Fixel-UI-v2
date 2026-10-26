@@ -18,3 +18,5 @@ export function CardIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default CardIllustration;

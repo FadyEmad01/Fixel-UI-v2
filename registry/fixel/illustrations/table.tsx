@@ -13,3 +13,5 @@ export function TableIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default TableIllustration;

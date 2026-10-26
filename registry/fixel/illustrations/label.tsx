@@ -11,3 +11,5 @@ export function LabelIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default LabelIllustration;

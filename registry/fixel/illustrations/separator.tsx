@@ -25,3 +25,5 @@ export function SeparatorIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default SeparatorIllustration;

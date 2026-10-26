@@ -19,3 +19,5 @@ export function SheetIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default SheetIllustration;

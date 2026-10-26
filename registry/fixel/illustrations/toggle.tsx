@@ -22,3 +22,5 @@ export function ToggleIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default ToggleIllustration;

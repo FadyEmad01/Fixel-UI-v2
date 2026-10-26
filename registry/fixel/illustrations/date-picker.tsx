@@ -11,3 +11,5 @@ export function DatePickerIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default DatePickerIllustration;

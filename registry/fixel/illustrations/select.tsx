@@ -13,3 +13,5 @@ export function SelectIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default SelectIllustration;

@@ -17,3 +17,5 @@ export function ComboboxIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default ComboboxIllustration;

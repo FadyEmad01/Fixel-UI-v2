@@ -23,3 +23,5 @@ export function ToastIllustration({ className }: { className?: string }) {
     </div>
   );
 }
+
+export default ToastIllustration;

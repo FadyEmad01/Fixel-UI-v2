@@ -43,3 +43,5 @@ export function CalendarIllustration({ className }: { className?: string }) {
     </Card>
   );
 }
+
+export default CalendarIllustration;
