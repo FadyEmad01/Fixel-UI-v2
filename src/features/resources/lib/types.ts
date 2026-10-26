@@ -41,6 +41,10 @@ export interface ResourceSnapshotEntry {
   status: ResourceStatus;
   /** When the metadata was last successfully read. Kept on failure. */
   fetchedAt: string | null;
+  /** When this resource first entered the catalog; legacy snapshots use fetchedAt. */
+  uploadedAt?: string | null;
+  /** When visitor-facing metadata last changed; legacy snapshots use fetchedAt. */
+  updatedAt?: string | null;
   lastError: string | null;
 }
 
@@ -68,5 +72,7 @@ export interface Resource {
   externalUrl: string;
   status: ResourceStatus;
   fetchedAt: string | null;
+  uploadedAt: string | null;
+  updatedAt: string | null;
   lastError: string | null;
 }

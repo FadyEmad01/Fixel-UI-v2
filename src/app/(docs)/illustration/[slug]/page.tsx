@@ -48,7 +48,7 @@ async function IllustrationDetail({ params }: IllustrationRouteProps) {
 
 export default function Page({ params }: IllustrationRouteProps) {
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 pt-32 pb-16 md:px-6 lg:px-8">
+    <main className="w-full px-4 pt-32 pb-16 md:px-6 lg:px-8">
       <Suspense fallback={<div className="min-h-[60vh]" />}>
         <IllustrationDetail params={params} />
       </Suspense>

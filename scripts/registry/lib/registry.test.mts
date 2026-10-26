@@ -9,14 +9,32 @@ import {
   contentHash,
   dateLedger,
   discoverItems,
+  type RegistryItem,
   renderBarrel,
   renderManifest,
   resolveDates,
   toTitle,
-  type RegistryItem,
 } from "./registry.mts";
 
 const cwd = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+function fakeItem(name: string, content: string): RegistryItem {
+  return {
+    name,
+    kind: "illustration",
+    section: "illustration",
+    type: "registry:component",
+    title: name,
+    description: `${name} illustration`,
+    hidden: false,
+    shared: false,
+    path: `registry/fixel/illustrations/${name}.tsx`,
+    target: `@components/illustrations/${name}.tsx`,
+    content,
+    dependencies: [],
+    registryDependencies: [],
+  };
+}
 
 test("slugs become human titles", () => {
   assert.equal(toTitle("kbd"), "Kbd");
@@ -105,4 +123,80 @@ test("the manifest is valid JSON and hides the kit from the catalog", async () =
   const barrel = renderBarrel(items, "illustration");
   assert.ok(barrel.includes('"button": ButtonIllustration'));
   assert.ok(!barrel.includes("kit"), "the kit is shared code, not a card");
+});
+
+test("new items get stable uploaded and updated dates", () => {
+  const now = new Date("2026-10-26T09:00:00.000Z");
+  const dates = resolveDates(
+    [fakeItem("button", "export const Button = 1;")],
+    {},
+    { now },
+  );
+
+  assert.deepEqual(dates.button, {
+    contentHash: contentHash([
+      {
+        path: "registry/fixel/illustrations/button.tsx",
+        type: "registry:component",
+        target: "@components/illustrations/button.tsx",
+        content: "export const Button = 1;",
+      },
+    ]),
+    uploadedAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+  });
+});
+
+test("unchanged item payload keeps both dates", () => {
+  const item = fakeItem("button", "export const Button = 1;");
+  const previous = resolveDates(
+    [item],
+    {},
+    {
+      now: new Date("2026-10-25T09:00:00.000Z"),
+    },
+  );
+  const next = resolveDates([item], previous, {
+    now: new Date("2026-10-26T09:00:00.000Z"),
+  });
+
+  assert.deepEqual(next, previous);
+});
+
+test("changed item payload preserves uploadedAt and advances updatedAt", () => {
+  const original = fakeItem("button", "export const Button = 1;");
+  const previous = resolveDates(
+    [original],
+    {},
+    {
+      now: new Date("2026-10-25T09:00:00.000Z"),
+    },
+  );
+  const next = resolveDates(
+    [fakeItem("button", "export const Button = 2;")],
+    previous,
+    { now: new Date("2026-10-26T09:00:00.000Z") },
+  );
+
+  assert.equal(next.button?.uploadedAt, previous.button?.uploadedAt);
+  assert.equal(next.button?.updatedAt, "2026-10-26T09:00:00.000Z");
+  assert.notEqual(next.button?.contentHash, previous.button?.contentHash);
+});
+
+test("manifest date fields round-trip through the date ledger", () => {
+  const item = fakeItem("button", "export const Button = 1;");
+  const dates = resolveDates(
+    [item],
+    {},
+    {
+      now: new Date("2026-10-26T09:00:00.000Z"),
+    },
+  );
+  const manifest = buildManifest([item], dates);
+  const rendered = renderManifest([item], dates);
+
+  assert.deepEqual(dateLedger(manifest), dates);
+  assert.deepEqual(JSON.parse(rendered), manifest);
+  assert.equal(manifest.items[0]?.uploadedAt, dates.button?.uploadedAt);
+  assert.equal(manifest.items[0]?.updatedAt, dates.button?.updatedAt);
 });
