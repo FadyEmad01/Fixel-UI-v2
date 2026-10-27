@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { resourceHost } from "../lib/url";
 
 /**
  * A curated site's preview image with its Plaiceholder blur underneath.
@@ -16,6 +17,8 @@ export function ResourceImage({
   image,
   blurDataUrl,
   name,
+  icon,
+  url,
   alt = "",
   loading = "lazy",
   className,
@@ -24,6 +27,8 @@ export function ResourceImage({
   blurDataUrl: string | null;
   /** Used by the letter tile when there is no usable image. */
   name: string;
+  icon: string | null;
+  url: string;
   alt?: string;
   loading?: "eager" | "lazy";
   className?: string;
@@ -52,7 +57,16 @@ export function ResourceImage({
     );
   }, []);
 
-  if (!image || state.failed) return <ResourceFallback name={name} />;
+  if (!image || state.failed) {
+    return (
+      <ResourceFallback
+        key={`${icon ?? ""}|${url}`}
+        name={name}
+        icon={icon}
+        url={url}
+      />
+    );
+  }
 
   // Without a blur there is nothing to reveal, so skip the fade instead of
   // showing an empty box until the image decodes.
@@ -89,16 +103,49 @@ export function ResourceImage({
   );
 }
 
-/** Quiet letter tile for sites with no usable preview image. */
-export function ResourceFallback({ name }: { name: string }) {
+/** Site favicon, then a quiet letter tile when no preview image is usable. */
+export function ResourceFallback({
+  name,
+  icon,
+  url,
+}: {
+  name: string;
+  icon: string | null;
+  url: string;
+}) {
+  const host = resourceHost(url);
+  const [mode, setMode] = React.useState<"icon" | "google" | "initial">(() =>
+    icon ? "icon" : host ? "google" : "initial",
+  );
+
   return (
     <div className="flex size-full items-center justify-center bg-gradient-to-br from-muted to-muted/40">
-      <span
-        aria-hidden="true"
-        className="font-heading text-3xl font-semibold text-muted-foreground/50"
-      >
-        {name.trim().charAt(0).toUpperCase() || "?"}
-      </span>
+      {mode === "initial" ? (
+        <span
+          aria-hidden="true"
+          className="font-heading text-3xl font-semibold text-muted-foreground/50"
+        >
+          {name.trim().charAt(0).toUpperCase() || "?"}
+        </span>
+      ) : (
+        // biome-ignore lint/performance/noImgElement: favicons come from arbitrary curated hosts.
+        <img
+          src={
+            mode === "icon" && icon
+              ? icon
+              : `https://www.google.com/s2/favicons?domain=${host}&sz=32`
+          }
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          className="size-8 rounded-md object-contain"
+          onError={() =>
+            setMode(mode === "icon" && host ? "google" : "initial")
+          }
+        />
+      )}
     </div>
   );
 }

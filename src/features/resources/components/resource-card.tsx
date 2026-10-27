@@ -188,6 +188,8 @@ export function ResourceCard({
           image={resource.image}
           blurDataUrl={resource.blurDataUrl}
           name={resource.name}
+          icon={resource.icon}
+          url={resource.normalizedUrl}
         />
       </div>
 
