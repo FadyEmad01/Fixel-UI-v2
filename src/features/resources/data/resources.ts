@@ -13,18 +13,162 @@ import type { ResourceSeed } from "../lib/types";
  * all of them are filterable via `?tag=`.
  */
 export const resources: ResourceSeed[] = [
-  { url: "https://ui.shadcn.com/", categories: ["Design System", "registry"] },
-  { url: "https://excalidraw.com/", categories: ["tools"] },
-  { url: "https://www.gauge-ui.dev/", categories: ["SVG gauge"] },
+   // UI Components & Design Systems
+  {
+    url: "https://ui.shadcn.com/",
+    categories: ["UI Components", "Design Systems"],
+  },
+  {
+    url: "https://www.gauge-ui.dev/",
+    categories: ["UI Components"],
+  },
+  {
+    url: "https://ui.elevenlabs.io/",
+    categories: ["UI Components", "Audio & AI"],
+  },
+  {
+    url: "https://21st.dev/",
+    categories: ["UI Components", "UI Blocks", "Animation"],
+  },
+  {
+    url: "https://magicui.design/",
+    categories: ["UI Components", "UI Blocks", "Animation"],
+  },
+  {
+    url: "https://motion-primitives.com/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://ui.aceternity.com/",
+    categories: ["UI Components", "UI Blocks", "Animation"],
+  },
+  {
+    url: "https://heroui.com/",
+    categories: ["UI Components", "Design Systems"],
+  },
+  {
+    url: "https://www.fancycomponents.dev/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://www.reactbits.dev/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://smoothui.dev/",
+    categories: ["UI Components", "UI Blocks", "Animation"],
+  },
+  {
+    url: "https://blocks.mvp-subha.me/",
+    categories: ["UI Blocks", "UI Components", "Animation"],
+  },
+  {
+    url: "https://www.cult-ui.com/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://skiper-ui.com/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://www.kibo-ui.com/",
+    categories: ["UI Components", "UI Blocks"],
+  },
+  {
+    url: "https://lightswind.com/",
+    categories: ["UI Components", "UI Blocks", "Animation"],
+  },
+  {
+    url: "https://www.shadcnblocks.com/",
+    categories: ["UI Blocks", "UI Components"],
+  },
+  {
+    url: "https://reverseui.com/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://coss.com/origin",
+    categories: ["UI Components"],
+  },
+
+  // Animation Libraries & Resources
+  {
+    url: "https://motion.dev/",
+    categories: ["Animation"],
+  },
+  {
+    url: "https://gsap.com/",
+    categories: ["Animation"],
+  },
+  {
+    url: "https://animejs.com/",
+    categories: ["Animation"],
+  },
+  {
+    url: "https://madewithgsap.com/",
+    categories: ["Animation", "Learning"],
+  },
+  {
+    url: "https://annnimate.com/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://www.osmo.supply/",
+    categories: ["Design Resources", "Animation"],
+  },
+
+  // Learning
   {
     url: "https://blog.olivierlarose.com/",
-    categories: ["dev blog", "web animations tutorial"],
+    categories: ["Learning", "Animation"],
   },
-  // { url: "a", categories: ["UI",] },
+
+  // Tools & Utilities
+  {
+    url: "https://excalidraw.com/",
+    categories: ["Tools", "Whiteboarding"],
+  },
+  {
+    url: "https://www.reacthaiku.dev/",
+    categories: ["React Hooks & Utilities"],
+  },
+  {
+    url: "https://driverjs.com/",
+    categories: ["Product Tours", "Tools"],
+  },
+
+  // Developer Services & APIs
+  {
+    url: "https://coss.com/",
+    categories: ["APIs & SDKs"],
+  },
+  {
+    url: "https://resend.com/",
+    categories: ["Email", "APIs & SDKs"],
+  },
+  {
+    url: "https://better-auth.com/",
+    categories: ["Authentication"],
+  },
 ];
 
 /**
  * Chip order on `/resources`. Categories missing from this list are appended
  * alphabetically, so adding a new one to a resource above is enough.
  */
-export const CATEGORY_ORDER = ["UI", "Tools", "Development"];
+export const CATEGORY_ORDER = [
+  "UI Components",
+  "UI Blocks",
+  "Animation",
+  "Design Systems",
+  "Design Resources",
+  "Tools",
+  "Whiteboarding",
+  "Learning",
+  "React Hooks & Utilities",
+  "Product Tours",
+  "Authentication",
+  "Email",
+  "APIs & SDKs",
+  "Audio & AI",
+];
