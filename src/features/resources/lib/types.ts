@@ -74,5 +74,7 @@ export interface Resource {
   fetchedAt: string | null;
   uploadedAt: string | null;
   updatedAt: string | null;
+  /** Member of the newest upload batch, so the card wears a "New" label. */
+  isNew: boolean;
   lastError: string | null;
 }

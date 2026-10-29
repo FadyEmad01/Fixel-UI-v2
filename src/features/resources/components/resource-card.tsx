@@ -179,8 +179,6 @@ export function ResourceCard({
   query: string;
   onOpen: () => void;
 }) {
-  const [firstCategory, ...restCategories] = resource.categories;
-
   return (
     <article className="group relative min-w-0 rounded-xl">
       <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
@@ -191,6 +189,11 @@ export function ResourceCard({
           icon={resource.icon}
           url={resource.normalizedUrl}
         />
+        {resource.isNew ? (
+          <span className="absolute right-2 top-2 rounded-sm bg-my-secondary px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-my-bg">
+            New Drop
+          </span>
+        ) : null}
       </div>
 
       <div className="mt-3 flex-col items-start justify-between gap-3 px-0.5">
@@ -205,6 +208,8 @@ export function ResourceCard({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
+
+
             {/* {firstCategory ? (
               <span className="rounded-sm bg-my-primary/70 px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-muted-foreground dark:bg-muted">
                 {firstCategory}
