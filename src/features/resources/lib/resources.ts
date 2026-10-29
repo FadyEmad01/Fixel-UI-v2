@@ -1,6 +1,7 @@
 import { CATEGORY_ORDER, resources as seed } from "../data/resources";
 import snapshotJson from "../generated/resources.json";
 
+import { isInNewestBatch, orderByRecency } from "./recency";
 import type {
   Resource,
   ResourceSeed,
@@ -45,11 +46,19 @@ function merge(entry: ResourceSeed): Resource {
     fetchedAt: cached?.fetchedAt ?? null,
     uploadedAt: cached?.uploadedAt ?? cached?.fetchedAt ?? null,
     updatedAt: cached?.updatedAt ?? cached?.fetchedAt ?? null,
+    isNew: false,
     lastError: cached?.lastError ?? null,
   };
 }
 
-/** Every resource, in the order you wrote them. Duplicate URLs appear once. */
+/**
+ * Every resource, newest upload batch first. Duplicate URLs appear once.
+ *
+ * Batch order comes from `uploadedAt` (see `recency.ts`); inside a batch the
+ * curated order from `data/resources.ts` is kept, so a batch you added together
+ * stays grouped as you wrote it. Resources that were listed but never synced
+ * have no date, sort last, and never wear the "New" label.
+ */
 export function allResources(): Resource[] {
   const seen = new Set<string>();
   const merged: Resource[] = [];
@@ -61,7 +70,12 @@ export function allResources(): Resource[] {
     merged.push(merge(entry));
   }
 
-  return merged;
+  const { resources, newestBatchStart } = orderByRecency(merged);
+
+  return resources.map((resource) => ({
+    ...resource,
+    isNew: isInNewestBatch(resource.uploadedAt, newestBatchStart),
+  }));
 }
 
 /** Categories actually in use, ordered by `CATEGORY_ORDER` then alphabetically. */
