@@ -144,7 +144,7 @@ export function IllustrationViewer({
             onClick={() => navigateBy(-1)}
             aria-label={`Previous illustration: ${previous.title}`}
             title="Previous illustration (←)"
-            className="inline-flex h-9 shrink-0 items-center justify-center rounded-full bg-my-bg text-foreground transition hover:bg-my-bg/70 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none px-7"
+            className="inline-flex h-9 shrink-0 items-center justify-center rounded-full  bg-my-bg dark:bg-muted text-foreground transition hover:bg-my-bg/70 dark:hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none px-7"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
           </button>
