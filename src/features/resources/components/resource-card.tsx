@@ -190,7 +190,7 @@ export function ResourceCard({
           url={resource.normalizedUrl}
         />
         {resource.isNew ? (
-          <span className="absolute right-2 top-2 rounded-sm bg-my-secondary px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-my-bg">
+          <span className="absolute right-2 top-2 rounded-sm bg-my-secondary px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-white">
             New Drop
           </span>
         ) : null}
@@ -208,8 +208,6 @@ export function ResourceCard({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-
-
             {/* {firstCategory ? (
               <span className="rounded-sm bg-my-primary/70 px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-muted-foreground dark:bg-muted">
                 {firstCategory}

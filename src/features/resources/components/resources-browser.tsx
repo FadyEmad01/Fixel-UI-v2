@@ -23,11 +23,15 @@ export function ResourcesBrowser({
   categories,
   activeCategory,
   selectedUrl,
+  counts,
+  total,
 }: {
   resources: Resource[];
   categories: string[];
   activeCategory?: string;
   selectedUrl?: string;
+  counts: Record<string, number>;
+  total: number;
 }) {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
@@ -67,6 +71,8 @@ export function ResourcesBrowser({
         <CategoryFilter
           categories={categories}
           activeCategory={activeCategory}
+          counts={counts}
+          total={total}
           className=""
         />
 

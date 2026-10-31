@@ -96,6 +96,29 @@ export function resourceCategories(): string[] {
   });
 }
 
+/**
+ * Resource count per category, plus the grand total.
+ *
+ * Chips are server-rendered links, so these counts cover every resource and do
+ * not react to the search box. A resource listed in two categories counts once
+ * in each, so the category counts can add up to more than `total`.
+ */
+export function resourceCategoryCounts(): {
+  total: number;
+  counts: Record<string, number>;
+} {
+  const all = allResources();
+  const counts: Record<string, number> = {};
+
+  for (const resource of all) {
+    for (const category of resource.categories) {
+      counts[category] = (counts[category] ?? 0) + 1;
+    }
+  }
+
+  return { total: all.length, counts };
+}
+
 /** Resources in a category. An unknown or missing tag means "no filter". */
 export function resourcesForTag(tag?: string): Resource[] {
   const all = allResources();

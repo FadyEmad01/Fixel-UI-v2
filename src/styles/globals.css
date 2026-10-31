@@ -69,6 +69,8 @@
 }
 
 :root {
+  color-scheme: light;
+
   /* brand colors */
 
   --my-bg: #eaeaea;
@@ -127,6 +129,16 @@
 }
 
 .dark {
+  color-scheme: dark;
+
+  /* Dark mirror of the light brand palette. The page becomes --background and
+     the elevated surface --card, so every bg-my-bg / bg-my-primary panel flips
+     with the theme. The brand blue stays exactly #004bff in both themes;
+     anything sitting on it uses white text. */
+  --my-bg: var(--background);
+  --my-primary: var(--card);
+  --my-secondary: #004bff;
+
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

@@ -26,7 +26,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
     <>
       {segments.map(({ key, part }) =>
         part.toLowerCase() === term.toLowerCase() ? (
-          <mark key={key} className="rounded-[2px] bg-my-secondary text-my-bg">
+          <mark key={key} className="rounded-[2px] bg-my-secondary text-white">
             {part}
           </mark>
         ) : (

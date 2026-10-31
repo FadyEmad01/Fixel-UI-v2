@@ -276,7 +276,7 @@ export function ResourceSheet({
             size="icon"
             aria-label="Close resource"
             title="Close (Esc)"
-            className="absolute top-5.5 right-6 z-20 size-9 rounded-full bg-my-primary text-foreground opacity-100 transition hover:bg-my-primary/70 backdrop-blur-2xl hover:text-[#211f1c] focus-visible:ring-1 focus-visible:ring-my-bg border-none"
+            className="absolute top-5.5 right-6 z-20 size-9 rounded-full bg-my-primary/70 text-foreground opacity-100 transition hover:bg-my-primary/70 backdrop-blur-2xl hover:text-foreground focus-visible:ring-1 dark:focus-visible:ring-border focus-visible:ring-my-bg border-none"
           >
             <X aria-hidden="true" />
           </Button>
@@ -314,7 +314,7 @@ export function ResourceSheet({
                   Couldn&apos;t load this resource
                 </SheetTitle>
 
-                <SheetDescription className="text-[13px] leading-6 text-[#5f5a52]">
+                <SheetDescription className="text-[13px] leading-6 text-foreground/65">
                   {errorMessage}
                 </SheetDescription>
               </SheetHeader>
@@ -359,21 +359,21 @@ export function ResourceSheet({
                 aria-label="Resource details"
                 // biome-ignore lint/a11y/noNoninteractiveTabindex: keyboard users must be able to scroll the details pane.
                 tabIndex={0}
-                className="scroll-fade scroll-fade-52 scrollbar-none overflow-y-auto no-scrollbar min-h-0 flex-1 overscroll-contain focus-visible:ring-2 focus-visible:ring-[#211f1c]/20 focus-visible:ring-inset focus-visible:outline-none"
+                className="scroll-fade scroll-fade-52 scrollbar-none overflow-y-auto no-scrollbar min-h-0 flex-1 overscroll-contain focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:ring-inset focus-visible:outline-none"
               >
                 <div className="flex flex-col gap-4 px-1.5 pb-2">
                   <SheetHeader className="space-y-1.5 p-0 text-left">
-                    <SheetTitle className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.02em] text-[#211f1c] chroma-text chroma-text-animate-once">
+                    <SheetTitle className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.02em] text-foreground chroma-text chroma-text-animate-once">
                       @{resource.name}
                     </SheetTitle>
 
-                    <SheetDescription className="flex items-center gap-1.5 font-archivo text-xs tracking-wide text-[#5f5a52]">
+                    <SheetDescription className="flex items-center gap-1.5 font-archivo text-xs tracking-wide text-foreground/65">
                       <SiteIcon icon={resource.icon} />
                       {resourceHost(resource.normalizedUrl)}
                     </SheetDescription>
                   </SheetHeader>
 
-                  <p className="text-[13px] leading-[1.7] text-[#45423d]">
+                  <p className="text-[13px] leading-[1.7] text-foreground/80">
                     {resource.description ??
                       "This site doesn't publish a description."}
                   </p>
@@ -383,7 +383,7 @@ export function ResourceSheet({
                       {resource.categories.map((category) => (
                         <span
                           key={category}
-                          className="rounded-md bg-black/[0.055] px-2 py-1 font-archivo text-[10px] font-medium tracking-[0.08em] text-[#55514a] capitalize"
+                          className="rounded-md bg-foreground/[0.055] px-2 py-1 font-archivo text-[10px] font-medium tracking-[0.08em] text-foreground/65 capitalize"
                         >
                           {category}
                         </span>
@@ -392,18 +392,18 @@ export function ResourceSheet({
                   )}
 
                   {(resource.uploadedAt || resource.updatedAt) && (
-                    <dl className="grid grid-cols-2 gap-3 border-t border-black/10 pt-3 font-archivo text-[11px] text-[#5f5a52]">
+                    <dl className="grid grid-cols-2 gap-3 border-t border-border pt-3 font-archivo text-[11px] text-foreground/65">
                       <div>
                         <dt className="uppercase tracking-[0.08em]">
                           Uploaded
                         </dt>
-                        <dd className="mt-1 text-[#211f1c]">
+                        <dd className="mt-1 text-foreground">
                           {formatLongDate(resource.uploadedAt)}
                         </dd>
                       </div>
                       <div>
                         <dt className="uppercase tracking-[0.08em]">Updated</dt>
-                        <dd className="mt-1 text-[#211f1c]">
+                        <dd className="mt-1 text-foreground">
                           {formatLongDate(resource.updatedAt)}
                         </dd>
                       </div>
@@ -411,7 +411,7 @@ export function ResourceSheet({
                   )}
 
                   {resource.status === "failed" && (
-                    <p className="text-[11px] leading-5 text-[#5f5a52]">
+                    <p className="text-[11px] leading-5 text-foreground/65">
                       Showing the last details we could read from this site.
                     </p>
                   )}
@@ -421,7 +421,7 @@ export function ResourceSheet({
               <div className="shrink-0 px-1">
                 <Button
                   asChild
-                  className="h-11 w-full rounded-full bg-my-secondary text-sm font-medium text-my-primary hover:bg-my-secondary/85"
+                  className="h-11 w-full rounded-full bg-my-secondary text-sm font-medium text-white hover:bg-my-secondary/85"
                 >
                   <a
                     href={resource.externalUrl}
@@ -453,7 +453,7 @@ export function ResourceSheet({
               disabled={availableUrls.length < 2}
               aria-label="Previous resource"
               title="Previous resource (←)"
-              className="size-10 shrink-0 rounded-full bg-my-primary text-[#211f1c] shadow-sm hover:bg-white/85 hover:text-[#211f1c] disabled:opacity-40 px-8"
+              className="size-10 shrink-0 rounded-full bg-my-primary dark:bg-muted text-foreground shadow-sm hover:bg-my-primary/70 hover:text-foreground disabled:opacity-40 px-8"
             >
               <ArrowLeft aria-hidden="true" />
             </Button>
@@ -471,14 +471,14 @@ export function ResourceSheet({
                       onClick={() => selectResource(dotUrl)}
                       aria-label={`Show resource ${index + 1}: ${resourceHost(dotUrl)}`}
                       aria-current={active ? "true" : undefined}
-                      className="group flex size-5 shrink-0 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-[#211f1c]/30 focus-visible:outline-none"
+                      className="group flex size-5 shrink-0 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:outline-none"
                     >
                       <span
                         className={[
                           "size-1.5 rounded-full transition-all duration-200",
                           active
-                            ? "scale-125 bg-[#211f1c]"
-                            : "bg-[#211f1c]/20 group-hover:bg-[#211f1c]/45",
+                            ? "scale-125 bg-foreground"
+                            : "bg-foreground/20 group-hover:bg-foreground/45",
                         ].join(" ")}
                       />
                     </button>
@@ -495,7 +495,7 @@ export function ResourceSheet({
               disabled={availableUrls.length < 2}
               aria-label="Next resource"
               title="Next resource (→)"
-              className="size-10 shrink-0 rounded-full bg-[#211f1c] text-white shadow-sm hover:bg-[#211f1c]/85 hover:text-white disabled:opacity-40 px-8"
+              className="size-10 shrink-0 rounded-full bg-foreground text-background shadow-sm hover:bg-foreground/85 hover:text-background disabled:opacity-40 px-8"
             >
               <ArrowRight aria-hidden="true" />
             </Button>
