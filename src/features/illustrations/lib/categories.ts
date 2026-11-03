@@ -26,6 +26,7 @@ export const ILLUSTRATION_CATEGORIES: Record<string, string> = {
   "number-field": "Fields & Forms",
   "radio-group": "Fields & Forms",
   switch: "Fields & Forms",
+  "apple-switch": "Fields & Forms",
   textarea: "Fields & Forms",
 
   // Selection & Menus
