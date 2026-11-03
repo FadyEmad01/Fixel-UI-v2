@@ -46,10 +46,7 @@ const NAV_LINKS: NavLink[] = [
   { title: "Home", href: "/" },
   { title: "Resources", href: "/resources" },
   { title: "Illustration", href: "/illustration" },
-  // { title: "UI", href: "/ui" },
-  // { title: "Showcase", href: "/showcase" },
-  // { title: "About", href: "/about" },
-  // { title: "Contact", href: "/contact" },
+  { title: "Easing", href: "/easing" },
 ];
 
 const CONTACT = {

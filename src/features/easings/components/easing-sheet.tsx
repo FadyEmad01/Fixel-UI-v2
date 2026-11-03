@@ -312,7 +312,7 @@ export function EasingSheet({
                 </div>
               </section>
 
-              <div className="shrink-0 px-1">
+              {/* <div className="shrink-0 px-1">
                 <Button
                   asChild
                   className="h-11 w-full rounded-full bg-my-secondary text-sm font-medium text-my-primary hover:bg-my-secondary/85"
@@ -326,7 +326,7 @@ export function EasingSheet({
                     <Eye aria-hidden="true" data-icon="inline-end" />
                   </Link>
                 </Button>
-              </div>
+              </div> */}
             </div>
           ) : null}
 
