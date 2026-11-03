@@ -244,12 +244,12 @@ export function IllustrationSheet({
                   )}
 
                   <div className="flex flex-col gap-2">
-                    <p className="font-archivo text-[10px] font-medium uppercase tracking-[0.08em] text-foreground/65">
+                    {/* <p className="font-archivo text-[10px] font-medium uppercase tracking-[0.08em] text-foreground/65">
                       Installation command
-                    </p>
+                    </p> */}
                     <InstallCommand
                       command={illustration.installCommand}
-                      className="bg-my-primary/70 text-[11px]"
+                      className="bg-muted text-[11px]"
                     />
                   </div>
                 </div>

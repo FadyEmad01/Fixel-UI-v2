@@ -135,7 +135,7 @@ export function CodeBlockShell({
         )
       )}
       <div className={cn("p-1 bg-my-primary/70", title && "pt-0")}>
-        <div className="overflow-hidden rounded-lg bg-background">
+        <div className="overflow-hidden rounded-lg bg-my-bg">
           {viewport}
         </div>
       </div>

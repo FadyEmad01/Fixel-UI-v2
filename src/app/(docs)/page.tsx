@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <div className="h-screen flex flex-col gap-4 items-center justify-center w-full font-archivo">
-      <h1 className="text-6xl font-semibold">
+      <h1 className="text-6xl font-semibold text-center">
         Welcome to{" "}
         <span className="chroma-text chroma-text-animate-loop">Fixel UI</span>
       </h1>
