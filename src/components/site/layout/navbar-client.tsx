@@ -267,6 +267,7 @@ function NavbarLogo({ isScrolled, hasMounted }: NavbarLogoProps) {
     <div className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
       <AnimatePresence mode="wait" initial={false}>
         {!isScrolled ? (
+
           <motion.span
             key="text-logo"
             initial={hasMounted ? logoAnimation.initial : false}
@@ -275,9 +276,12 @@ function NavbarLogo({ isScrolled, hasMounted }: NavbarLogoProps) {
             transition={logoAnimation.transition}
             className="block whitespace-nowrap font-archivo text-[18px] font-medium tracking-[-0.03em]"
           >
-            Fixel UI
+            <Link href="/" aria-label="Fixel UI home page" className="pointer-events-auto">
+              Fixel UI
+            </Link>
           </motion.span>
         ) : (
+
           <motion.div
             key="image-logo"
             initial={hasMounted ? logoAnimation.initial : false}
@@ -286,14 +290,16 @@ function NavbarLogo({ isScrolled, hasMounted }: NavbarLogoProps) {
             transition={logoAnimation.transition}
             className="relative size-6"
           >
-            <Image
-              src="/logo.svg"
-              alt="Fixel UI"
-              fill
-              priority
-              sizes="24px"
-              className="object-contain invert dark:invert-0"
-            />
+            <Link href="/" aria-label="Fixel UI home page" className="pointer-events-auto">
+              <Image
+                src="/logo.svg"
+                alt="Fixel UI"
+                fill
+                priority
+                sizes="24px"
+                className="object-contain invert dark:invert-0"
+              />
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>
@@ -358,11 +364,10 @@ function PanelCard({ scrollable = false, children }: PanelCardProps) {
   return (
     <div className="min-h-0 flex-1">
       <div
-        className={`flex h-full min-h-0 flex-col rounded-lg bg-my-primary/70 px-4 pt-10 pb-4 text-black sm:px-6 sm:pt-14 dark:bg-muted/80 dark:text-white ${
-          scrollable
-            ? "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-            : ""
-        }`}
+        className={`flex h-full min-h-0 flex-col rounded-lg bg-my-primary/70 px-4 pt-10 pb-4 text-black sm:px-6 sm:pt-14 dark:bg-muted/80 dark:text-white ${scrollable
+          ? "overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          : ""
+          }`}
       >
         {children}
       </div>
@@ -410,9 +415,8 @@ function SearchPlaceholder() {
     <div className="w-full h-full flex items-center justify-center">
       <span
         ref={textRef}
-        className={`chroma-text chroma-text-animate inline-block font-archivo text-6xl leading-[1.2] ${
-          isInView ? "chroma-text-animate-once" : ""
-        }`}
+        className={`chroma-text chroma-text-animate inline-block font-archivo text-6xl leading-[1.2] ${isInView ? "chroma-text-animate-once" : ""
+          }`}
       >
         coming soon
       </span>
@@ -518,9 +522,8 @@ function PanelShell({
       initial="closed"
       onAnimationStart={onAnimStart}
       onAnimationComplete={onAnimComplete}
-      className={`absolute top-[48px] left-0 z-10 flex h-[calc(100svh-80px)] w-full flex-col gap-2 backdrop-blur-[20px] ${
-        isOpen && !disabled ? "" : "pointer-events-none"
-      }`}
+      className={`absolute top-[48px] left-0 z-10 flex h-[calc(100svh-80px)] w-full flex-col gap-2 backdrop-blur-[20px] rounded-lg ${isOpen && !disabled ? "" : "pointer-events-none"
+        }`}
       aria-hidden={!isOpen}
     >
       {children}

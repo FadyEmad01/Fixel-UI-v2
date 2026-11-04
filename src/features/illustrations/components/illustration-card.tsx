@@ -27,7 +27,7 @@ export function IllustrationCard({
     <article className="group relative min-w-0 rounded-xl">
       <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg bg-muted p-6">
         {Preview ? (
-          <div className="flex h-full w-full items-center justify-center transition-transform duration-300 ease-out group-hover:scale-[1.03]">
+          <div className="flex h-full w-full items-center justify-center scale-[1.03] transition-transform duration-300 ease-out">
             <Preview />
           </div>
         ) : (
