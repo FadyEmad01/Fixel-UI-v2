@@ -1,35 +1,32 @@
-import {
-  allResources,
-  resourceCategories,
-  resourceCategoryCounts,
-} from "../lib/resources";
+import { Suspense } from "react";
+
+import { CatalogSkeleton } from "@/components/catalog-skeleton";
+
+import { resourceCatalog } from "../lib/catalog";
 import { ResourcesBrowser } from "./resources-browser";
 
-/**
- * The `/resources` catalog: a header, category chips, search, and a grid.
- *
- * Server-rendered from the curated list plus the metadata snapshot. `tag` picks
- * the category here (shareable, no client store); everything below the header
- * is interactive only for search and the sheet.
- */
-export function ResourcesPage({
-  activeCategory,
-  selectedUrl,
-}: {
-  activeCategory?: string;
-  selectedUrl?: string;
-}) {
-  const categories = resourceCategories();
-  const { total, counts } = resourceCategoryCounts();
-  const all = allResources();
-  const tag =
-    activeCategory && categories.includes(activeCategory)
-      ? activeCategory
-      : undefined;
-  const resources = tag
-    ? all.filter((resource) => resource.categories.includes(tag))
-    : all;
+/** `?tag=` picks the category, `?url=` the resource whose sheet is open. */
+export interface ResourcesSearchParams {
+  /** Active category, e.g. `UI`. */
+  tag?: string;
+  /** The resource whose sheet is open, as its curated URL. */
+  url?: string;
+}
 
+interface ResourcesPageProps {
+  searchParams: Promise<ResourcesSearchParams>;
+}
+
+/**
+ * The `/resources` shell: a header, category chips, search, and a grid.
+ *
+ * The header is static and ships in the initial HTML. Only the parts that read
+ * `searchParams` — the count, the chips, and the grid — sit inside Suspense
+ * boundaries, which Cache Components requires for dynamic data. Awaiting
+ * `searchParams` there also makes shared `?tag=`/`?url=` links render correctly
+ * on the first request.
+ */
+export function ResourcesPage({ searchParams }: ResourcesPageProps) {
   return (
     <div className="flex flex-col">
       <header className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-end">
@@ -38,7 +35,18 @@ export function ResourcesPage({
             Resources
           </h1>
           <span className="text-my-secondary font-archivo md:text-2xl text-md text-nowrap tabular-nums">
-            [ {resources.length} ]
+            [{" "}
+            <Suspense
+              fallback={
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-[1.1em] w-[2ch] animate-pulse rounded-sm bg-muted align-middle"
+                />
+              }
+            >
+              <ResourceCount searchParams={searchParams} />
+            </Suspense>{" "}
+            ]
           </span>
         </div>
         <p className="max-w-sm text-muted-foreground">
@@ -48,14 +56,38 @@ export function ResourcesPage({
 
       <hr className="my-6 border-primary/15" />
 
-      <ResourcesBrowser
-        resources={resources}
-        categories={categories}
-        activeCategory={tag}
-        selectedUrl={selectedUrl}
-        counts={counts}
-        total={total}
-      />
+      <Suspense fallback={<CatalogSkeleton chips search icon />}>
+        <ResourcesCatalog searchParams={searchParams} />
+      </Suspense>
     </div>
+  );
+}
+
+/** The filtered count beside the title. */
+async function ResourceCount({ searchParams }: ResourcesPageProps) {
+  const { tag } = await searchParams;
+  const { resources } = resourceCatalog(tag);
+
+  return <>{resources.length}</>;
+}
+
+/**
+ * Server-rendered from the curated list plus the metadata snapshot; everything
+ * below the header is interactive only for search and the sheet.
+ */
+async function ResourcesCatalog({ searchParams }: ResourcesPageProps) {
+  const { tag: activeCategory, url: selectedUrl } = await searchParams;
+  const { tag, resources, categories, counts, total } =
+    resourceCatalog(activeCategory);
+
+  return (
+    <ResourcesBrowser
+      resources={resources}
+      categories={categories}
+      activeCategory={tag}
+      selectedUrl={selectedUrl}
+      counts={counts}
+      total={total}
+    />
   );
 }

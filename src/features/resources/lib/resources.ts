@@ -24,6 +24,9 @@ const snapshotByUrl = new Map<string, ResourceSnapshotEntry>(
   snapshot.resources.map((entry) => [entry.normalizedUrl, entry]),
 );
 
+/** The merged catalogue is a pure function of a build-time import. */
+let cache: Resource[] | null = null;
+
 function merge(entry: ResourceSeed): Resource {
   const normalized = normalizeResourceUrl(entry.url);
   const cached = normalized ? snapshotByUrl.get(normalized) : undefined;
@@ -60,6 +63,8 @@ function merge(entry: ResourceSeed): Resource {
  * have no date, sort last, and never wear the "New" label.
  */
 export function allResources(): Resource[] {
+  if (cache) return cache;
+
   const seen = new Set<string>();
   const merged: Resource[] = [];
 
@@ -72,10 +77,12 @@ export function allResources(): Resource[] {
 
   const { resources, newestBatchStart } = orderByRecency(merged);
 
-  return resources.map((resource) => ({
+  cache = resources.map((resource) => ({
     ...resource,
     isNew: isInNewestBatch(resource.uploadedAt, newestBatchStart),
   }));
+
+  return cache;
 }
 
 /** Categories actually in use, ordered by `CATEGORY_ORDER` then alphabetically. */
