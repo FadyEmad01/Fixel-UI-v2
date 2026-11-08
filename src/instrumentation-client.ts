@@ -1,6 +1,7 @@
 import posthog from "posthog-js";
 
 import { isPostHogEnabled } from "@/lib/posthog";
+import { posthogLogCapture } from "@/lib/posthog-log-capture";
 
 const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
@@ -20,8 +21,8 @@ if (isPostHogEnabled() && token && host) {
       capture_unhandled_rejections: true,
     },
     mask_personal_data_properties: true,
-    disable_session_recording: true,
   });
+  posthogLogCapture.clientInitialized();
 } else if (process.env.NODE_ENV === "production") {
   console.warn(
     "[PostHog] Production tracking is disabled because the project token or host is missing.",
