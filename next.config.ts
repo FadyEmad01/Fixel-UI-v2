@@ -36,7 +36,9 @@ const nextConfig: NextConfig = {
 const withMDX = createMDX({
   options: {
     remarkPlugins: ["remark-gfm"],
-    rehypePlugins: [],
+    // rehype-slug gives every heading the id the generated TOC links to. It
+    // uses the same slugger the generator uses, so the anchors cannot drift.
+    rehypePlugins: ["rehype-slug"],
   },
 });
 

@@ -1,36 +1,26 @@
-import { ArticleSection, HeroSection, MethodsSidebar, PageLayout, TableOfContents } from "@/features/components/components/doc-page";
+import type { Metadata } from "next";
 
-export default function Page() {
+import {
+  ComponentsPage,
+  type ComponentsSearchParams,
+} from "@/features/components/components/components-page";
+
+export const metadata: Metadata = {
+  title: "Components",
+  description:
+    "Animated React components from Fixel UI — installable with the shadcn CLI, previewed live.",
+};
+
+export default function Page({
+  searchParams,
+}: {
+  searchParams: Promise<ComponentsSearchParams>;
+}) {
   return (
-    <>
-      <PageLayout
-        leftSidebar={<TableOfContents />}
-        rightSidebar={<MethodsSidebar />}
-      >
-        <HeroSection
-          videoSrc="/previews/apple-folder.mp4"
-          title="Gravity Mouse Trail"
-          description="This mouse trail has a unique twist. As the user moves the cursor, images are created, fall to the bottom of the screen, bounce, and eventually fade away. Let's see how it works!"
-        />
-
-        <ArticleSection
-          id="anchor1"
-          title="HTML Structure"
-          description="The structure here is quite simple. We will simply call the set of images we want for our effect:"
-        >
-          {/* <CodeBlock showCopyButton language="html"  code={codeSnippets.html} /> */}
-          code block is here
-        </ArticleSection>
-
-        <ArticleSection
-          id="anchor2"
-          title="Some CSS"
-          description="Now, I will hide these images using a bit of CSS."
-        >
-          {/* <CodeBlock code={codeSnippets.html} /> */}
-          code block is here
-        </ArticleSection>
-      </PageLayout>
-    </>
+    <main className="mx-auto w-full max-w-7xl px-4 pt-32 pb-16 md:px-6 lg:px-8">
+      {/* `searchParams` is awaited inside the feature's Suspense boundary, so
+          the static shell below streams first. */}
+      <ComponentsPage searchParams={searchParams} />
+    </main>
   );
 }
