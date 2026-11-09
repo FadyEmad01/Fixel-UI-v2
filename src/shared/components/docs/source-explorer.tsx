@@ -9,11 +9,18 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import type { IllustrationFile } from "../lib/items";
-import { createSourceTree } from "../lib/source-tree";
+import { createSourceTree } from "@/shared/lib/registry/source-tree";
 import { FileTree } from "./file-tree";
 
-export type SourceExplorerFile = IllustrationFile & {
+/**
+ * The manual-install file browser.
+ *
+ * `html` is Shiki output rendered on the server; when it is missing the raw
+ * source is shown instead so an unhighlighted install never breaks the page.
+ */
+export type SourceExplorerFile = {
+  path: string;
+  content: string;
   html: string | null;
 };
 

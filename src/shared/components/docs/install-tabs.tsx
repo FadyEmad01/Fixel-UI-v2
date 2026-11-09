@@ -4,7 +4,10 @@ import { type ReactNode, useState } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { PACKAGE_MANAGERS, type PackageManager } from "../lib/install";
+import {
+  PACKAGE_MANAGERS,
+  type PackageManager,
+} from "@/shared/lib/registry/install";
 import { InstallCommand } from "./install-command";
 
 /**
@@ -20,11 +23,13 @@ export function InstallTabs({
   automatic,
   dependencies,
   packages,
+  automaticDescription = "Writes the component and any shared file it imports. Nothing else in your project is touched.",
   children,
 }: {
   automatic: Record<PackageManager, string>;
   dependencies?: Record<PackageManager, string>;
   packages: string[];
+  automaticDescription?: string;
   children: ReactNode;
 }) {
   const [packageManager, setPackageManager] = useState<PackageManager>("pnpm");
@@ -64,8 +69,7 @@ export function InstallTabs({
 
       <TabsContent value="automatic" className="flex flex-col gap-2">
         <p className="max-w-xl text-sm text-muted-foreground">
-          Writes the illustration and any shared file it imports. Nothing else
-          in your project is touched.
+          {automaticDescription}
         </p>
         <InstallCommand command={automatic[packageManager]} />
       </TabsContent>

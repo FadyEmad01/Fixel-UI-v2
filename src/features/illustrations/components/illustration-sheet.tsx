@@ -13,9 +13,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { InstallCommand } from "@/shared/components/docs/install-command";
 import { formatLongDate } from "@/shared/lib/format-date";
 import { type IllustrationSlug, illustrations } from "../generated";
-import { InstallCommand } from "./install-command";
 
 const DOT_WINDOW = 7;
 

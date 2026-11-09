@@ -6,7 +6,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 
-import type { SourceTreeNode } from "../lib/source-tree";
+import type { SourceTreeNode } from "@/shared/lib/registry/source-tree";
 
 export function FileTree({
   nodes,

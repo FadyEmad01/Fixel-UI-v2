@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import type { Assistant } from "../lib/install";
+import type { Assistant } from "@/shared/lib/registry/install";
 
 const ASSISTANT_ICONS = {
   chatgpt: Sparkles,

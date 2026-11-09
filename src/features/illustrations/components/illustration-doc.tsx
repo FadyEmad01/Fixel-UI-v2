@@ -3,6 +3,12 @@ import Link from "next/link";
 
 import { getSiteUrl } from "@/lib/site";
 import { CodeBlock } from "@/shared/components/code-block/code-block";
+import { InstallTabs } from "@/shared/components/docs/install-tabs";
+import { PageActions } from "@/shared/components/docs/page-actions";
+import {
+  SourceExplorer,
+  type SourceExplorerFile,
+} from "@/shared/components/docs/source-explorer";
 import { highlight } from "@/shared/lib/shiki/highlight";
 import { type IllustrationSlug, illustrations } from "../generated";
 import { ILLUSTRATION_CATEGORIES } from "../lib/categories";
@@ -22,9 +28,6 @@ import {
   DocsLayout,
   IllustrationMetadataPanel,
 } from "./docs-layout";
-import { InstallTabs } from "./install-tabs";
-import { PageActions } from "./page-actions";
-import { SourceExplorer, type SourceExplorerFile } from "./source-explorer";
 
 /**
  * One illustration's page: static preview, install, usage, and source.
@@ -43,7 +46,7 @@ export async function IllustrationDoc({
   const name = componentName(illustration.slug);
   const markdown = illustrationMarkdown(illustration, itemUrl);
   const assistants = assistantLinks(
-    assistantPrompt(illustration.title, name, itemUrl),
+    assistantPrompt(illustration.title, name, itemUrl, "illustration"),
   );
   const Preview = illustrations[illustration.slug as IllustrationSlug];
   const sourceFiles: SourceExplorerFile[] = await Promise.all(
@@ -160,6 +163,7 @@ export async function IllustrationDoc({
               : undefined
           }
           packages={illustration.dependencies}
+          automaticDescription="Writes the illustration and any shared file it imports. Nothing else in your project is touched."
         >
           <SourceExplorer files={sourceFiles} />
         </InstallTabs>
