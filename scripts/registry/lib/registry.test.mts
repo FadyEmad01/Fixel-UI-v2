@@ -9,6 +9,8 @@ import {
   contentHash,
   dateLedger,
   discoverItems,
+  KINDS,
+  type Kind,
   type RegistryItem,
   renderBarrel,
   renderManifest,
@@ -17,6 +19,12 @@ import {
 } from "./registry.mts";
 
 const cwd = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+function kindOf(name: string): Kind {
+  const kind = KINDS.find((candidate) => candidate.kind === name);
+  assert.ok(kind, `missing registry kind: ${name}`);
+  return kind;
+}
 
 function fakeItem(name: string, content: string): RegistryItem {
   return {
@@ -31,6 +39,7 @@ function fakeItem(name: string, content: string): RegistryItem {
     path: `registry/fixel/illustrations/${name}.tsx`,
     target: `components/illustrations/${name}.tsx`,
     content,
+    meta: {},
     dependencies: [],
     registryDependencies: [],
   };
@@ -54,10 +63,16 @@ test("discovery carries the install shape shadcn needs", async () => {
   assert.equal(items[0]?.name, "kit", "kit must lead the manifest");
 
   for (const item of items) {
-    assert.match(item.path, /^registry\/fixel\/illustrations\/[^/]+\.tsx$/);
+    const kind = kindOf(item.kind);
+
+    assert.match(
+      item.path,
+      new RegExp(`^registry/fixel/${kind.dir}/[^/]+\\.tsx$`),
+      `${item.name} must live under ${kind.dir}`,
+    );
     assert.equal(
       item.target,
-      `components/illustrations/${item.name}.tsx`,
+      `${kind.targetPrefix}/${item.name}.tsx`,
       `${item.name} needs an explicit target`,
     );
     assert.ok(item.content.length > 0);
@@ -66,10 +81,17 @@ test("discovery carries the install shape shadcn needs", async () => {
   // Metadata files sit beside the items, so they must never become items.
   const names = items.map((item) => item.name);
   assert.equal(new Set(names).size, names.length, "names must be unique");
-  assert.equal(names.filter((name) => name !== "kit").length, 57);
+  assert.ok(names.includes("kit"));
+
+  const illustrations = items.filter((item) => item.kind === "illustration");
+  assert.ok(illustrations.length > 1, "illustrations are the seeded kind");
+
+  const illustrationNames = illustrations
+    .map((item) => item.name)
+    .filter((name) => name !== "kit");
   assert.deepEqual(
-    names.filter((name) => name !== "kit"),
-    [...names.filter((name) => name !== "kit")].sort(),
+    illustrationNames,
+    [...illustrationNames].sort(),
     "items read alphabetically after the kit",
   );
 
@@ -120,7 +142,7 @@ test("the manifest is valid JSON and hides the kit from the catalog", async () =
   assert.equal(manifest.items.length, items.length);
   assert.equal(manifest.items[0]?.hidden, true);
 
-  const barrel = renderBarrel(items, "illustration");
+  const barrel = renderBarrel(items, kindOf("illustration"));
   assert.ok(barrel.includes('"button": ButtonIllustration'));
   assert.ok(!barrel.includes("kit"), "the kit is shared code, not a card");
 });

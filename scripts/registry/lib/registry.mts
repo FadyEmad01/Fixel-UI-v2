@@ -25,14 +25,19 @@ export const REGISTRY_NAME = "fixel";
 /** Repo-relative directory the manifest and generated JSON live in. */
 export const REGISTRY_ROOT = "registry";
 
-/** Where the site mirrors the catalog so it imports exactly what consumers get. */
-export const MIRROR_ROOT = "src/features/illustrations/generated";
-
 /** An installable item is one file; its filename is the slug. */
 export const ITEM_EXTENSION = ".tsx";
 
 /** Optional registry-only metadata, read from `<slug>.meta.ts` beside the item. */
 export const META_EXTENSION = ".meta.ts";
+
+/**
+ * Optional registry-only live-preview adapter, read from `<slug>.demo.tsx`.
+ *
+ * It never installs: the item file is the payload, the demo is the site's way
+ * to render that payload with the props it needs.
+ */
+export const DEMO_EXTENSION = ".demo.tsx";
 
 export type Kind = {
   /** Folder name under `registry/<registry>/`. */
@@ -45,10 +50,26 @@ export type Kind = {
   targetPrefix: string;
   /** Optional: sections want a different card for each kind. */
   section: string;
+  /** Where the site mirrors the catalog so it imports exactly what consumers get. */
+  mirrorDir: string;
+  /** Generated barrel file inside `mirrorDir`. */
+  barrelFile: string;
+  /** Exported name of the generated slug -> component map. */
+  barrelName: string;
+  /** Exported name of the generated slug union. */
+  slugTypeName: string;
+  /**
+   * `named` imports each item's export eagerly (illustrations render inline).
+   * `lazy-demo` dynamic-imports `<slug>.demo` per slug so one heavy component
+   * cannot drag every other component into a page's bundle.
+   */
+  barrel: "named" | "lazy-demo";
+  /** Repo-relative folder holding `<slug>.mdx` articles, when the kind has them. */
+  contentDir?: string;
 };
 
-// One entry today. Adding `blocks` means adding a folder and a line here, not
-// restructuring the generator.
+// Adding a kind means adding a folder and a line here, not restructuring the
+// generator.
 export const KINDS: Kind[] = [
   {
     dir: "illustrations",
@@ -56,6 +77,24 @@ export const KINDS: Kind[] = [
     type: "registry:component",
     targetPrefix: "components/illustrations",
     section: "illustration",
+    mirrorDir: "src/features/illustrations/generated",
+    barrelFile: "index.ts",
+    barrelName: "illustrations",
+    slugTypeName: "IllustrationSlug",
+    barrel: "named",
+  },
+  {
+    dir: "components",
+    kind: "component",
+    type: "registry:component",
+    targetPrefix: "components/fixel",
+    section: "component",
+    mirrorDir: "src/features/components/generated",
+    barrelFile: "index.ts",
+    barrelName: "componentPreviews",
+    slugTypeName: "ComponentSlug",
+    barrel: "lazy-demo",
+    contentDir: "content/components",
   },
 ];
 
@@ -68,6 +107,19 @@ export type ItemMeta = {
   /** Packages the install command must add, beyond what imports reveal. */
   dependencies?: string[];
   registryDependencies?: string[];
+  /** Catalog chip and the live-preview URL segment. */
+  category?: string;
+  /** Free-form labels shown in the docs sidebar. */
+  tags?: string[];
+  /** Card and hero media, served from `public/`. */
+  media?: ItemMedia;
+};
+
+export type ItemMedia = {
+  /** Poster image, e.g. `/components/folder-preview/poster.webp`. */
+  poster: string;
+  /** Optional looping preview clip shown on hover and in the hero. */
+  video?: string;
 };
 
 /**
@@ -101,6 +153,10 @@ export type RegistryItem = {
   /** Fixed install path in the consumer project. */
   target: string;
   content: string;
+  /** Registry-only live-preview adapter, when the item ships one. */
+  demoContent?: string;
+  /** Registry-only catalog metadata (category, tags, media). */
+  meta: ItemMeta;
   dependencies: string[];
   registryDependencies: string[];
 };
@@ -156,10 +212,18 @@ export async function discoverItems(
 
     for (const entry of entries) {
       if (!entry.isFile() || !entry.name.endsWith(ITEM_EXTENSION)) continue;
+      // A demo is the site's preview adapter, never part of an install.
+      if (entry.name.endsWith(DEMO_EXTENSION)) continue;
 
       const name = entry.name.slice(0, -ITEM_EXTENSION.length);
       const file = join(kindDir, entry.name);
       const content = (await readFile(file, "utf8")).replace(/\r\n/g, "\n");
+      const demo = await readFile(
+        join(kindDir, `${name}${DEMO_EXTENSION}`),
+        "utf8",
+      )
+        .then((text) => text.replace(/\r\n/g, "\n"))
+        .catch(() => undefined);
 
       const meta = await readMeta(join(kindDir, `${name}${META_EXTENSION}`));
       const title = meta.title ?? toTitle(name);
@@ -176,6 +240,8 @@ export async function discoverItems(
         path: relative(cwd, file).split(sep).join("/"),
         target: `${kind.targetPrefix}/${name}.tsx`,
         content,
+        ...(demo ? { demoContent: demo } : {}),
+        meta,
         dependencies: [
           ...new Set([
             ...detectDependencies(content),
@@ -393,12 +459,35 @@ export function renderManifest(
 }
 
 /**
- * `<slug> → component` for the docs site, built from the mirrored files.
+ * `<slug> -> component` for the docs site, built from the mirrored files.
  *
  * Imported by the catalog so a card renders the same code a consumer installs.
+ * A `lazy-demo` barrel points at the registry-only demo and splits per slug.
  */
-export function renderBarrel(items: RegistryItem[], kind: string): string {
-  const visible = items.filter((item) => item.kind === kind && !item.hidden);
+export function renderBarrel(items: RegistryItem[], kind: Kind): string {
+  const visible = items.filter(
+    (item) => item.kind === kind.kind && !item.hidden,
+  );
+
+  if (kind.barrel === "lazy-demo") {
+    const entries = visible
+      .filter((item) => item.demoContent)
+      .map(
+        (item) =>
+          `  "${item.name}": dynamic(() => import("./${item.name}.demo")),`,
+      )
+      .join("\n");
+
+    return `// Generated by scripts/registry/generate.mts. Do not edit.
+import dynamic from "next/dynamic";
+
+export const ${kind.barrelName} = {
+${entries}
+} as const;
+
+export type ${kind.slugTypeName} = keyof typeof ${kind.barrelName};
+`;
+  }
 
   const imports = visible
     .map(
@@ -413,11 +502,11 @@ export function renderBarrel(items: RegistryItem[], kind: string): string {
   return `// Generated by scripts/registry/generate.mts. Do not edit.
 ${imports}
 
-export const illustrations = {
+export const ${kind.barrelName} = {
 ${entries}
 } as const;
 
-export type IllustrationSlug = keyof typeof illustrations;
+export type ${kind.slugTypeName} = keyof typeof ${kind.barrelName};
 `;
 }
 

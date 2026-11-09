@@ -3,12 +3,13 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  buildManifest,
   contentHash,
   dateLedger,
   discoverItems,
-  buildManifest,
   renderManifest,
 } from "./lib/registry.mts";
+import { validateCatalog } from "./lib/validate.mts";
 
 /**
  * Fail when the committed `registry.json` no longer matches `registry/`.
@@ -50,6 +51,14 @@ if (stale.length > 0) {
   console.error(
     `registry.json has stale dates for: ${stale.join(", ")}. Run \`pnpm registry:generate\` and commit the result.`,
   );
+  process.exit(1);
+}
+
+// The manifest says an item exists; it cannot say the site can render it.
+const issues = await validateCatalog(items, cwd);
+
+if (issues.length > 0) {
+  console.error(`registry/ is missing pieces:\n  - ${issues.join("\n  - ")}`);
   process.exit(1);
 }
 
