@@ -113,6 +113,8 @@ export type ItemMeta = {
   tags?: string[];
   /** Card and hero media, served from `public/`. */
   media?: ItemMedia;
+  /** Consumer snippet for the usage section; defaults to a default import. */
+  usage?: string;
 };
 
 export type ItemMedia = {

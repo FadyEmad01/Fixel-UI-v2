@@ -12,7 +12,7 @@
     "registry:generate": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/registry/generate.mts",
     "registry:build": "shadcn build",
     "registry:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/registry/check.mts",
-    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/features/resources/scripts/lib/ src/features/resources/lib/ scripts/registry/lib/ src/features/illustrations/lib/ src/shared/lib/registry/"
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test src/features/resources/scripts/lib/ src/features/resources/lib/ scripts/registry/lib/ src/features/illustrations/lib/ src/shared/lib/registry/ src/features/components/lib/"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
