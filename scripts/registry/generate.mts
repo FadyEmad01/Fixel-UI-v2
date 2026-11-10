@@ -66,14 +66,24 @@ for (const kind of KINDS) {
   await mkdir(mirror, { recursive: true });
 
   for (const item of kindItems) {
-    await writeFile(join(mirror, `${item.name}.tsx`), item.content, "utf8");
+    // Folder kinds mirror the item folder, because an example imports its
+    // payload through `../<slug>`: the same relative path it has in `registry/`.
+    const itemDir = kind.layout === "folder" ? join(mirror, item.name) : mirror;
 
-    if (item.demoContent) {
-      await writeFile(
-        join(mirror, `${item.name}.demo.tsx`),
-        item.demoContent,
-        "utf8",
-      );
+    await mkdir(itemDir, { recursive: true });
+    await writeFile(join(itemDir, `${item.name}.tsx`), item.content, "utf8");
+
+    if (item.examples.length > 0) {
+      const examplesDir = join(itemDir, "examples");
+      await mkdir(examplesDir, { recursive: true });
+
+      for (const example of item.examples) {
+        await writeFile(
+          join(examplesDir, `${example.name}.tsx`),
+          example.content,
+          "utf8",
+        );
+      }
     }
   }
 
@@ -97,16 +107,43 @@ for (const kind of KINDS) {
   await writeFile(
     join(mirror, "catalog.json"),
     json({
-      items: kindItems.map(({ name, meta }) => ({
+      items: kindItems.map(({ name, meta, defaultExample }) => ({
         slug: name,
         category: meta.category ?? null,
         tags: meta.tags ?? [],
         media: meta.media ?? null,
-        usage: meta.usage ?? null,
+        defaultExample: defaultExample ?? null,
       })),
     }),
     "utf8",
   );
+
+  // The example sources, rewritten to the consumer alias. The docs use these
+  // as the Usage snippet and as the code under each rendered example, so the
+  // example file stays the single source of truth.
+  if (kind.layout === "folder") {
+    await writeFile(
+      join(mirror, "examples.json"),
+      json(
+        Object.fromEntries(
+          kindItems
+            .filter((item) => item.examples.length > 0)
+            .map((item) => [
+              item.name,
+              {
+                default: item.defaultExample,
+                items: item.examples.map(({ name, title, source }) => ({
+                  name,
+                  title,
+                  source,
+                })),
+              },
+            ]),
+        ),
+      ),
+      "utf8",
+    );
+  }
 
   await writeFile(
     join(mirror, kind.barrelFile),
@@ -146,36 +183,29 @@ function docsName(slug: string): string {
  * is what reports it.
  *
  * `body` is kept verbatim so "Copy page" and `/md` export the authored
- * markdown; `hasInstall`/`hasSource` say whether the author placed the
- * placeholders, which is what decides if the page appends them.
+ * markdown; the `has*` flags say whether the author placed a placeholder, which
+ * is what decides if the page appends the matching section.
  */
+type ArticleToc = {
+  headings: ReturnType<typeof extractHeadings>;
+  body: string;
+  hasUsage: boolean;
+  hasExamples: boolean;
+  hasInstall: boolean;
+  hasSource: boolean;
+};
+
 async function renderArticles(
   kindItems: RegistryItem[],
   kind: (typeof KINDS)[number],
   mirror: string,
 ): Promise<{
   docs: string;
-  toc: Record<
-    string,
-    {
-      headings: ReturnType<typeof extractHeadings>;
-      body: string;
-      hasInstall: boolean;
-      hasSource: boolean;
-    }
-  >;
+  toc: Record<string, ArticleToc>;
 }> {
   const imports: string[] = [];
   const entries: string[] = [];
-  const toc: Record<
-    string,
-    {
-      headings: ReturnType<typeof extractHeadings>;
-      body: string;
-      hasInstall: boolean;
-      hasSource: boolean;
-    }
-  > = {};
+  const toc: Record<string, ArticleToc> = {};
 
   for (const item of kindItems) {
     if (item.hidden) continue;
@@ -194,6 +224,8 @@ async function renderArticles(
     toc[item.name] = {
       headings: extractHeadings(source),
       body: source.replace(/\r\n/g, "\n"),
+      hasUsage: /<Usage\s*\/>/.test(source),
+      hasExamples: /<Examples\s*\/>/.test(source),
       hasInstall: /<Install\s*\/>/.test(source),
       hasSource: /<Source\s*\/>/.test(source),
     };

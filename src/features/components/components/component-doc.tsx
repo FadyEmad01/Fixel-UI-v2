@@ -14,6 +14,7 @@ import {
 import { highlight } from "@/shared/lib/shiki/highlight";
 import { componentDocs } from "../generated/docs";
 import { componentArticle, componentToc } from "../lib/articles";
+import { componentExamples, defaultExample } from "../lib/examples";
 import { type ComponentItem, componentName } from "../lib/items";
 import { renderComponentMarkdown } from "../lib/markdown";
 import {
@@ -23,8 +24,10 @@ import {
   PageLayout,
   TableOfContents,
 } from "./doc-page";
+import { ExamplesBlock } from "./examples-block";
 import { InstallBlock } from "./install-block";
 import { SourceBlock } from "./source-block";
+import { UsageBlock } from "./usage-block";
 
 /**
  * The generated MDX map is typed as `{}` until the first component exists, so
@@ -53,10 +56,19 @@ export async function ComponentDoc({
   const itemUrl = installUrl(site, component.slug);
   const name = componentName(component.slug);
   const article = componentArticle(component.slug);
+  const examples = componentExamples(component.slug);
+  const example = defaultExample(component.slug);
   const markdown = renderComponentMarkdown(
     component,
     itemUrl,
-    article ?? { body: "", hasInstall: false, hasSource: false },
+    article ?? {
+      body: "",
+      hasUsage: false,
+      hasExamples: false,
+      hasInstall: false,
+      hasSource: false,
+    },
+    examples,
   );
   const assistants = assistantLinks(
     assistantPrompt(component.title, name, itemUrl, "component"),
@@ -96,13 +108,17 @@ export async function ComponentDoc({
     ),
     li: (props) => <li {...props} className="leading-relaxed [&>p]:my-0" />,
 
-    // Two-line boilerplate: the author writes `## Installation` + `<Install />`
-    // (and the same for Source) wherever it belongs in the article.
+    // Placeholders the author writes wherever the section belongs in the
+    // article. Whichever they leave out is appended after it.
+    Usage: () => (example ? <UsageBlock source={example.source} /> : null),
+    Examples: () => <ExamplesBlock slug={component.slug} />,
     Install: () => <InstallBlock {...installProps} />,
     Source: () => <SourceBlock files={sourceFiles} />,
   });
 
   const Doc = docs[component.slug];
+  const hasUsage = article?.hasUsage ?? false;
+  const hasExamples = article?.hasExamples ?? false;
   const hasInstall = article?.hasInstall ?? false;
   const hasSource = article?.hasSource ?? false;
   const toc = componentToc(component.slug).map((entry) => ({
@@ -139,8 +155,19 @@ export async function ComponentDoc({
 
       {Doc ? <Doc components={components} /> : null}
 
-      {/* An article that authored neither placeholder still gets both, in the
-          default Installation -> Source order. */}
+      {/* An article that authored no usage placeholder still gets the default
+          example, before Installation and Source. `<Examples />` counts as the
+          usage section, since it shows the same snippet. */}
+      {hasUsage || hasExamples || !example ? null : (
+        <ArticleSection
+          id="usage"
+          title="Usage"
+          description="The default example, straight from the registry."
+        >
+          <UsageBlock source={example.source} />
+        </ArticleSection>
+      )}
+
       {hasInstall ? null : (
         <ArticleSection
           id="installation"

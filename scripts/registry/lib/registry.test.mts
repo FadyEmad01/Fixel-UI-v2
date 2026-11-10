@@ -39,6 +39,7 @@ function fakeItem(name: string, content: string): RegistryItem {
     path: `registry/fixel/illustrations/${name}.tsx`,
     target: `components/illustrations/${name}.tsx`,
     content,
+    examples: [],
     meta: {},
     dependencies: [],
     registryDependencies: [],
@@ -65,9 +66,16 @@ test("discovery carries the install shape shadcn needs", async () => {
   for (const item of items) {
     const kind = kindOf(item.kind);
 
+    // A flat kind is one file; a folder kind nests the payload one level deeper
+    // so its metadata and examples can sit beside it.
+    const shape =
+      kind.layout === "folder"
+        ? `^registry/fixel/${kind.dir}/[^/]+/[^/]+\\.tsx$`
+        : `^registry/fixel/${kind.dir}/[^/]+\\.tsx$`;
+
     assert.match(
       item.path,
-      new RegExp(`^registry/fixel/${kind.dir}/[^/]+\\.tsx$`),
+      new RegExp(shape),
       `${item.name} must live under ${kind.dir}`,
     );
     assert.equal(
@@ -76,6 +84,13 @@ test("discovery carries the install shape shadcn needs", async () => {
       `${item.name} needs an explicit target`,
     );
     assert.ok(item.content.length > 0);
+    if (kind.layout === "folder") {
+      assert.ok(item.examples.length > 0, `${item.name} needs an example`);
+      assert.ok(
+        item.examples.some((example) => example.name === item.defaultExample),
+        `${item.name} needs a resolvable default example`,
+      );
+    }
   }
 
   // Metadata files sit beside the items, so they must never become items.
@@ -203,6 +218,45 @@ test("changed item payload preserves uploadedAt and advances updatedAt", () => {
   assert.equal(next.button?.uploadedAt, previous.button?.uploadedAt);
   assert.equal(next.button?.updatedAt, "2026-10-26T09:00:00.000Z");
   assert.notEqual(next.button?.contentHash, previous.button?.contentHash);
+});
+
+test("editing an example does not move the payload hash", () => {
+  const base = fakeItem("thing", "export const Thing = 1;");
+  const component: RegistryItem = {
+    ...base,
+    kind: "component",
+    section: "component",
+    path: "registry/fixel/components/thing/thing.tsx",
+    target: "components/fixel/thing.tsx",
+    examples: [
+      { name: "basic", title: "Basic", content: "old", source: "old" },
+    ],
+  };
+  const previous = resolveDates(
+    [component],
+    {},
+    {
+      now: new Date("2026-10-25T09:00:00.000Z"),
+    },
+  );
+  const next = resolveDates(
+    [
+      {
+        ...component,
+        examples: [
+          { name: "basic", title: "Basic", content: "new", source: "new" },
+        ],
+      },
+    ],
+    previous,
+    { now: new Date("2026-10-26T09:00:00.000Z") },
+  );
+
+  assert.deepEqual(
+    next,
+    previous,
+    "examples are registry-only, so they must not date the install",
+  );
 });
 
 test("manifest date fields round-trip through the date ledger", () => {

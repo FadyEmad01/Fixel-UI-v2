@@ -5,14 +5,21 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 import { extractHeadings } from "./mdx.mts";
-import { discoverItems, KINDS, type Kind, renderBarrel } from "./registry.mts";
+import {
+  buildManifest,
+  discoverItems,
+  KINDS,
+  type Kind,
+  renderBarrel,
+  rewriteExampleImport,
+} from "./registry.mts";
 import { validateCatalog } from "./validate.mts";
 
 /**
- * The component kind reuses the illustration pipeline: one installable file per
- * item, plus a registry-only demo that the site renders live. These tests pin
- * the parts that differ, because a demo leaking into an install is silent
- * breakage for every consumer.
+ * The component kind puts each item in its own folder: the payload, the
+ * site-only metadata, and the example files that feed the docs. These tests pin
+ * the parts that differ from a flat kind, because an example leaking into an
+ * install (or a missing one going unnoticed) is silent breakage.
  */
 
 function componentsKind(): Kind {
@@ -33,11 +40,20 @@ async function fixture(files: Record<string, string>): Promise<string> {
   return root;
 }
 
-const ITEM = "export function Thing() { return null; }\n";
-const DEMO =
-  'import { Thing } from "./thing";\n\nexport default function Demo() { return <Thing />; }\n';
+const ITEM = "export default function Thing() { return null; }\n";
+const EXAMPLE =
+  'import Thing from "../thing";\n\nexport default function Basic() { return <Thing />; }\n';
 const META =
-  'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" } };\n';
+  'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" }, example: "basic" };\n';
+
+function componentFixture(extra: Record<string, string> = {}) {
+  return {
+    "registry/fixel/components/thing/thing.tsx": ITEM,
+    "registry/fixel/components/thing/meta.ts": META,
+    "registry/fixel/components/thing/examples/basic.tsx": EXAMPLE,
+    ...extra,
+  };
+}
 
 test("headings come from markdown, never from fenced code", () => {
   const markdown = [
@@ -68,12 +84,8 @@ test("heading labels drop inline markdown so anchors match rehype-slug", () => {
   ]);
 });
 
-test("demo files are never installable items", async () => {
-  const root = await fixture({
-    "registry/fixel/components/thing.tsx": ITEM,
-    "registry/fixel/components/thing.demo.tsx": DEMO,
-    "registry/fixel/components/thing.meta.ts": META,
-  });
+test("a component folder is one item: payload, meta, and examples", async () => {
+  const root = await fixture(componentFixture());
 
   const items = await discoverItems(root);
 
@@ -81,13 +93,127 @@ test("demo files are never installable items", async () => {
     items.map((item) => item.name),
     ["thing"],
   );
-  assert.equal(items[0]?.target, "components/fixel/thing.tsx");
-  assert.match(items[0]?.demoContent ?? "", /Demo/);
-  assert.equal(items[0]?.meta.category, "UI");
-  assert.deepEqual(items[0]?.meta.tags, ["Motion"]);
+
+  const item = items[0];
+  assert.ok(item);
+  assert.equal(
+    item.path,
+    "registry/fixel/components/thing/thing.tsx",
+    "the payload is the installable file",
+  );
+  assert.equal(item.target, "components/fixel/thing.tsx");
+  assert.equal(item.meta.category, "UI");
+  assert.equal(item.defaultExample, "basic");
+  assert.deepEqual(
+    item.examples.map((example) => example.name),
+    ["basic"],
+  );
 });
 
-test("the component barrel lazy-loads each demo and skips items without one", () => {
+test("example imports are rewritten to the consumer alias, files are not", async () => {
+  const root = await fixture(componentFixture());
+
+  const item = (await discoverItems(root))[0];
+  const example = item?.examples[0];
+
+  assert.ok(example);
+  assert.match(
+    example.content,
+    /from "\.\.\/thing"/,
+    "the mirror copy keeps resolving",
+  );
+  assert.match(
+    example.source,
+    /from "@\/components\/fixel\/thing"/,
+    "displayed code must be copy-pasteable",
+  );
+  assert.equal(example.title, "Basic");
+});
+
+test("every sibling import is rewritten, and regex characters in slugs are literal", () => {
+  const source = [
+    'import Thing from "../thing";',
+    'import type { ThingProps } from "../thing";',
+  ].join("\n");
+
+  const rewritten = rewriteExampleImport(source, "thing", "@/components/fixel");
+
+  assert.equal(
+    rewritten.match(/from "@\/components\/fixel\/thing"/g)?.length,
+    2,
+    "a value import and a type import both move",
+  );
+
+  assert.equal(
+    rewriteExampleImport(
+      'import Thing from "../button.v2";',
+      "button.v2",
+      "@/components/fixel",
+    ),
+    'import Thing from "@/components/fixel/button.v2";',
+  );
+
+  assert.equal(
+    rewriteExampleImport(
+      'import Thing from "../a+b";',
+      "a+b",
+      "@/components/fixel",
+    ),
+    'import Thing from "@/components/fixel/a+b";',
+    "a slug is not a regex",
+  );
+});
+
+test("a component installs its payload, never meta or examples", async () => {
+  const root = await fixture(componentFixture());
+  const manifest = buildManifest(await discoverItems(root));
+
+  const thing = manifest.items.find((item) => item.name === "thing");
+
+  assert.deepEqual(
+    thing?.files.map((file) => [file.path, file.target]),
+    [
+      [
+        "registry/fixel/components/thing/thing.tsx",
+        "components/fixel/thing.tsx",
+      ],
+    ],
+  );
+});
+
+test("the default example falls back to the first file", async () => {
+  const root = await fixture(
+    componentFixture({
+      "registry/fixel/components/thing/meta.ts":
+        'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" } };\n',
+      "registry/fixel/components/thing/examples/custom.tsx": EXAMPLE,
+    }),
+  );
+
+  const item = (await discoverItems(root))[0];
+
+  assert.equal(item?.defaultExample, "basic", "alphabetical, deterministic");
+});
+
+test("meta.example wins over the first file", async () => {
+  const root = await fixture(
+    componentFixture({
+      "registry/fixel/components/thing/meta.ts":
+        'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" }, example: "custom" };\n',
+      "registry/fixel/components/thing/examples/custom.tsx": EXAMPLE,
+    }),
+  );
+
+  const item = (await discoverItems(root))[0];
+
+  assert.deepEqual(
+    item?.examples.map((example) => example.name),
+    ["basic", "custom"],
+  );
+  assert.equal(item?.defaultExample, "custom");
+});
+
+test("the component barrel nests examples under their slug", () => {
   const kind = componentsKind();
   const barrel = renderBarrel(
     [
@@ -100,10 +226,18 @@ test("the component barrel lazy-loads each demo and skips items without one", ()
         description: "",
         hidden: false,
         shared: false,
-        path: "registry/fixel/components/thing.tsx",
+        path: "registry/fixel/components/thing/thing.tsx",
         target: "components/fixel/thing.tsx",
         content: ITEM,
-        demoContent: DEMO,
+        examples: [
+          {
+            name: "basic",
+            title: "Basic",
+            content: EXAMPLE,
+            source: EXAMPLE,
+          },
+        ],
+        defaultExample: "basic",
         meta: {},
         dependencies: [],
         registryDependencies: [],
@@ -117,9 +251,10 @@ test("the component barrel lazy-loads each demo and skips items without one", ()
         description: "",
         hidden: false,
         shared: false,
-        path: "registry/fixel/components/bare.tsx",
+        path: "registry/fixel/components/bare/bare.tsx",
         target: "components/fixel/bare.tsx",
         content: ITEM,
+        examples: [],
         meta: {},
         dependencies: [],
         registryDependencies: [],
@@ -131,26 +266,26 @@ test("the component barrel lazy-loads each demo and skips items without one", ()
   assert.match(barrel, /import dynamic from "next\/dynamic"/);
   assert.match(
     barrel,
-    /"thing": dynamic\(\(\) => import\("\.\/thing\.demo"\)\)/,
+    /"thing": \{\s*"basic": dynamic\(\(\) => import\("\.\/thing\/examples\/basic"\)\),\s*\}/,
   );
   assert.ok(
     !barrel.includes("bare"),
-    "an item with no demo cannot be previewed",
+    "an item with no examples cannot be previewed",
   );
 });
 
 test("validation names every missing piece", async () => {
   const root = await fixture({
-    "registry/fixel/components/thing.tsx": ITEM,
-    "registry/fixel/components/thing.meta.ts": META,
+    "registry/fixel/components/thing/thing.tsx": ITEM,
+    "registry/fixel/components/thing/meta.ts": META,
   });
 
   const items = await discoverItems(root);
   const issues = await validateCatalog(items, root);
 
   assert.ok(
-    issues.some((issue) => issue.includes("thing.demo.tsx")),
-    "a missing demo must be reported",
+    issues.some((issue) => issue.includes("examples/")),
+    "a missing example must be reported",
   );
   assert.ok(
     issues.some((issue) => issue.includes("content/components/thing.mdx")),
@@ -162,14 +297,28 @@ test("validation names every missing piece", async () => {
   );
 });
 
-test("validation passes once demo, article, and poster exist", async () => {
-  const root = await fixture({
-    "registry/fixel/components/thing.tsx": ITEM,
-    "registry/fixel/components/thing.demo.tsx": DEMO,
-    "registry/fixel/components/thing.meta.ts": META,
-    "content/components/thing.mdx": "## Usage\n",
-    "public/components/thing/poster.webp": "binary",
-  });
+test("validation reports a default example that does not exist", async () => {
+  const root = await fixture(
+    componentFixture({
+      "registry/fixel/components/thing/meta.ts":
+        'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" }, example: "missing" };\n',
+      "content/components/thing.mdx": "## Usage\n",
+      "public/components/thing/poster.webp": "binary",
+    }),
+  );
+
+  const issues = await validateCatalog(await discoverItems(root), root);
+
+  assert.ok(issues.some((issue) => issue.includes('example "missing"')));
+});
+
+test("validation passes once examples, article, and poster exist", async () => {
+  const root = await fixture(
+    componentFixture({
+      "content/components/thing.mdx": "## Usage\n",
+      "public/components/thing/poster.webp": "binary",
+    }),
+  );
 
   const items = await discoverItems(root);
 
@@ -178,10 +327,10 @@ test("validation passes once demo, article, and poster exist", async () => {
 
 test("validation reports a component with no category or tags", async () => {
   const root = await fixture({
-    "registry/fixel/components/thing.tsx": ITEM,
-    "registry/fixel/components/thing.demo.tsx": DEMO,
-    "registry/fixel/components/thing.meta.ts":
+    "registry/fixel/components/thing/thing.tsx": ITEM,
+    "registry/fixel/components/thing/meta.ts":
       'export default { title: "Thing" };\n',
+    "registry/fixel/components/thing/examples/basic.tsx": EXAMPLE,
     "content/components/thing.mdx": "## Usage\n",
     "public/components/thing/poster.webp": "binary",
   });
@@ -190,4 +339,28 @@ test("validation reports a component with no category or tags", async () => {
 
   assert.ok(issues.some((issue) => issue.includes("category")));
   assert.ok(issues.some((issue) => issue.includes("tag")));
+});
+
+test("validation rejects flat files and folders without a payload", async () => {
+  const root = await fixture(
+    componentFixture({
+      "content/components/thing.mdx": "## Usage\n",
+      "public/components/thing/poster.webp": "binary",
+      // The previous flat shape, which discovery now ignores.
+      "registry/fixel/components/legacy.tsx": ITEM,
+      // A folder that looks like an item but has no payload.
+      "registry/fixel/components/empty/meta.ts": META,
+    }),
+  );
+
+  const issues = await validateCatalog(await discoverItems(root), root);
+
+  assert.ok(
+    issues.some((issue) => issue.includes("legacy.tsx")),
+    "a flat file must be reported",
+  );
+  assert.ok(
+    issues.some((issue) => issue.includes("empty/empty.tsx")),
+    "a folder without its payload must be reported",
+  );
 });

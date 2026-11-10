@@ -35,7 +35,8 @@ type CatalogEntry = {
   category: string | null;
   tags: string[];
   media: ComponentMedia | null;
-  usage: string | null;
+  /** Which example under `examples/` the docs and live preview use. */
+  defaultExample: string | null;
 };
 
 const manifest = registryJson as unknown as { items: ManifestItem[] };
@@ -62,8 +63,8 @@ export type ComponentItem = {
   href: string;
   /** `/preview/<category>/<slug>` — the full-bleed live preview. */
   previewHref: string;
-  /** Consumer snippet shown in the usage section. */
-  usage: string;
+  /** Example the live preview renders. */
+  defaultExample: string;
   dependencies: string[];
   uploadedAt: string | null;
   updatedAt: string | null;
@@ -78,14 +79,6 @@ export function componentName(slug: string): string {
     .join("");
 }
 
-/** Until an item writes its own snippet, assume a default export. */
-function defaultUsage(slug: string): string {
-  const name = componentName(slug);
-  return `import ${name} from "@/components/fixel/${slug}";
-
-<${name} />`;
-}
-
 function toComponent(item: ManifestItem, entry: CatalogEntry): ComponentItem {
   const category = entry.category ?? "Uncategorized";
 
@@ -98,7 +91,7 @@ function toComponent(item: ManifestItem, entry: CatalogEntry): ComponentItem {
     media: entry.media,
     href: componentHref(item.name),
     previewHref: previewHref(category, item.name),
-    usage: entry.usage ?? defaultUsage(item.name),
+    defaultExample: entry.defaultExample ?? "",
     dependencies: item.dependencies ?? [],
     uploadedAt: item.uploadedAt ?? null,
     updatedAt: item.updatedAt ?? null,

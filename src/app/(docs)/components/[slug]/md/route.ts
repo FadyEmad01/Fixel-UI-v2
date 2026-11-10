@@ -1,4 +1,5 @@
 import { componentArticle } from "@/features/components/lib/articles";
+import { componentExamples } from "@/features/components/lib/examples";
 import { allComponents, getComponent } from "@/features/components/lib/items";
 import { renderComponentMarkdown } from "@/features/components/lib/markdown";
 import { getSiteUrl } from "@/lib/site";
@@ -32,9 +33,12 @@ export async function GET(
     installUrl(getSiteUrl(), component.slug),
     componentArticle(component.slug) ?? {
       body: "",
+      hasUsage: false,
+      hasExamples: false,
       hasInstall: false,
       hasSource: false,
     },
+    componentExamples(component.slug),
   );
 
   return new Response(markdown, {

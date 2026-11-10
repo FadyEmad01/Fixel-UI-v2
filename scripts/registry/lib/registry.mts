@@ -31,13 +31,11 @@ export const ITEM_EXTENSION = ".tsx";
 /** Optional registry-only metadata, read from `<slug>.meta.ts` beside the item. */
 export const META_EXTENSION = ".meta.ts";
 
-/**
- * Optional registry-only live-preview adapter, read from `<slug>.demo.tsx`.
- *
- * It never installs: the item file is the payload, the demo is the site's way
- * to render that payload with the props it needs.
- */
-export const DEMO_EXTENSION = ".demo.tsx";
+/** Folder-mode metadata file, inside the item folder. */
+export const META_FILE = "meta.ts";
+
+/** Folder-mode examples directory, inside the item folder. */
+export const EXAMPLES_DIR = "examples";
 
 export type Kind = {
   /** Folder name under `registry/<registry>/`. */
@@ -59,11 +57,18 @@ export type Kind = {
   /** Exported name of the generated slug union. */
   slugTypeName: string;
   /**
-   * `named` imports each item's export eagerly (illustrations render inline).
-   * `lazy-demo` dynamic-imports `<slug>.demo` per slug so one heavy component
-   * cannot drag every other component into a page's bundle.
+   * `flat` reads one `<slug>.tsx` per item. `folder` reads
+   * `<slug>/<slug>.tsx` plus `meta.ts` and `examples/`, so an item's payload,
+   * metadata, and usage examples can live together without installing as three
+   * files.
    */
-  barrel: "named" | "lazy-demo";
+  layout: "flat" | "folder";
+  /**
+   * `named` imports each item's export eagerly (illustrations render inline).
+   * `examples` dynamic-imports each `<slug>/examples/<name>` file so one heavy
+   * component cannot drag every other component into a page's bundle.
+   */
+  barrel: "named" | "examples";
   /** Repo-relative folder holding `<slug>.mdx` articles, when the kind has them. */
   contentDir?: string;
 };
@@ -81,6 +86,7 @@ export const KINDS: Kind[] = [
     barrelFile: "index.ts",
     barrelName: "illustrations",
     slugTypeName: "IllustrationSlug",
+    layout: "flat",
     barrel: "named",
   },
   {
@@ -91,9 +97,10 @@ export const KINDS: Kind[] = [
     section: "component",
     mirrorDir: "src/features/components/generated",
     barrelFile: "index.ts",
-    barrelName: "componentPreviews",
+    barrelName: "componentExamples",
     slugTypeName: "ComponentSlug",
-    barrel: "lazy-demo",
+    layout: "folder",
+    barrel: "examples",
     contentDir: "content/components",
   },
 ];
@@ -113,8 +120,20 @@ export type ItemMeta = {
   tags?: string[];
   /** Card and hero media, served from `public/`. */
   media?: ItemMedia;
-  /** Consumer snippet for the usage section; defaults to a default import. */
-  usage?: string;
+  /** Example under `examples/` the docs and the live preview use. */
+  example?: string;
+};
+
+/** One registry-only usage file, shown in the docs and rendered in the preview. */
+export type ItemExample = {
+  /** File stem, e.g. `basic`. */
+  name: string;
+  /** `Basic`, derived from the stem. */
+  title: string;
+  /** Raw file text, relative imports intact; this is what the mirror writes. */
+  content: string;
+  /** Same file with the item import rewritten to the consumer alias. */
+  source: string;
 };
 
 export type ItemMedia = {
@@ -155,8 +174,10 @@ export type RegistryItem = {
   /** Fixed install path in the consumer project. */
   target: string;
   content: string;
-  /** Registry-only live-preview adapter, when the item ships one. */
-  demoContent?: string;
+  /** Registry-only usage examples, alphabetical. */
+  examples: ItemExample[];
+  /** Which example the docs and the live preview render. */
+  defaultExample?: string;
   /** Registry-only catalog metadata (category, tags, media). */
   meta: ItemMeta;
   dependencies: string[];
@@ -196,6 +217,55 @@ async function readMeta(file: string): Promise<ItemMeta> {
 }
 
 /**
+ * `from "../<slug>"` -> `from "@/components/fixel/<slug>"`.
+ *
+ * The file on disk imports its sibling so `tsc` checks it; the snippet a
+ * consumer copies has to point at the installed path instead.
+ */
+export function rewriteExampleImport(
+  source: string,
+  slug: string,
+  alias: string,
+): string {
+  // The slug is a file stem, not a literal regex: escape it, and rewrite every
+  // import (an example may import both the value and its type).
+  const escaped = slug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  return source.replace(
+    new RegExp(`from\\s+(["'])\\.\\./${escaped}\\1`, "g"),
+    () => `from "${alias}/${slug}"`,
+  );
+}
+
+async function readExamples(
+  dir: string,
+  slug: string,
+  alias: string,
+): Promise<ItemExample[]> {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  const examples: ItemExample[] = [];
+
+  for (const entry of entries) {
+    if (!entry.isFile() || !entry.name.endsWith(ITEM_EXTENSION)) continue;
+
+    const name = entry.name.slice(0, -ITEM_EXTENSION.length);
+    const content = (await readFile(join(dir, entry.name), "utf8")).replace(
+      /\r\n/g,
+      "\n",
+    );
+
+    examples.push({
+      name,
+      title: toTitle(name),
+      content,
+      source: rewriteExampleImport(content, slug, alias),
+    });
+  }
+
+  return examples.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
  * Every item in the registry, sorted so `kit` (the shared foundation) leads and
  * the rest read alphabetically.
  */
@@ -213,22 +283,48 @@ export async function discoverItems(
     );
 
     for (const entry of entries) {
-      if (!entry.isFile() || !entry.name.endsWith(ITEM_EXTENSION)) continue;
-      // A demo is the site's preview adapter, never part of an install.
-      if (entry.name.endsWith(DEMO_EXTENSION)) continue;
+      let name: string;
+      let file: string;
+      let metaFile: string;
+      let examples: ItemExample[] = [];
 
-      const name = entry.name.slice(0, -ITEM_EXTENSION.length);
-      const file = join(kindDir, entry.name);
-      const content = (await readFile(file, "utf8")).replace(/\r\n/g, "\n");
-      const demo = await readFile(
-        join(kindDir, `${name}${DEMO_EXTENSION}`),
-        "utf8",
-      )
+      if (kind.layout === "folder") {
+        if (!entry.isDirectory()) continue;
+
+        name = entry.name;
+        file = join(kindDir, name, `${name}${ITEM_EXTENSION}`);
+        metaFile = join(kindDir, name, META_FILE);
+      } else {
+        if (!entry.isFile() || !entry.name.endsWith(ITEM_EXTENSION)) continue;
+
+        name = entry.name.slice(0, -ITEM_EXTENSION.length);
+        file = join(kindDir, entry.name);
+        metaFile = join(kindDir, `${name}${META_EXTENSION}`);
+      }
+
+      const content = await readFile(file, "utf8")
         .then((text) => text.replace(/\r\n/g, "\n"))
-        .catch(() => undefined);
+        .catch(() => null);
 
-      const meta = await readMeta(join(kindDir, `${name}${META_EXTENSION}`));
+      // A folder without its payload is not an item yet; `registry:check`
+      // reports the missing pieces rather than the generator inventing one.
+      if (content === null) continue;
+
+      const meta = await readMeta(metaFile);
       const title = meta.title ?? toTitle(name);
+
+      if (kind.layout === "folder") {
+        examples = await readExamples(
+          join(kindDir, name, EXAMPLES_DIR),
+          name,
+          `@/${kind.targetPrefix}`,
+        );
+      }
+
+      const requested = meta.example;
+      const defaultExample =
+        examples.find((example) => example.name === requested)?.name ??
+        examples[0]?.name;
 
       items.push({
         name,
@@ -242,7 +338,8 @@ export async function discoverItems(
         path: relative(cwd, file).split(sep).join("/"),
         target: `${kind.targetPrefix}/${name}.tsx`,
         content,
-        ...(demo ? { demoContent: demo } : {}),
+        examples,
+        ...(defaultExample ? { defaultExample } : {}),
         meta,
         dependencies: [
           ...new Set([
@@ -464,20 +561,27 @@ export function renderManifest(
  * `<slug> -> component` for the docs site, built from the mirrored files.
  *
  * Imported by the catalog so a card renders the same code a consumer installs.
- * A `lazy-demo` barrel points at the registry-only demo and splits per slug.
+ * An `examples` barrel nests one dynamic import per example file, so a docs
+ * page loads only the examples it renders.
  */
 export function renderBarrel(items: RegistryItem[], kind: Kind): string {
   const visible = items.filter(
     (item) => item.kind === kind.kind && !item.hidden,
   );
 
-  if (kind.barrel === "lazy-demo") {
+  if (kind.barrel === "examples") {
     const entries = visible
-      .filter((item) => item.demoContent)
-      .map(
-        (item) =>
-          `  "${item.name}": dynamic(() => import("./${item.name}.demo")),`,
-      )
+      .filter((item) => item.examples.length > 0)
+      .map((item) => {
+        const examples = item.examples
+          .map(
+            (example) =>
+              `    "${example.name}": dynamic(() => import("./${item.name}/examples/${example.name}")),`,
+          )
+          .join("\n");
+
+        return `  "${item.name}": {\n${examples}\n  },`;
+      })
       .join("\n");
 
     return `// Generated by scripts/registry/generate.mts. Do not edit.

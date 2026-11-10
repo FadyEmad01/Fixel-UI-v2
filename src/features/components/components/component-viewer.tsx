@@ -5,18 +5,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ComponentType, useCallback, useEffect, useState } from "react";
 
-import { componentPreviews } from "../generated";
+import { componentExamples } from "../generated";
 
 /**
  * While the catalog is empty the generated barrel has no keys, so the lookup
  * narrows to `never`. Widen it once here instead of casting at the call site.
  */
-const previews = componentPreviews as Record<string, ComponentType | undefined>;
+const examples = componentExamples as Record<
+  string,
+  Record<string, ComponentType> | undefined
+>;
 
 /** The minimal shape the viewer needs; all of it is serializable. */
 export type PreviewItem = {
   slug: string;
   title: string;
+  /** Example to render, from the item's `meta.example`. */
+  example: string;
   /** `/preview/<category>/<slug>` — written into the URL while navigating. */
   previewHref: string;
   /** `/components/<slug>` — where Escape returns to. */
@@ -26,9 +31,10 @@ export type PreviewItem = {
 /**
  * The full-bleed live preview.
  *
- * The component is lazy-loaded from the generated demo barrel, so opening one
- * preview never pulls every other demo into the bundle. Left/right move through
- * the catalog without a server round-trip, and Escape returns to the docs page.
+ * The component is lazy-loaded from the generated example barrel, so opening
+ * one preview never pulls every other component into the bundle. Left/right
+ * move through the catalog without a server round-trip, and Escape returns to
+ * the docs page.
  */
 export function ComponentViewer({
   component,
@@ -56,7 +62,7 @@ export function ComponentViewer({
   const previous =
     components[(currentIndex - 1 + components.length) % components.length];
   const next = components[(currentIndex + 1) % components.length];
-  const Preview = previews[current.slug];
+  const Preview = examples[current.slug]?.[current.example];
 
   const navigate = useCallback((item: PreviewItem) => {
     setSelectedSlug(item.slug);

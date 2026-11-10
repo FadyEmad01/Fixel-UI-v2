@@ -1,30 +1,20 @@
 ## Overview
 
 `FolderPreview` is a folder tile with a cover. At rest it reads as a single
-folder; on hover, focus, or tap the front flap tilts back and the cover image
-lifts out, so the component can advertise what is inside without a second
-screen or a modal.
+folder; on hover the cover image lifts out of the frame and the folder scales up
+slightly, so the component can advertise what is inside without a second screen
+or a modal.
 
-The motion is a spring, and it is skipped entirely when the reader prefers
-reduced motion — the image simply appears.
+Every part is configurable: the two gradients, the frame, the highlight bands,
+the label colour, the image panel's geometry, and the spring itself.
 
 ## Usage
 
-```tsx
-import FolderPreview from "@/components/fixel/folder-preview";
+<Usage />
 
-export function Assets() {
-  return (
-    <FolderPreview
-      image={{ src: "/covers/design.webp", alt: "Design system cover" }}
-      label="Design assets"
-    />
-  );
-}
-```
+## Examples
 
-The wrapper is `w-full max-w-[320px]`, so drop it into a grid cell and it will
-size itself. Pass `className` to widen it.
+<Examples />
 
 ## Props
 
@@ -37,12 +27,43 @@ size itself. Pass `className` to widen it.
       required: true,
     },
     label: {
-      description: "Caption under the folder, also used in the button label.",
+      description: "Caption under the folder.",
       type: "string",
-      default: '"Folder"',
+      default: '"Portfolio 2024"',
+    },
+    showLabel: {
+      description: "Render the caption at all.",
+      type: "boolean",
+      default: "true",
+    },
+    width: {
+      description: "Width of the folder. Height follows the SVG's aspect ratio.",
+      type: 'CSSProperties["width"]',
+      default: "320",
+    },
+    colors: {
+      description: "Overrides for the folder's palette. Anything omitted keeps the default blue.",
+      type: "{ back?: { from?: string; to?: string }; front?: { from?: string; to?: string }; frame?: string; highlight?: string; highlightOpacity?: number; label?: string }",
+    },
+    imagePanel: {
+      description: "Geometry and motion of the image panel.",
+      type: "{ width?: CSSProperties['width']; height?: CSSProperties['height']; borderWidth?: number; borderRadius?: CSSProperties['borderRadius']; initialY?: string | number; hoverY?: string | number; initialScale?: number; hoverScale?: number }",
+    },
+    animation: {
+      description: "Turn the hover motion off, or change the spring and scale.",
+      type: "{ enabled?: boolean; hoverScale?: number; transition?: Transition }",
+      default: '{ enabled: true, hoverScale: 1.05 }',
     },
     className: {
       description: "Extra classes for the outer wrapper.",
+      type: "string",
+    },
+    imageClassName: {
+      description: "Extra classes for the `<img>` inside the panel.",
+      type: "string",
+    },
+    labelClassName: {
+      description: "Extra classes for the caption wrapper.",
       type: "string",
     },
   }}
@@ -50,11 +71,14 @@ size itself. Pass `className` to widen it.
 
 ## Behaviour
 
-- **Hover** opens the folder; leaving closes it.
-- **Focus** opens it, so the component is usable from the keyboard.
-- **Click** toggles it, which is what touch devices get.
-- `prefers-reduced-motion` keeps the folder closed and the image visible
-  without the lift.
+- **Hover** lifts the image panel and scales the folder by `animation.hoverScale`.
+- **`animation.enabled: false`** renders the folder still; the image panel stays
+  in its initial position.
+- **`showLabel: false`** drops the caption but keeps the layout otherwise
+  unchanged.
+- Gradient ids come from `useId`, so several folders on one page cannot share
+  (or overwrite) each other's gradients.
+- The image is a plain `<img>`, so the component works with any asset pipeline.
 
 ## Installation
 

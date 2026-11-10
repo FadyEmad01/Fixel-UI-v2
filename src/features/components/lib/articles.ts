@@ -6,7 +6,7 @@ import { type ArticleToc, mergeDefaultSections, type TocEntry } from "./toc";
  *
  * `body` is the MDX source, used by "Copy page" and `/md`; `headings` is the
  * extracted table of contents; the flags say whether the author placed the
- * `<Install />` and `<Source />` placeholders.
+ * `<Usage />`, `<Examples />`, `<Install />`, and `<Source />` placeholders.
  */
 
 type ComponentArticle = ArticleToc & { body: string };

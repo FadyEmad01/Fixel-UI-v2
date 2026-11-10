@@ -13,7 +13,6 @@ export default {
     poster: "/components/folder-preview/preview.webp",
     video: "/components/folder-preview/preview.mp4",
   },
-  usage: `import FolderPreview from "@/components/fixel/folder-preview";
-
-<FolderPreview image={{ src: "/cover.webp", alt: "Project cover" }} />`,
+  /** Which file under `examples/` the docs and the live preview use. */
+  example: "basic",
 };

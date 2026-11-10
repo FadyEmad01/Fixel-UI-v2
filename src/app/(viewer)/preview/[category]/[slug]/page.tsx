@@ -55,6 +55,7 @@ async function PreviewPage({ params }: PreviewRouteProps) {
   const items = allComponents().map((item) => ({
     slug: item.slug,
     title: item.title,
+    example: item.defaultExample,
     previewHref: item.previewHref,
     href: item.href,
   }));
@@ -64,6 +65,7 @@ async function PreviewPage({ params }: PreviewRouteProps) {
       component={{
         slug: component.slug,
         title: component.title,
+        example: component.defaultExample,
         previewHref: component.previewHref,
         href: component.href,
       }}
