@@ -45,6 +45,7 @@ type NavigateHandler = (
 const NAV_LINKS: NavLink[] = [
   { title: "Home", href: "/" },
   { title: "Resources", href: "/resources" },
+  { title: "Components", href: "/components" },
   { title: "Illustration", href: "/illustration" },
   { title: "Easing", href: "/easing" },
 ];
