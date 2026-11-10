@@ -615,6 +615,26 @@
       ]
     },
     {
+      "name": "folder-preview",
+      "type": "registry:component",
+      "title": "Folder Preview",
+      "description": "A folder tile that lifts its cover to reveal the image inside.",
+      "dependencies": [
+        "motion"
+      ],
+      "contentHash": "sha256:20420c64225255e636f7d6c35f103cc6c3a60b7afd692dd6ad6016329c42f347",
+      "uploadedAt": "2026-11-10T02:12:26.662Z",
+      "updatedAt": "2026-11-10T02:12:26.662Z",
+      "files": [
+        {
+          "path": "registry/fixel/components/folder-preview.tsx",
+          "type": "registry:component",
+          "target": "components/fixel/folder-preview.tsx",
+          "content": "\"use client\";\n\nimport { motion, useReducedMotion } from \"motion/react\";\nimport { useState } from \"react\";\n\nimport { cn } from \"@/lib/utils\";\n\nexport type FolderPreviewProps = {\n  /** The image the folder reveals. */\n  image: { src: string; alt?: string };\n  /** Caption under the folder. */\n  label?: string;\n  /** Extra classes for the outer wrapper. */\n  className?: string;\n};\n\n/**\n * A folder tile that lifts its cover to reveal the image inside.\n *\n * Hover, focus, and click all open it; leaving or blurring closes it again.\n * The lift is skipped entirely under `prefers-reduced-motion`.\n */\nexport default function FolderPreview({\n  image,\n  label = \"Folder\",\n  className,\n}: FolderPreviewProps) {\n  const [open, setOpen] = useState(false);\n  const reduceMotion = useReducedMotion();\n  const lifted = open && !reduceMotion;\n\n  return (\n    <div\n      className={cn(\n        \"flex w-full max-w-[320px] flex-col items-center gap-5\",\n        className,\n      )}\n      onPointerEnter={() => setOpen(true)}\n      onPointerLeave={() => setOpen(false)}\n    >\n      <button\n        type=\"button\"\n        onClick={() => setOpen((value) => !value)}\n        onFocus={() => setOpen(true)}\n        onBlur={() => setOpen(false)}\n        aria-expanded={open}\n        aria-label={`${open ? \"Close\" : \"Open\"} ${label}`}\n        className=\"relative block aspect-4/3 w-full rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-4\"\n      >\n        {/* Back panel and its tab: the part that stays put. */}\n        <div className=\"absolute inset-x-0 top-5 bottom-0 rounded-2xl bg-amber-200/90 shadow-[0_24px_60px_-30px_rgba(120,53,15,0.6)] dark:bg-amber-300/70\">\n          <span className=\"absolute -top-5 left-6 h-6 w-24 rounded-t-xl bg-amber-200/90 dark:bg-amber-300/70\" />\n        </div>\n\n        {/* The image, hidden behind the flap until the folder opens. */}\n        <motion.div\n          className=\"absolute inset-x-5 bottom-9 overflow-hidden rounded-lg bg-background shadow-lg ring-1 ring-black/5\"\n          animate={{\n            y: lifted ? -52 : 0,\n            rotate: lifted ? -1.5 : 0,\n            scale: lifted ? 1.02 : 1,\n          }}\n          transition={{ type: \"spring\", stiffness: 260, damping: 24 }}\n        >\n          {/* biome-ignore lint/performance/noImgElement: an installable component cannot assume next/image. */}\n          <img\n            src={image.src}\n            alt={image.alt ?? \"\"}\n            className=\"aspect-16/10 w-full object-cover\"\n          />\n        </motion.div>\n\n        {/* Front flap: tilts back on its bottom edge to uncover the image. */}\n        <motion.div\n          className=\"absolute inset-x-0 bottom-0 h-[62%] origin-bottom rounded-t-lg rounded-b-2xl bg-linear-to-b from-amber-300 to-amber-400 shadow-[0_-8px_20px_-12px_rgba(120,53,15,0.5)]\"\n          style={{ transformPerspective: 800 }}\n          animate={{ rotateX: lifted ? 34 : 0 }}\n          transition={{ type: \"spring\", stiffness: 260, damping: 26 }}\n        >\n          <span className=\"absolute inset-x-5 top-4 h-px bg-white/40\" />\n        </motion.div>\n      </button>\n\n      <span className=\"font-archivo text-[11px] font-medium tracking-[0.18em] text-muted-foreground uppercase\">\n        {label}\n      </span>\n    </div>\n  );\n}\n"
+        }
+      ]
+    },
+    {
       "name": "footer",
       "type": "registry:component",
       "title": "Footer",

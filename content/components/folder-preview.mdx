@@ -1,0 +1,65 @@
+## Overview
+
+`FolderPreview` is a folder tile with a cover. At rest it reads as a single
+folder; on hover, focus, or tap the front flap tilts back and the cover image
+lifts out, so the component can advertise what is inside without a second
+screen or a modal.
+
+The motion is a spring, and it is skipped entirely when the reader prefers
+reduced motion — the image simply appears.
+
+## Usage
+
+```tsx
+import FolderPreview from "@/components/fixel/folder-preview";
+
+export function Assets() {
+  return (
+    <FolderPreview
+      image={{ src: "/covers/design.webp", alt: "Design system cover" }}
+      label="Design assets"
+    />
+  );
+}
+```
+
+The wrapper is `w-full max-w-[320px]`, so drop it into a grid cell and it will
+size itself. Pass `className` to widen it.
+
+## Props
+
+<TypeTable
+  type={{
+    image: {
+      description: "The image the folder reveals.",
+      type: "{ src: string; alt?: string }",
+      typeDescription: "A plain image source, so any asset pipeline works.",
+      required: true,
+    },
+    label: {
+      description: "Caption under the folder, also used in the button label.",
+      type: "string",
+      default: '"Folder"',
+    },
+    className: {
+      description: "Extra classes for the outer wrapper.",
+      type: "string",
+    },
+  }}
+/>
+
+## Behaviour
+
+- **Hover** opens the folder; leaving closes it.
+- **Focus** opens it, so the component is usable from the keyboard.
+- **Click** toggles it, which is what touch devices get.
+- `prefers-reduced-motion` keeps the folder closed and the image visible
+  without the lift.
+
+## Installation
+
+<Install />
+
+## Source
+
+<Source />
