@@ -14,7 +14,7 @@ const cwd = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 test("every visible illustration sits in exactly one family", async () => {
   const items = await discoverItems(cwd);
   const visible = items
-    .filter((item) => !item.hidden)
+    .filter((item) => item.kind === "illustration" && !item.hidden)
     .map((item) => item.name)
     .sort();
 

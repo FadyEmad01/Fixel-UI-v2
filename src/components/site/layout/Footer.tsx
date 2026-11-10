@@ -7,6 +7,7 @@ import { useEffect, useState, type ReactNode } from "react";
 const GITHUB_URL = "https://github.com/FadyEmad01/Fixel-UI-v2";
 
 const NAVIGATION = [
+  { label: "Components", href: "/components" },
   { label: "Illustrations", href: "/illustration" },
   { label: "Easing", href: "/easing" },
   { label: "Resources", href: "/resources" },

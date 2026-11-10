@@ -23,9 +23,10 @@ export const generateStaticParams =
     ? () => components.map((component) => ({ slug: component.slug }))
     : undefined;
 
-// With no static params yet the route still needs a prerender fallback, and
-// the site navbar reads `usePathname()` above this segment. Opt out of the
-// static-shell check until the first component makes the route fully static.
+// Paired with the conditional export above: with no static params the route
+// has to render on demand, and the navbar's `usePathname()` above this segment
+// prevents the static shell the check expects. With items present this route
+// prerenders fully, so the opt-out costs nothing.
 export const instant = false;
 
 export async function generateMetadata({

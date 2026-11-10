@@ -27,9 +27,11 @@ const nextConfig: NextConfig = {
 };
 
 // MDX pipeline for imported `.mdx` files (e.g. docs pages). remark-gfm adds
-// tables, task lists, and strikethrough; @shikijs/rehype highlights fenced
-// code at compile time. Applied first so every export path — including the
-// PostHog fail-open fallbacks below — keeps MDX support.
+// tables, task lists, and strikethrough; rehype-slug gives headings the ids the
+// generated table of contents links to. Fenced code is highlighted later, by
+// `MdxPre` handing the raw source to the shared Shiki CodeBlock.
+// Applied first so every export path — including the PostHog fail-open
+// fallbacks below — keeps MDX support.
 // Note: Turbopack cannot cross JavaScript plugin functions into Rust, so
 // plugins are referenced by package-name string (see "Using Plugins with
 // Turbopack" in the Next.js MDX guide).
