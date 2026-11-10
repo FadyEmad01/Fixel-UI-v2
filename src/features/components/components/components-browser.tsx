@@ -7,10 +7,8 @@ import { ComponentCard, type ComponentCardData } from "./component-card";
 import { ComponentFilter } from "./component-filter";
 import { ComponentSearch } from "./component-search";
 
-/** Everything the grid needs; the card itself renders only the media. */
+/** Everything the grid needs; `tags` only feed the search index. */
 export type ComponentCatalogItem = ComponentCardData & {
-  description: string;
-  category: string;
   tags: string[];
 };
 
