@@ -120,6 +120,7 @@ type HeroSectionProps = {
   description: string;
   videoSrc?: string;
   posterSrc?: string;
+  actions?: ReactNode;
 };
 
 export function HeroSection({
@@ -127,6 +128,7 @@ export function HeroSection({
   description,
   videoSrc,
   posterSrc,
+  actions,
 }: HeroSectionProps) {
   const textRef = useRef<HTMLHeadingElement>(null);
   const isInView = useInView(textRef, {
@@ -136,14 +138,18 @@ export function HeroSection({
 
   return (
     <section className="relative flex flex-col gap-4 mb-12">
-      <h1
-        ref={textRef}
-        className={`leading-[1.15] font-heading text-3xl lg:text-4xl font-medium tracking-tight chroma-text chroma-text-animate ${
-          isInView ? "chroma-text-animate-once" : ""
-        }`}
-      >
-        {title}
-      </h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1
+          ref={textRef}
+          className={`leading-[1.15] font-heading text-3xl lg:text-4xl font-medium tracking-tight chroma-text chroma-text-animate ${
+            isInView ? "chroma-text-animate-once" : ""
+          }`}
+        >
+          {title}
+        </h1>
+
+        {actions ? <div className="shrink-0">{actions}</div> : null}
+      </div>
 
       <p className="text-[#999] text-sm md:text-base max-w-md">{description}</p>
 

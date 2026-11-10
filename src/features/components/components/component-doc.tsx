@@ -135,14 +135,6 @@ export async function ComponentDoc({
           category={component.category}
           tags={component.tags}
           previewHref={component.previewHref}
-          actions={
-            <PageActions
-              markdown={markdown}
-              markdownHref={`${component.href}/md`}
-              v0={v0Url(itemUrl)}
-              assistants={assistants}
-            />
-          }
         />
       }
     >
@@ -151,6 +143,14 @@ export async function ComponentDoc({
         description={component.description}
         videoSrc={component.media?.video}
         posterSrc={component.media?.poster}
+        actions={
+          <PageActions
+            markdown={markdown}
+            markdownHref={`${component.href}/md`}
+            v0={v0Url(itemUrl)}
+            assistants={assistants}
+          />
+        }
       />
 
       {Doc ? <Doc components={components} /> : null}
