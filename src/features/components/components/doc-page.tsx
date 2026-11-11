@@ -5,6 +5,7 @@ import { useInView } from "motion/react";
 import Link from "next/link";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import type { ComponentAuthor } from "../lib/items";
 
 // -----------------------------------------------------------------------------
 // Reusable layout components
@@ -118,6 +119,7 @@ export function TableOfContents({ items }: { items: NavigationItem[] }) {
 type HeroSectionProps = {
   title: string;
   description: string;
+  author?: ComponentAuthor | null;
   videoSrc?: string;
   posterSrc?: string;
   actions?: ReactNode;
@@ -126,6 +128,7 @@ type HeroSectionProps = {
 export function HeroSection({
   title,
   description,
+  author,
   videoSrc,
   posterSrc,
   actions,
@@ -141,9 +144,8 @@ export function HeroSection({
       <div className="flex items-center justify-between gap-4">
         <h1
           ref={textRef}
-          className={`leading-[1.15] font-heading text-3xl lg:text-4xl font-medium tracking-tight chroma-text chroma-text-animate ${
-            isInView ? "chroma-text-animate-once" : ""
-          }`}
+          className={`leading-[1.15] font-heading text-3xl lg:text-4xl font-medium tracking-tight chroma-text chroma-text-animate ${isInView ? "chroma-text-animate-once" : ""
+            }`}
         >
           {title}
         </h1>
@@ -151,9 +153,30 @@ export function HeroSection({
         {actions ? <div className="shrink-0">{actions}</div> : null}
       </div>
 
-      <p className="text-[#999] text-sm md:text-base max-w-md">{description}</p>
+      <div className="flex flex-col gap-1">
+        <p className="text-[#999] text-sm md:text-base max-w-md">
+          {description}
+        </p>
+        {author ? (
+          <p className="text-xs text-muted-foreground">
+            by{" "}
+            {author.url ? (
+              <a
+                href={author.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-my-secondary underline-offset-2 hover:underline"
+              >
+                {author.name}
+              </a>
+            ) : (
+              <span className="font-medium text-my-secondary">{author.name}</span>
+            )}
+          </p>
+        ) : null}
+      </div>
 
-      <div className="h-full w-full p-2 rounded-2xl bg-neutral-200/70">
+      <div className="h-full w-full p-2 rounded-2xl bg-my-primary/70">
         {videoSrc ? (
           <video
             src={videoSrc}
@@ -280,7 +303,7 @@ export function MethodsSidebar({
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-sm dark:bg-muted bg-muted text-muted-foreground px-1.5 py-0.5 text-[12px] font-archivo font-medium capitalize text-muted-foreground"
+                  className="rounded-sm bg-muted text-muted-foreground px-1.5 py-0.5 text-[12px] font-archivo font-medium capitalize text-muted-foreground"
                 >
                   {tag}
                 </span>

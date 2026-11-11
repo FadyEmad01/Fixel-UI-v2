@@ -141,6 +141,7 @@ export async function ComponentDoc({
       <HeroSection
         title={component.title}
         description={component.description}
+        author={component.author}
         videoSrc={component.media?.video}
         posterSrc={component.media?.poster}
         actions={

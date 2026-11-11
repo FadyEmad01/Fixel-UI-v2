@@ -1,6 +1,7 @@
-import { access, readdir } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import { join, sep } from "node:path";
 
+import { parseFrontmatter } from "./mdx.mts";
 import {
   KINDS,
   type Kind,
@@ -90,8 +91,22 @@ export async function validateCatalog(
       }
 
       const article = `${contentDir}/${name}.mdx`;
-      if (!(await exists(join(cwd, article)))) {
+      const source = await readFile(join(cwd, article), "utf8").catch(
+        () => null,
+      );
+
+      if (source === null) {
         issues.push(`${name}: missing ${article}`);
+      } else {
+        const { data } = parseFrontmatter(source);
+
+        if (!data.title) {
+          issues.push(`${name}: missing title in ${article} frontmatter`);
+        }
+
+        if (!data.description) {
+          issues.push(`${name}: missing description in ${article} frontmatter`);
+        }
       }
 
       if (!meta.category?.trim()) {
@@ -100,6 +115,18 @@ export async function validateCatalog(
 
       if (!meta.tags || meta.tags.length === 0) {
         issues.push(`${name}: missing at least one tag in ${name}/meta.ts`);
+      }
+
+      if (meta.author) {
+        if (!meta.author.name?.trim()) {
+          issues.push(`${name}: empty author.name in ${name}/meta.ts`);
+        }
+
+        if (meta.author.url && !/^https?:\/\//.test(meta.author.url)) {
+          issues.push(
+            `${name}: author.url must be an http(s) URL in ${name}/meta.ts`,
+          );
+        }
       }
 
       const poster = meta.media?.poster;

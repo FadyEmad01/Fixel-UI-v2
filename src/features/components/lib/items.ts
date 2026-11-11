@@ -35,6 +35,7 @@ type CatalogEntry = {
   category: string | null;
   tags: string[];
   media: ComponentMedia | null;
+  author: ComponentAuthor | null;
   /** Which example under `examples/` the docs and live preview use. */
   defaultExample: string | null;
 };
@@ -45,6 +46,12 @@ const catalog = (catalogJson as { items: CatalogEntry[] }).items;
 export type ComponentMedia = {
   poster: string;
   video?: string;
+};
+
+/** Attribution shown under the docs hero. */
+export type ComponentAuthor = {
+  name: string;
+  url?: string;
 };
 
 export type ComponentFile = {
@@ -60,6 +67,7 @@ export type ComponentItem = {
   category: string;
   tags: string[];
   media: ComponentMedia | null;
+  author: ComponentAuthor | null;
   href: string;
   /** `/preview/<category>/<slug>` — the full-bleed live preview. */
   previewHref: string;
@@ -89,6 +97,7 @@ function toComponent(item: ManifestItem, entry: CatalogEntry): ComponentItem {
     category,
     tags: entry.tags,
     media: entry.media,
+    author: entry.author,
     href: componentHref(item.name),
     previewHref: previewHref(category, item.name),
     defaultExample: entry.defaultExample ?? "",

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
-import { extractHeadings } from "./mdx.mts";
+import { extractHeadings, parseFrontmatter } from "./mdx.mts";
 import {
   buildManifest,
   discoverItems,
@@ -45,6 +45,8 @@ const EXAMPLE =
   'import Thing from "../thing";\n\nexport default function Basic() { return <Thing />; }\n';
 const META =
   'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" }, example: "basic" };\n';
+const ARTICLE =
+  "---\ntitle: Thing\ndescription: A thing for the catalog.\n---\n\n## Usage\n";
 
 function componentFixture(extra: Record<string, string> = {}) {
   return {
@@ -82,6 +84,43 @@ test("heading labels drop inline markdown so anchors match rehype-slug", () => {
   assert.deepEqual(extractHeadings("## **Bold** and `code`"), [
     { id: "bold-and-code", label: "Bold and code", depth: 2 },
   ]);
+});
+
+test("frontmatter supplies flat values and leaves the body clean", () => {
+  const parsed = parseFrontmatter(
+    '---\ntitle: "Thing"\nappend: false\n---\n\n## Usage\n',
+  );
+
+  assert.deepEqual(parsed.data, { title: "Thing", append: false });
+  assert.equal(parsed.body, "\n## Usage\n");
+  assert.deepEqual(parseFrontmatter("## Usage\n"), {
+    data: {},
+    body: "## Usage\n",
+  });
+});
+
+test("frontmatter rejects folded and empty values", () => {
+  assert.throws(
+    () => parseFrontmatter("---\ndescription: >\n  long\n---\n"),
+    /single-line/,
+  );
+  assert.throws(() => parseFrontmatter("---\ntitle:\n---\n"), /single-line/);
+});
+
+test("a component's title and description come from its article", async () => {
+  const root = await fixture(
+    componentFixture({
+      "registry/fixel/components/thing/meta.ts":
+        'export default { category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" } };\n',
+      "content/components/thing.mdx":
+        "---\ntitle: From the article\ndescription: Written in MDX.\n---\n\n## Usage\n",
+    }),
+  );
+
+  const item = (await discoverItems(root))[0];
+
+  assert.equal(item?.title, "From the article");
+  assert.equal(item?.description, "Written in MDX.");
 });
 
 test("a component folder is one item: payload, meta, and examples", async () => {
@@ -302,7 +341,7 @@ test("validation reports a default example that does not exist", async () => {
     componentFixture({
       "registry/fixel/components/thing/meta.ts":
         'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" }, example: "missing" };\n',
-      "content/components/thing.mdx": "## Usage\n",
+      "content/components/thing.mdx": ARTICLE,
       "public/components/thing/poster.webp": "binary",
     }),
   );
@@ -315,7 +354,7 @@ test("validation reports a default example that does not exist", async () => {
 test("validation passes once examples, article, and poster exist", async () => {
   const root = await fixture(
     componentFixture({
-      "content/components/thing.mdx": "## Usage\n",
+      "content/components/thing.mdx": ARTICLE,
       "public/components/thing/poster.webp": "binary",
     }),
   );
@@ -325,13 +364,45 @@ test("validation passes once examples, article, and poster exist", async () => {
   assert.deepEqual(await validateCatalog(items, root), []);
 });
 
+test("an author is optional, but its link must be http(s)", async () => {
+  const valid = await fixture(
+    componentFixture({
+      "registry/fixel/components/thing/meta.ts":
+        'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" }, author: { name: "Fady Emad", url: "https://github.com/FadyEmad01" } };\n',
+      "content/components/thing.mdx": ARTICLE,
+      "public/components/thing/poster.webp": "binary",
+    }),
+  );
+
+  const items = await discoverItems(valid);
+
+  assert.deepEqual(items[0]?.meta.author, {
+    name: "Fady Emad",
+    url: "https://github.com/FadyEmad01",
+  });
+  assert.deepEqual(await validateCatalog(items, valid), []);
+
+  const unsafe = await fixture(
+    componentFixture({
+      "registry/fixel/components/thing/meta.ts":
+        'export default { title: "Thing", category: "UI", tags: ["Motion"], media: { poster: "/components/thing/poster.webp" }, author: { name: "Thing", url: "javascript:alert(1)" } };\n',
+      "content/components/thing.mdx": ARTICLE,
+      "public/components/thing/poster.webp": "binary",
+    }),
+  );
+
+  const issues = await validateCatalog(await discoverItems(unsafe), unsafe);
+
+  assert.ok(issues.some((issue) => issue.includes("author.url")));
+});
+
 test("validation reports a component with no category or tags", async () => {
   const root = await fixture({
     "registry/fixel/components/thing/thing.tsx": ITEM,
     "registry/fixel/components/thing/meta.ts":
       'export default { title: "Thing" };\n',
     "registry/fixel/components/thing/examples/basic.tsx": EXAMPLE,
-    "content/components/thing.mdx": "## Usage\n",
+    "content/components/thing.mdx": ARTICLE,
     "public/components/thing/poster.webp": "binary",
   });
 
@@ -344,7 +415,7 @@ test("validation reports a component with no category or tags", async () => {
 test("validation rejects flat files and folders without a payload", async () => {
   const root = await fixture(
     componentFixture({
-      "content/components/thing.mdx": "## Usage\n",
+      "content/components/thing.mdx": ARTICLE,
       "public/components/thing/poster.webp": "binary",
       // The previous flat shape, which discovery now ignores.
       "registry/fixel/components/legacy.tsx": ITEM,

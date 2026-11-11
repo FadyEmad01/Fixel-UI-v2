@@ -8,7 +8,7 @@ export default function FolderPreviewCustomColors() {
         alt: "A folder lifted open to show its cover image",
       }}
       label="Brand kit"
-      width={320}
+      width={150}
       colors={{
         back: { from: "#F9A8D4", to: "#EC4899" },
         front: { from: "#FBCFE8", to: "#F472B6" },

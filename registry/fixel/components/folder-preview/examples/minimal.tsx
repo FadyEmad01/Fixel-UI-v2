@@ -9,6 +9,7 @@ export default function FolderPreviewMinimal() {
       }}
       showLabel={false}
       animation={{ enabled: false }}
+      width={150}
     />
   );
 }

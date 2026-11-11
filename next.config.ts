@@ -16,6 +16,21 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  async headers() {
+    // Preview assets are not content-hashed, so revalidate rather than
+    // `immutable`: re-recording a preview must still invalidate it.
+    return [
+      {
+        source: "/components/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=604800, stale-while-revalidate=86400",
+          },
+        ],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {
@@ -26,10 +41,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-// MDX pipeline for imported `.mdx` files (e.g. docs pages). remark-gfm adds
-// tables, task lists, and strikethrough; rehype-slug gives headings the ids the
-// generated table of contents links to. Fenced code is highlighted later, by
-// `MdxPre` handing the raw source to the shared Shiki CodeBlock.
+// MDX pipeline for imported `.mdx` files (e.g. docs pages). remark-frontmatter
+// strips the `---` block so it never renders as a rule and a paragraph;
+// remark-gfm adds tables, task lists, and strikethrough; rehype-slug gives
+// headings the ids the generated table of contents links to. Fenced code is
+// highlighted later, by `MdxPre` handing the raw source to the shared Shiki
+// CodeBlock.
 // Applied first so every export path — including the PostHog fail-open
 // fallbacks below — keeps MDX support.
 // Note: Turbopack cannot cross JavaScript plugin functions into Rust, so
@@ -37,7 +54,7 @@ const nextConfig: NextConfig = {
 // Turbopack" in the Next.js MDX guide).
 const withMDX = createMDX({
   options: {
-    remarkPlugins: ["remark-gfm"],
+    remarkPlugins: ["remark-frontmatter", "remark-gfm"],
     // rehype-slug gives every heading the id the generated TOC links to. It
     // uses the same slugger the generator uses, so the anchors cannot drift.
     rehypePlugins: ["rehype-slug"],

@@ -15,6 +15,52 @@ export type TocHeading = {
   depth: number;
 };
 
+export type Frontmatter = {
+  data: Record<string, string | boolean>;
+  /** The article without its frontmatter block. */
+  body: string;
+};
+
+const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
+
+/**
+ * Flat `key: value` frontmatter, the only shape the docs use.
+ *
+ * `shortcut: no nested or folded values, swap in a YAML parser when an article
+ * needs them` — an author writing `>` or `|` gets an error instead of silently
+ * getting a literal string.
+ */
+export function parseFrontmatter(source: string): Frontmatter {
+  const normalized = source.replace(/\r\n/g, "\n");
+  const match = FRONTMATTER.exec(normalized);
+
+  if (!match) return { data: {}, body: normalized };
+
+  const data: Record<string, string | boolean> = {};
+
+  for (const line of match[1].split("\n")) {
+    if (!line.trim() || line.trimStart().startsWith("#")) continue;
+
+    const separator = line.indexOf(":");
+    if (separator === -1) {
+      throw new Error(`Invalid frontmatter line: ${line}`);
+    }
+
+    const key = line.slice(0, separator).trim();
+    const raw = line.slice(separator + 1).trim();
+
+    if (raw === "true" || raw === "false") {
+      data[key] = raw === "true";
+    } else if (!raw || raw.startsWith(">") || raw.startsWith("|")) {
+      throw new Error(`Frontmatter "${key}" must be a single-line value`);
+    } else {
+      data[key] = raw.replace(/^(["'])(.*)\1$/, "$2");
+    }
+  }
+
+  return { data, body: normalized.slice(match[0].length) };
+}
+
 const FENCE = /^\s*(```|~~~)/;
 const HEADING = /^(#{2,3})\s+(.+)$/;
 

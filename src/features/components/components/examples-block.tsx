@@ -31,7 +31,7 @@ export function ExamplesBlock({ slug }: { slug: string }) {
 
         return (
           <div key={example.name} className="flex flex-col gap-4">
-            <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-border/60 bg-muted/30 p-8">
+            <div className="flex min-h-[360px] items-center justify-center rounded-xl bg-my-primary/70 p-8">
               {Preview ? <Preview /> : null}
             </div>
 

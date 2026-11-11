@@ -3,6 +3,8 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { parseFrontmatter } from "./mdx.mts";
+
 /**
  * The installable registry: source folders under `registry/`, the manifest
  * shadcn reads (`registry.json`), and the local mirror this site renders.
@@ -106,6 +108,7 @@ export const KINDS: Kind[] = [
 ];
 
 export type ItemMeta = {
+  /** Flat kinds only; components read these from the article frontmatter. */
   title?: string;
   description?: string;
   hidden?: boolean;
@@ -120,6 +123,8 @@ export type ItemMeta = {
   tags?: string[];
   /** Card and hero media, served from `public/`. */
   media?: ItemMedia;
+  /** Attribution shown under the docs hero. Site-only, never installed. */
+  author?: ItemAuthor;
   /** Example under `examples/` the docs and the live preview use. */
   example?: string;
 };
@@ -141,6 +146,13 @@ export type ItemMedia = {
   poster: string;
   /** Optional looping preview clip shown on hover and in the hero. */
   video?: string;
+};
+
+/** Attribution shown under the docs hero; site-only, never installed. */
+export type ItemAuthor = {
+  name: string;
+  /** Profile or homepage, opened in a new tab. */
+  url?: string;
 };
 
 /**
@@ -311,7 +323,26 @@ export async function discoverItems(
       if (content === null) continue;
 
       const meta = await readMeta(metaFile);
-      const title = meta.title ?? toTitle(name);
+
+      // A component's title and description belong to its article, so the docs
+      // page has one source of truth. Flat kinds (illustrations) have no
+      // article and keep them in `<slug>.meta.ts`.
+      const article = kind.contentDir
+        ? await readFile(
+            join(cwd, kind.contentDir, `${name}.mdx`),
+            "utf8",
+          ).catch(() => null)
+        : null;
+      const frontmatter = article ? parseFrontmatter(article).data : {};
+      const title =
+        (typeof frontmatter.title === "string" && frontmatter.title) ||
+        meta.title ||
+        toTitle(name);
+      const description =
+        (typeof frontmatter.description === "string" &&
+          frontmatter.description) ||
+        meta.description ||
+        defaultDescription(title);
 
       if (kind.layout === "folder") {
         examples = await readExamples(
@@ -332,7 +363,7 @@ export async function discoverItems(
         section: kind.section,
         type: kind.type,
         title,
-        description: meta.description ?? defaultDescription(title),
+        description,
         hidden: meta.hidden ?? false,
         shared: meta.shared ?? false,
         path: relative(cwd, file).split(sep).join("/"),

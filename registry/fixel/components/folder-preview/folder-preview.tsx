@@ -183,7 +183,7 @@ export default function FolderPreview({
 
         {/* Preview image */}
         <motion.div
-          className="absolute left-1/2 top-0 z-10 overflow-hidden shadow-xl"
+          className="absolute left-1/2 -translate-x-1/2 top-0 z-10 overflow-hidden shadow-xl"
           style={{
             width: panel.width,
             height: panel.height,

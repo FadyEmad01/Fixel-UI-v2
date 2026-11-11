@@ -7,7 +7,7 @@ export default function FolderPreviewBasic() {
         src: "/components/folder-preview/preview.webp",
         alt: "A folder lifted open to show its cover image",
       }}
-      width={320}
+      width={150}
     />
   );
 }

@@ -2,13 +2,16 @@
  * Registry-only metadata for one catalog item.
  *
  * This file is never installed: the generator reads it and leaves it behind.
- * Everything it does not set is inferred from the file name.
+ * Title and description live in the article frontmatter; everything else it
+ * does not set is inferred from the file name.
  */
 export default {
-  title: "Folder Preview",
-  description: "A folder tile that lifts its cover to reveal the image inside.",
   category: "UI",
   tags: ["folder", "preview", "hover", "motion"],
+  author: {
+    name: "Fady Emad",
+    url: "https://github.com/FadyEmad01",
+  },
   media: {
     poster: "/components/folder-preview/preview.webp",
     video: "/components/folder-preview/preview.mp4",

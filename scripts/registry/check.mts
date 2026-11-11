@@ -2,6 +2,8 @@ import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { registrySchema } from "shadcn/schema";
+
 import {
   buildManifest,
   contentHash,
@@ -51,6 +53,19 @@ if (stale.length > 0) {
   console.error(
     `registry.json has stale dates for: ${stale.join(", ")}. Run \`pnpm registry:generate\` and commit the result.`,
   );
+  process.exit(1);
+}
+
+// The CLI reads this file, so an item the schema rejects would fail at install
+// time rather than here. The generator controls every field, so this is a guard
+// against a hand edit, not a fix.
+const schema = registrySchema.safeParse(JSON.parse(expected));
+
+if (!schema.success) {
+  console.error("registry.json does not match shadcn's schema:");
+  for (const issue of schema.error.issues) {
+    console.error(`  - ${issue.path.join(".") || "(root)"}: ${issue.message}`);
+  }
   process.exit(1);
 }
 
