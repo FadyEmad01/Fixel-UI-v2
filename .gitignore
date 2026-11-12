@@ -23,6 +23,7 @@
 # registry outputs
 /public/r
 /src/features/illustrations/generated
+/src/features/components/generated
 
 # misc
 .DS_Store

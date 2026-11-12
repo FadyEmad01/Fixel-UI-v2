@@ -90,6 +90,21 @@ export const resources: ResourceSeed[] = [
     url: "https://coss.com/origin",
     categories: ["UI Components"],
   },
+  {
+    url: "https://bklit.com/",
+    categories: ["UI Components", "Charts & Data Visualization"],
+  },
+  {
+    url: "https://www.shadcn-labs.com/",
+    categories: [
+      "UI Components",
+      "UI Blocks",
+      "Animation",
+      "Design Systems",
+      "Charts & Data Visualization",
+      "Graphics & Rendering",
+    ],
+  },
 
   // Animation Libraries & Resources
   {
@@ -215,6 +230,18 @@ export const resources: ResourceSeed[] = [
     url: "https://www.mellowui.com/",
     categories: ["UI Components", "UI Blocks", "Animation"],
   },
+  {
+    url: "https://useplanes.com/",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://www.atelier-ui.com/en",
+    categories: ["UI Components", "Animation"],
+  },
+  {
+    url: "https://glisse.kelvinzhang.com/",
+    categories: ["UI Components", "Animation"],
+  },
 
   // Design Inspiration
   {
@@ -235,6 +262,22 @@ export const resources: ResourceSeed[] = [
   },
   {
     url: "https://rauno.me/craft",
+    categories: ["Design Inspiration", "Interaction Design"],
+  },
+  {
+    url: "https://minimal.gallery/",
+    categories: ["Design Inspiration", "Interaction Design"],
+  },
+  {
+    url: "https://curated.design/",
+    categories: ["Design Inspiration", "Interaction Design"],
+  },
+  {
+    url: "https://recent.design/",
+    categories: ["Design Inspiration"],
+  },
+  {
+    url: "https://www.awwwards.com/",
     categories: ["Design Inspiration", "Interaction Design"],
   },
 
@@ -275,6 +318,10 @@ export const resources: ResourceSeed[] = [
     url: "https://canvasui.dev/",
     categories: ["UI Components", "Graphics & Rendering", "Shaders & Effects"],
   },
+  {
+    url: "https://isoglow.dev/",
+    categories: ["AI Skills", "Graphics & Rendering", "Shaders & Effects"],
+  },
 
   // Developer Tools & AI
   {
@@ -306,6 +353,9 @@ export const CATEGORY_ORDER = [
 
   // Animation libraries, animated components, motion effects, and transitions.
   "Animation",
+
+  // Charts & Data Visualization libraries.
+  "Charts & Data Visualization",
 
   // Component libraries and guidelines that provide consistent design principles and visual patterns.
   "Design Systems",
@@ -354,6 +404,9 @@ export const CATEGORY_ORDER = [
 
   // AI platforms, tools, and resources for building or integrating AI agents and AI-powered applications.
   "AI & Agents",
+
+  // AI Skills.
+  "AI Skills",
 
   // Libraries and tools for rendering 2D/3D graphics, scenes, and interactive visual experiences.
   "Graphics & Rendering",
