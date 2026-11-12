@@ -1,13 +1,15 @@
 "use client";
 
 import { Search, SearchX } from "lucide-react";
-import { AnimatePresence, motion, useInView } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   type ReactNode,
   type RefObject,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -15,7 +17,27 @@ import {
 import type { MenuIconHandle } from "@/components/icons/menu";
 // import { useLenis } from "lenis/react";
 import { MenuIconSmall } from "@/components/icons/menuSmall";
+import type { SearchItem } from "@/components/site/search/types";
 import { ThemeSwitcher } from "@/components/theme/theme-toggle";
+import { replaceUrl } from "@/shared/lib/history-url";
+
+/**
+ * The search body is a separate chunk: it renders the generated illustration
+ * barrel (59 live previews) and has no business in every page's bundle. It is
+ * prefetched on hover/focus of the toggle, and mounted on first open.
+ */
+const SearchPanel = dynamic(() => import("@/components/site/search/search-panel"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center font-archivo text-sm text-black/40 dark:text-white/40">
+      Preparing search…
+    </div>
+  ),
+});
+
+function prefetchSearchPanel() {
+  void import("@/components/site/search/search-panel");
+}
 
 /* ==========================================================================
    Contents
@@ -33,9 +55,23 @@ import { ThemeSwitcher } from "@/components/theme/theme-toggle";
 
 type PanelKind = "menu" | "search" | null;
 
-type NavbarClientProps = { githubStars: ReactNode };
+type NavbarClientProps = {
+  githubStars: ReactNode;
+  /** Server-built, serializable catalog index for the search panel. */
+  searchItems: SearchItem[];
+};
 
 type NavLink = { title: string; href: string };
+
+/**
+ * Query keys that open a catalog's detail sheet (`/resources?url=`,
+ * `/illustration?slug=`, `/easing?slug=`).
+ *
+ * A sheet is a modal dialog: its focus trap would keep ⌘K from ever reaching
+ * the search input, so opening search dismisses whatever sheet is behind it.
+ * Only these keys are dropped, so a `?tag=` filter survives.
+ */
+const SHEET_PARAMS = ["url", "slug"] as const;
 
 type NavigateHandler = (
   e: React.MouseEvent<HTMLAnchorElement>,
@@ -54,41 +90,6 @@ const CONTACT = {
   linkedin: "https://www.linkedin.com/in/fady-emad-sabry",
   github: "https://github.com/FadyEmad01",
 };
-
-// Mock search data — dormant until SearchUnit gets a real search UI.
-const MOCK_SEARCH_DATA = [
-  {
-    id: 1,
-    title: "Button Component",
-    category: "Components",
-    href: "/docs/button",
-  },
-  {
-    id: 2,
-    title: "Navbar Component",
-    category: "Components",
-    href: "/docs/navbar",
-  },
-  {
-    id: 3,
-    title: "Getting Started",
-    category: "Guide",
-    href: "/docs/getting-started",
-  },
-  {
-    id: 4,
-    title: "Framer Motion Basics",
-    category: "Tutorials",
-    href: "/tutorials/motion",
-  },
-  {
-    id: 5,
-    title: "Dark Mode Setup",
-    category: "Guide",
-    href: "/docs/dark-mode",
-  },
-  { id: 6, title: "Showcase Gallery", category: "Pages", href: "/showcase" },
-];
 
 /* ──────────────────────────────────────────────────────────────────────────
    2. Motion variants
@@ -166,7 +167,7 @@ function useAnimationLock() {
   };
 
   // Sync lock to cover the gap before Motion fires onAnimationStart.
-  const lock = () => setIsAnimating(true);
+  const lock = useCallback(() => setIsAnimating(true), []);
 
   return { isAnimating, lock, handleAnimStart, handleAnimComplete };
 }
@@ -311,17 +312,25 @@ type SearchToggleButtonProps = {
   isSearchOpen: boolean;
   disabled: boolean;
   onClick: () => void;
+  /** Warm the panel chunk before the first open. */
+  onPrefetch: () => void;
 };
 
 function SearchToggleButton({
   isSearchOpen,
   disabled,
   onClick,
+  onPrefetch,
 }: SearchToggleButtonProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
+      onMouseEnter={onPrefetch}
+      onFocus={onPrefetch}
+      title="Search — ⌘K / Ctrl K"
+      aria-keyshortcuts="Meta+K Control+K"
       className="hidden lg:flex h-[40px] w-[40px] items-center justify-center rounded-lg bg-my-primary/70 text-black backdrop-blur-[20px] transition-opacity hover:opacity-70 disabled:cursor-wait disabled:hover:opacity-100 dark:bg-muted/80 dark:text-white"
       aria-label="Toggle Search"
     >
@@ -400,27 +409,6 @@ function MenuLinks({ isOpen, onNavigate }: MenuLinksProps) {
         </motion.div>
       ))}
     </motion.nav>
-  );
-}
-
-/** Temporary search body — replace with real search UI when ready. */
-function SearchPlaceholder() {
-  const textRef = useRef<HTMLSpanElement>(null);
-
-  const isInView = useInView(textRef, {
-    once: false,
-    amount: 0.5,
-  });
-  return (
-    <div className="w-full h-full flex items-center justify-center">
-      <span
-        ref={textRef}
-        className={`chroma-text chroma-text-animate inline-block font-archivo text-6xl leading-[1.2] ${isInView ? "chroma-text-animate-once" : ""
-          }`}
-      >
-        coming soon
-      </span>
-    </div>
   );
 }
 
@@ -555,14 +543,27 @@ function MenuUnit({
   );
 }
 
-type SearchUnitProps = UnitShellProps;
+type SearchUnitProps = UnitShellProps & {
+  items: SearchItem[];
+  onClose: () => void;
+};
 
 function SearchUnit({
   isOpen,
   disabled,
   onAnimStart,
   onAnimComplete,
+  items,
+  onClose,
 }: SearchUnitProps) {
+  // The panel chunk is only fetched once someone actually searches. After the
+  // first open it stays mounted so reopening is instant (and keeps the scope).
+  const [hasOpened, setHasOpened] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) setHasOpened(true);
+  }, [isOpen]);
+
   return (
     <PanelShell
       isOpen={isOpen}
@@ -571,7 +572,9 @@ function SearchUnit({
       onAnimComplete={onAnimComplete}
     >
       <PanelCard>
-        <SearchPlaceholder />
+        {hasOpened ? (
+          <SearchPanel items={items} isOpen={isOpen} onClose={onClose} />
+        ) : null}
       </PanelCard>
       <PanelFooter />
     </PanelShell>
@@ -582,9 +585,11 @@ function SearchUnit({
    6. NavbarClient (composition root)
    ────────────────────────────────────────────────────────────────────────── */
 
-export default function NavbarClient({ githubStars }: NavbarClientProps) {
+export default function NavbarClient({
+  githubStars,
+  searchItems,
+}: NavbarClientProps) {
   const [activePanel, setActivePanel] = useState<PanelKind>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const menuRef = useRef<MenuIconHandle>(null);
   const pathname = usePathname();
   // const lenis = useLenis();
@@ -592,18 +597,83 @@ export default function NavbarClient({ githubStars }: NavbarClientProps) {
   const { isAnimating, lock, handleAnimStart, handleAnimComplete } =
     useAnimationLock();
   const { isScrolled, hasMounted } = useScrolledNavbar();
-  usePanelLifecycle(activePanel, menuRef, () => setSearchQuery(""));
-
-  // Dormant until SearchUnit gets a real search UI (placeholder for now).
-  const filteredResults = MOCK_SEARCH_DATA.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  usePanelLifecycle(activePanel, menuRef);
 
   const isMenuOpen = activePanel === "menu";
   const isSearchOpen = activePanel === "search";
   const isAnyPanelOpen = activePanel !== null;
+
+  const closePanel = useCallback(() => {
+    lock();
+    setActivePanel(null);
+  }, [lock]);
+
+  /**
+   * Close any open catalog sheet before the search panel takes over.
+   *
+   * Reads `window.location` at call time instead of `useSearchParams` so the
+   * navbar (which lives in the root layout) does not need a Suspense boundary
+   * just to watch a query string it only cares about on a click.
+   *
+   * Rewrites the entry with the History API rather than `router.replace`: the
+   * sheet is client state, and a server navigation here would re-render the
+   * catalog behind a panel that is about to cover it. `replaceUrl` notifies the
+   * sheet owner, which is how it learns to close.
+   */
+  const releaseOpenSheet = useCallback(() => {
+    const params = new URLSearchParams(window.location.search);
+    let changed = false;
+
+    for (const key of SHEET_PARAMS) {
+      if (params.has(key)) {
+        params.delete(key);
+        changed = true;
+      }
+    }
+
+    if (!changed) return;
+
+    const query = params.toString();
+    replaceUrl(query ? `${pathname}?${query}` : pathname);
+  }, [pathname]);
+
+  // ⌘K / Ctrl K from anywhere, and Esc for whichever panel is open. Both live
+  // here (not in the panel) so they work while focus sits outside the input,
+  // including before the search chunk has loaded.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        !event.altKey &&
+        event.key.toLowerCase() === "k"
+      ) {
+        event.preventDefault();
+        if (isAnimating) return;
+        if (activePanel === "search") {
+          lock();
+          setActivePanel(null);
+          return;
+        }
+        releaseOpenSheet();
+        lock();
+        setActivePanel("search");
+        return;
+      }
+
+      if (event.key === "Escape" && activePanel !== null && !isAnimating) {
+        closePanel();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [
+    activePanel,
+    closePanel,
+    isAnimating,
+    lock,
+    releaseOpenSheet,
+  ]);
 
   const handleMenuClick = () => {
     if (isAnimating) return;
@@ -613,6 +683,7 @@ export default function NavbarClient({ githubStars }: NavbarClientProps) {
 
   const handleSearchClick = () => {
     if (isAnimating) return;
+    if (!isSearchOpen) releaseOpenSheet();
     lock();
     setActivePanel((prev) => (prev === "search" ? null : "search"));
   };
@@ -667,6 +738,7 @@ export default function NavbarClient({ githubStars }: NavbarClientProps) {
         isSearchOpen={isSearchOpen}
         disabled={isAnimating}
         onClick={handleSearchClick}
+        onPrefetch={prefetchSearchPanel}
       />
 
       {/* MENU UNIT */}
@@ -684,6 +756,8 @@ export default function NavbarClient({ githubStars }: NavbarClientProps) {
         disabled={isAnimating}
         onAnimStart={handleAnimStart}
         onAnimComplete={handleAnimComplete}
+        items={searchItems}
+        onClose={closePanel}
       />
     </div>
   );

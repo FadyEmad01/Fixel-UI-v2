@@ -25,6 +25,11 @@ interface ResourcesPageProps {
  * boundaries, which Cache Components requires for dynamic data. Awaiting
  * `searchParams` there also makes shared `?tag=`/`?url=` links render correctly
  * on the first request.
+ *
+ * `?url=` is read here only to seed the sheet, which then owns it on the
+ * client (see `ResourcesBrowser`). A sheet interaction must not re-render this
+ * server tree: the grid would re-serialize the whole catalog — and its ~24 KB
+ * of blur placeholders — for a change the client can make for free.
  */
 export function ResourcesPage({ searchParams }: ResourcesPageProps) {
   return (
@@ -76,7 +81,7 @@ async function ResourceCount({ searchParams }: ResourcesPageProps) {
  * below the header is interactive only for search and the sheet.
  */
 async function ResourcesCatalog({ searchParams }: ResourcesPageProps) {
-  const { tag: activeCategory, url: selectedUrl } = await searchParams;
+  const { tag: activeCategory, url: initialUrl } = await searchParams;
   const { tag, resources, categories, counts, total } =
     resourceCatalog(activeCategory);
 
@@ -85,7 +90,7 @@ async function ResourcesCatalog({ searchParams }: ResourcesPageProps) {
       resources={resources}
       categories={categories}
       activeCategory={tag}
-      selectedUrl={selectedUrl}
+      initialUrl={initialUrl}
       counts={counts}
       total={total}
     />

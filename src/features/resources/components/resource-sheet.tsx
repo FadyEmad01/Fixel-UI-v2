@@ -87,12 +87,13 @@ export function ResourceSheet({
   });
   const [attempt, setAttempt] = React.useState(0);
 
-  // Adopt `url` when the sheet opens. Changes while it is already open come
-  // from this component's own `onNavigate`, so local state is the fresher
-  // value and the prop is only an echo.
+  // Adopt `url` when the sheet opens, and whenever it names a different
+  // resource than the one on screen — browser back/forward can land on another
+  // `?url=` while the sheet stays open. Changes that echo this component's own
+  // carousel already match `selectedUrl`, so they are skipped.
   if (url !== lastUrlProp) {
     setLastUrlProp(url);
-    if (url && !lastUrlProp) setSelectedUrl(url);
+    if (url && !sameResource(url, selectedUrl)) setSelectedUrl(url);
   }
 
   // Unique, ordered URLs. When the open resource is filtered out of the grid
