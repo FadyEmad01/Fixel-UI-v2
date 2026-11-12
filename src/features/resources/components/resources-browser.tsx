@@ -19,6 +19,7 @@ import {
 import { resourcesHref } from "../lib/href";
 import { filterResources } from "../lib/search";
 import type { Resource } from "../lib/types";
+import { normalizeResourceUrl } from "../lib/url";
 import { CategoryFilter } from "./category-filter";
 import { ResourceCard } from "./resource-card";
 import { ResourceSearch } from "./resource-search";
@@ -87,8 +88,11 @@ export function ResourcesBrowser({
   const openResource = useCallback(
     (url: string) => {
       // A double click would otherwise push a second entry for the same sheet,
-      // and the first Escape would land back on it.
-      if (url === openUrl) return;
+      // and the first Escape would land back on it. Compare normalized URLs,
+      // because a shared `?url=` can name the same resource in another form
+      // (trailing slash, `www.`, uppercase host).
+      const currentKey = openUrl ? normalizeResourceUrl(openUrl) : null;
+      if (currentKey && normalizeResourceUrl(url) === currentKey) return;
 
       setOpenUrl(url);
       pushUrl(resourcesHref(activeCategory, url));
@@ -145,13 +149,18 @@ export function ResourcesBrowser({
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((resource) => (
+        {visible.map((resource, index) => (
           <ResourceCard
             key={resource.normalizedUrl}
             resource={resource}
             href={resourcesHref(activeCategory, resource.url)}
             query={deferredQuery}
             onOpen={() => openResource(resource.url)}
+            // The first row is above the fold. Index 1 is the measured LCP
+            // element, so it alone gets the high-priority hint.
+            loading={index < 3 ? "eager" : "lazy"}
+            fetchPriority={index === 1 ? "high" : "auto"}
+            disableFade={index < 3}
           />
         ))}
       </div>

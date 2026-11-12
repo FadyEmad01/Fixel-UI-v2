@@ -21,6 +21,8 @@ export function ResourceImage({
   url,
   alt = "",
   loading = "lazy",
+  fetchPriority = "auto",
+  disableFade = false,
   className,
 }: {
   image: string | null;
@@ -31,6 +33,10 @@ export function ResourceImage({
   url: string;
   alt?: string;
   loading?: "eager" | "lazy";
+  /** Request-scheduler hint. Only meaningful with `loading="eager"`. */
+  fetchPriority?: "high" | "low" | "auto";
+  /** Paint the image as soon as it decodes instead of fading it in. */
+  disableFade?: boolean;
   className?: string;
 }) {
   const [state, setState] = React.useState({
@@ -69,8 +75,10 @@ export function ResourceImage({
   }
 
   // Without a blur there is nothing to reveal, so skip the fade instead of
-  // showing an empty box until the image decodes.
-  const fading = Boolean(blurDataUrl);
+  // showing an empty box until the image decodes. Above-the-fold cards opt out
+  // entirely: the blur stays as a backdrop, but the image itself paints the
+  // moment it decodes, so it is not held back by `onLoad` plus a transition.
+  const fading = Boolean(blurDataUrl) && !disableFade;
 
   return (
     <span className={cn("relative block size-full overflow-hidden", className)}>
@@ -88,6 +96,7 @@ export function ResourceImage({
         src={image}
         alt={alt}
         loading={loading}
+        fetchPriority={fetchPriority}
         decoding="async"
         referrerPolicy="no-referrer"
         onLoad={() => setState((current) => ({ ...current, loaded: true }))}

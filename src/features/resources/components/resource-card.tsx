@@ -26,11 +26,18 @@ export function ResourceCard({
   href,
   query,
   onOpen,
+  loading = "lazy",
+  fetchPriority = "auto",
+  disableFade = false,
 }: {
   resource: Resource;
   href: string;
   query: string;
   onOpen: () => void;
+  /** Set by the grid for tiles that sit above the fold. */
+  loading?: "eager" | "lazy";
+  fetchPriority?: "high" | "low" | "auto";
+  disableFade?: boolean;
 }) {
   return (
     <article className="group relative min-w-0 rounded-xl">
@@ -41,6 +48,9 @@ export function ResourceCard({
           name={resource.name}
           icon={resource.icon}
           url={resource.normalizedUrl}
+          loading={loading}
+          fetchPriority={fetchPriority}
+          disableFade={disableFade}
         />
         {resource.isNew ? (
           <span className="absolute right-2 top-2 rounded-sm bg-my-secondary px-1.5 py-0.5 font-archivo text-[10px] font-medium capitalize text-white">

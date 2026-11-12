@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   type ReactNode,
   type RefObject,
@@ -592,6 +592,7 @@ export default function NavbarClient({
   const [activePanel, setActivePanel] = useState<PanelKind>(null);
   const menuRef = useRef<MenuIconHandle>(null);
   const pathname = usePathname();
+  const router = useRouter();
   // const lenis = useLenis();
 
   const { isAnimating, lock, handleAnimStart, handleAnimComplete } =
@@ -615,10 +616,11 @@ export default function NavbarClient({
    * navbar (which lives in the root layout) does not need a Suspense boundary
    * just to watch a query string it only cares about on a click.
    *
-   * Rewrites the entry with the History API rather than `router.replace`: the
-   * sheet is client state, and a server navigation here would re-render the
-   * catalog behind a panel that is about to cover it. `replaceUrl` notifies the
-   * sheet owner, which is how it learns to close.
+   * `/resources` owns its sheet on the client, so a History API write is enough:
+   * `replaceUrl` notifies the owner, which closes without re-rendering the
+   * catalog behind the panel. The other catalogs (`?slug=`) still read the sheet
+   * from a server prop, so they need a real navigation — a History API write
+   * there would leave the sheet open under the panel while the URL says closed.
    */
   const releaseOpenSheet = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
@@ -634,8 +636,15 @@ export default function NavbarClient({
     if (!changed) return;
 
     const query = params.toString();
-    replaceUrl(query ? `${pathname}?${query}` : pathname);
-  }, [pathname]);
+    const href = query ? `${pathname}?${query}` : pathname;
+
+    if (pathname === "/resources") {
+      replaceUrl(href);
+      return;
+    }
+
+    router.replace(href, { scroll: false });
+  }, [pathname, router]);
 
   // ⌘K / Ctrl K from anywhere, and Esc for whichever panel is open. Both live
   // here (not in the panel) so they work while focus sits outside the input,
