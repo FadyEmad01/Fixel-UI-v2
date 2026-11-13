@@ -4,11 +4,12 @@ import { isPostHogEnabled } from "@/lib/posthog";
 import { posthogLogCapture } from "@/lib/posthog-log-capture";
 
 const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
-const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
-if (isPostHogEnabled() && token && host) {
+if (isPostHogEnabled() && token) {
   posthog.init(token, {
-    api_host: host,
+    // Reverse proxy defined in next.config.ts rewrites.
+    api_host: "/ingest",
+    ui_host: "https://eu.posthog.com",
     defaults: "2026-08-30",
     capture_pageview: "history_change",
     capture_pageleave: "if_capture_pageview",
