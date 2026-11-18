@@ -13,6 +13,25 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
+  // Serve PostHog under our own domain so ad blockers don't drop browser events.
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://eu-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/array/:path*",
+        destination: "https://eu-assets.i.posthog.com/array/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://eu.i.posthog.com/:path*",
+      },
+    ];
+  },
+  // PostHog API paths end with a slash (e.g. /e/, /flags/).
+  skipTrailingSlashRedirect: true,
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
