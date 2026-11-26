@@ -1,7 +1,9 @@
 documentation:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '**/*.md'
-          - '**/*.mdx'
-          - 'docs/**'
-          - 'content/**'
+  - '*.md'
+  - '**/*.md'
+  - '**/*.mdx'
+  - docs/**
+  - content/**
+
+accessibility:
+  - src/**/accessibility/**
