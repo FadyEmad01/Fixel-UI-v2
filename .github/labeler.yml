@@ -1,5 +1,9 @@
 documentation:
+  - '*.md'
   - '**/*.md'
   - '**/*.mdx'
   - docs/**
   - content/**
+
+accessibility:
+  - src/**/accessibility/**
